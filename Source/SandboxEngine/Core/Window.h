@@ -1,13 +1,15 @@
 #pragma once
 
-#include "sndpch.h"
 #include "Core.h"
+#include "SandboxEngine/Events/Event.h"
 
 namespace snd
 {
-	class SND_API Window
+	class Window
 	{
 	public:
+		using EventCallbackFn = std::function<void(Event&)>;
+
 		struct Props
 		{
 			std::string Title = "Sandbox Engine";
@@ -24,7 +26,10 @@ namespace snd
 
 		inline virtual uint32_t GetWidth() const = 0;
 		inline virtual uint32_t GetHeight() const = 0;
+		inline virtual const char* GetTitle() const = 0;
 		
+		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
+
 		virtual bool IsVsync() const = 0;
 		virtual void SetVsync(bool enable) = 0;
 

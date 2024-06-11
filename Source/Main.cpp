@@ -1,4 +1,4 @@
-#include "SandboxEngine/EntryPoint.h"
+#include "SandboxEngine/Core/EntryPoint.h"
 
 int main(int argc, const char** argv)
 {

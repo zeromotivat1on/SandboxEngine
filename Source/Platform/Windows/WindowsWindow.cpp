@@ -1,12 +1,13 @@
 #include "sndpch.h"
 #include "WindowsWindow.h"
+#include "SandboxEngine/Events/WindowEvent.h"
 #include <GLFW/glfw3native.h>
 
 static uint8_t s_GlfwWindowCount = 0;
 
 static void GLFWErrorCallback(int error, const char* description)
 {
-	SND_ERROR("GLFW Error {}: {}", error, description);
+	SND_LOG_ERROR("GLFW Error {}: {}", error, description);
 }
 
 snd::Window* snd::Window::Create(const snd::Window::Props& props /*= {}*/)
@@ -38,7 +39,7 @@ void snd::WindowsWindow::Init(const Window::Props& props)
 		glfwSetErrorCallback(GLFWErrorCallback);
 	}
 
-	SND_INFO("Creating window \"{}\" {}x{}", props.Title, props.Width, props.Height);
+	SND_LOG_INFO("Creating window \"{}\" {}x{}", props.Title, props.Width, props.Height);
 
 	m_Data.Title = props.Title;
 	m_Data.Width = props.Width;
@@ -51,6 +52,9 @@ void snd::WindowsWindow::Init(const Window::Props& props)
 	SetVsync(true);
 
 	s_GlfwWindowCount++;
+
+	glfwSetWindowCloseCallback(m_Window, WindowsWindow::OnClose);
+	glfwSetWindowSizeCallback(m_Window, WindowsWindow::OnResize);
 }
 
 void snd::WindowsWindow::Shutdown()
@@ -64,6 +68,24 @@ void snd::WindowsWindow::Shutdown()
 	}
 }
 
+void snd::WindowsWindow::OnClose(GLFWwindow* window)
+{
+	Data& data = *(Data*)glfwGetWindowUserPointer(window);
+
+	WindowCloseEvent event;
+	data.EventCallback(event);
+}
+
+void snd::WindowsWindow::OnResize(GLFWwindow* window, int width, int height)
+{
+	Data& data = *(Data*)glfwGetWindowUserPointer(window);
+	data.Width = width;
+	data.Height = height;
+
+	WindowResizeEvent event(width, height);
+	data.EventCallback(event);
+}
+
 bool snd::WindowsWindow::IsVsync() const
 {
 	return m_Data.Vsync;
@@ -72,9 +94,6 @@ bool snd::WindowsWindow::IsVsync() const
 void snd::WindowsWindow::SetVsync(bool enable)
 {
 	m_Data.Vsync = enable;
-
-	// TODO: Should be called only if rendering API is OpenGL / OpenGL ES
-	glfwSwapInterval(int(enable));
 }
 
 bool snd::WindowsWindow::ShouldClose() const
@@ -85,7 +104,4 @@ bool snd::WindowsWindow::ShouldClose() const
 void snd::WindowsWindow::OnUpdate() const
 {
 	glfwPollEvents();
-
-	// TODO: Should be called only if rendering API is OpenGL / OpenGL ES
-	glfwSwapBuffers(m_Window);
 }
