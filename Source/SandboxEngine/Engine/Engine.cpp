@@ -1,6 +1,8 @@
 #include "sndpch.h"
 #include "Engine.h"
-#include <bgfx/bgfx.h>
+#include "SandboxEngine/UI/UI.h"
+#include "SandboxEngine/Core/Input.h"
+#include "SandboxEngine/Render/Render.h"
 
 snd::Engine::Engine(std::unique_ptr<Window>&& window)
 	: m_Window(std::move(window))
@@ -15,84 +17,105 @@ snd::Engine::~Engine()
 
 bool snd::Engine::IsRunning() const
 {
-	return !m_Window->ShouldClose();
+	return !m_ExitRequested;
 }
 
 void snd::Engine::Init()
 {
 	SND_SCOPE_TIMER(__FUNCTION__);
+	SND_LOG_INFO("Initializing the engine");
 
 	m_Window->SetEventCallback(SND_BIND_EVENT_FN(Engine::OnEvent));
 
-	bgfx::Init bgfxInit;
-	bgfxInit.type = bgfx::RendererType::Count;
-	bgfxInit.platformData.nwh = m_Window->GetNativeHandle();
-	bgfxInit.resolution.width = m_Window->GetWidth();
-	bgfxInit.resolution.height = m_Window->GetHeight();
-
-	if (m_Window->IsVsync())
-	{
-		bgfxInit.resolution.reset |= BGFX_RESET_VSYNC;
-	}
-
-	bgfx::init(bgfxInit);
-
-	bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x443355FF, 1.0f, 0);
-
-#ifdef SND_DEBUG
-	bgfx::setDebug(BGFX_DEBUG_TEXT);
-#endif
-
-	SND_LOG_INFO("Using Renderer API \"{}\"", bgfx::getRendererName(bgfx::getRendererType()));
+	input::Init(m_Window.get());
+	render::Init(m_Window.get());
+	ui::Init(m_Window.get());
 }
 
 void snd::Engine::Shutdown()
 {
-	bgfx::shutdown();
+	SND_LOG_INFO("Shutting down the engine");
+
+	input::Shutdown();
+	ui::Shutdown();
+	render::Shutdown();
 }
 
 void snd::Engine::OnEvent(Event& event)
 {
+#define DISPATCH_EVENT(eventType) dispatcher.Dispatch<eventType##Event>(SND_BIND_EVENT_FN(Engine::On##eventType))
+
 	EventDispatcher dispatcher(event);
-	dispatcher.Dispatch<WindowCloseEvent>(SND_BIND_EVENT_FN(Engine::OnWindowClose));
-	dispatcher.Dispatch<WindowResizeEvent>(SND_BIND_EVENT_FN(Engine::OnWindowResize));
+	DISPATCH_EVENT(WindowClosed);
+	DISPATCH_EVENT(WindowResized);
+	DISPATCH_EVENT(KeyPressed);
+	DISPATCH_EVENT(KeyReleased);
+	DISPATCH_EVENT(KeyTyped);
+	DISPATCH_EVENT(MouseMoved);
+	DISPATCH_EVENT(MouseScrolled);
+	DISPATCH_EVENT(MouseKeyPressed);
+	DISPATCH_EVENT(MouseKeyReleased);
+
+#undef DISPATCH_EVENT
 }
 
-bool snd::Engine::OnWindowClose(WindowCloseEvent& event)
+bool snd::Engine::OnWindowClosed(WindowClosedEvent& event)
 {
-	SND_LOG_INFO("Closing window \"{}\"", m_Window->GetTitle());
+	SND_LOG_TRACE("Window \"{}\" was manually closed, shutting down", m_Window->GetTitle());
+	m_ExitRequested = true;
 	return true;
 }
 
-bool snd::Engine::OnWindowResize(WindowResizeEvent& event)
+bool snd::Engine::OnWindowResized(WindowResizedEvent& event)
 {
-	uint32_t flags = 0;
+	render::OnWindowResized(event.GetWidth(), event.GetHeight());
+	return true;
+}
 
-	if (m_Window->IsVsync())
+bool snd::Engine::OnKeyPressed(KeyPressedEvent& event)
+{
+	return true;
+}
+
+bool snd::Engine::OnKeyReleased(KeyReleasedEvent& event)
+{
+	if (event.GetKeyCode() == KeyCode::Escape)
 	{
-		flags |= BGFX_RESET_VSYNC;
+		SND_LOG_TRACE("Manual shutdown was requested", m_Window->GetTitle());
+		m_ExitRequested = true;
 	}
 
-	bgfx::reset(event.GetWidth(), event.GetHeight(), flags);
+	return true;
+}
 
+bool snd::Engine::OnKeyTyped(KeyTypedEvent& event)
+{
+	return true;
+}
+
+bool snd::Engine::OnMouseMoved(MouseMovedEvent& event)
+{
+	return true;
+}
+
+bool snd::Engine::OnMouseScrolled(MouseScrolledEvent& event)
+{
+	return true;
+}
+
+bool snd::Engine::OnMouseKeyPressed(MouseKeyPressedEvent& event)
+{
+	return true;
+}
+
+bool snd::Engine::OnMouseKeyReleased(MouseKeyReleasedEvent& event)
+{
 	return true;
 }
 
 void snd::Engine::Tick(float dt)
 {
-	bgfx::setViewRect(0, 0, 0, uint16_t(m_Window->GetWidth()), uint16_t(m_Window->GetHeight()));
-
-	// This dummy draw call is here to make sure that view 0 is cleared
-	// if no other draw calls are submitted to view 0.
-	bgfx::touch(0);
-
-	bgfx::dbgTextClear();
-	bgfx::dbgTextPrintf(1, 1, 0x0f, "Window size: %dx%d", m_Window->GetWidth(), m_Window->GetHeight());
-	bgfx::dbgTextPrintf(1, 2, 0x0f, "Delta time: %.2fms", (dt * 1000.0f));
-	bgfx::dbgTextPrintf(1, 3, 0x0f, "FPS: %.2f", (1.0f / dt));
-	bgfx::dbgTextPrintf(1, 4, 0x0f, "Vsync: %s", m_Window->IsVsync() ? "ON" : "OFF");
-	
-	bgfx::frame();
-
-	m_Window->OnUpdate();
+	m_Window->Tick(dt);
+	ui::Tick(dt);
+	render::Tick(dt);
 }

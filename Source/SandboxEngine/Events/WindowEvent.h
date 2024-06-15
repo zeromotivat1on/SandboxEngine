@@ -4,10 +4,10 @@
 
 namespace snd
 {
-	class WindowResizeEvent : public Event
+	class WindowResizedEvent : public Event
 	{
 	public:
-		WindowResizeEvent(uint32_t width, uint32_t height)
+		WindowResizedEvent(uint32_t width, uint32_t height)
 			: m_Width(width), m_Height(height) {}
 
 		inline uint32_t GetWidth() const { return m_Width; }
@@ -20,20 +20,20 @@ namespace snd
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(WindowResize)
-		EVENT_CLASS_CATEGORY(EventCategory::Window)
+		EVENT_CLASS_TYPE(WindowResized);
+		EVENT_CLASS_CATEGORY(uint32_t(EventCategory::Window));
 
 	private:
 		uint32_t m_Width; 
 		uint32_t m_Height;
 	};
 
-	class WindowCloseEvent : public Event
+	class WindowClosedEvent : public Event
 	{
 	public:
-		WindowCloseEvent() = default;
+		WindowClosedEvent() = default;
 
-		EVENT_CLASS_TYPE(WindowClose)
-		EVENT_CLASS_CATEGORY(EventCategory::Window)
+		EVENT_CLASS_TYPE(WindowClosed);
+		EVENT_CLASS_CATEGORY(uint32_t(EventCategory::Window));
 	};
 }

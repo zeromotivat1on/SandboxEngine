@@ -22,6 +22,7 @@ namespace snd
 
 		virtual ~Window() = default;
 
+		virtual void* GetHandle() const = 0;
 		virtual void* GetNativeHandle() const = 0;
 
 		inline virtual uint32_t GetWidth() const = 0;
@@ -35,6 +36,6 @@ namespace snd
 
 		virtual bool ShouldClose() const = 0;
 
-		virtual void OnUpdate() const = 0;
+		virtual void Tick(float dt) const = 0;
 	};
 }

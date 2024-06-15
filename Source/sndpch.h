@@ -17,5 +17,6 @@
 #include <cstdlib>
 
 #ifdef SND_PLATFORM_WINDOWS
+	#define NOMINMAX // disable windows min/max macro definitions to avoid possible name conflicts
 	#include "Windows.h"
 #endif

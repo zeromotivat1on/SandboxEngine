@@ -20,6 +20,7 @@ namespace snd
 		WindowsWindow(const Window::Props& props);
 		virtual ~WindowsWindow();
 
+		void* GetHandle() const override;
 		void* GetNativeHandle() const override;
 
 		inline uint32_t GetWidth() const override { return m_Data.Width; }
@@ -33,7 +34,7 @@ namespace snd
 
 		bool ShouldClose() const override;
 
-		void OnUpdate() const override;
+		void Tick(float dt) const override;
 
 	private:
 		void Init(const Window::Props& props);
@@ -42,6 +43,11 @@ namespace snd
 	private:
 		static void OnClose(GLFWwindow* window);
 		static void OnResize(GLFWwindow* window, int width, int height);
+		static void OnKey(GLFWwindow* window, int key, int scancode, int action, int mods);
+		static void OnSetChar(GLFWwindow* window, unsigned int key);
+		static void OnMouseMove(GLFWwindow* window, double xPos, double yPos);
+		static void OnMouseScroll(GLFWwindow* window, double xOffset, double yOffset);
+		static void OnMouseKey(GLFWwindow* window, int key, int action, int mods);
 
 	private:
 		GLFWwindow* m_Window = nullptr;

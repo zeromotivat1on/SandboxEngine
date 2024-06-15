@@ -9,29 +9,31 @@
 #endif
 
 #ifdef SND_DEBUG_PROFILE
-	#define SND_SCOPE_TIMER(Name) ::snd::ScopeTimer GLUE(__scope_timer_, __LINE__)(Name)
+	#define SND_SCOPE_TIMER(Name) ::snd::ScopeTimer GLUE(__snd_scope_timer_, __LINE__)(Name)
 #else
 	#define SND_SCOPE_TIMER(Name)
 #endif
 
+#ifdef SND_DEBUG_PROFILE
 namespace snd
 {
 	struct ScopeTimer
 	{
 	public:
 		ScopeTimer(const char* name)
-			: _Name(name)
+			: m_Name(name)
 		{
-			_Timer.Start();
+			m_Timer.Start();
 		}
 
 		~ScopeTimer()
 		{
-			SND_LOG_DEBUG("[{}]: {:.2f}ms", _Name, _Timer.Stop<Timer::Milliseconds>());
+			SND_LOG_DEBUG("[{}]: {:.2f}ms", m_Name, m_Timer.Stop<Timer::Milliseconds>());
 		}
 
 	private:
-		Timer _Timer;
-		const char* _Name;
+		Timer m_Timer;
+		const char* m_Name;
 	};
 }
+#endif

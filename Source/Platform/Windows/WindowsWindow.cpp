@@ -1,7 +1,9 @@
 #include "sndpch.h"
 #include "WindowsWindow.h"
-#include "SandboxEngine/Events/WindowEvent.h"
 #include <GLFW/glfw3native.h>
+#include "SandboxEngine/Events/WindowEvent.h"
+#include "SandboxEngine/Events/KeyEvent.h"
+#include "SandboxEngine/Events/MouseEvent.h"
 
 static uint8_t s_GlfwWindowCount = 0;
 
@@ -23,6 +25,11 @@ snd::WindowsWindow::WindowsWindow(const Window::Props& props)
 snd::WindowsWindow::~WindowsWindow()
 {
 	Shutdown();
+}
+
+void* snd::WindowsWindow::GetHandle() const
+{
+	return m_Window;
 }
 
 void* snd::WindowsWindow::GetNativeHandle() const
@@ -55,6 +62,11 @@ void snd::WindowsWindow::Init(const Window::Props& props)
 
 	glfwSetWindowCloseCallback(m_Window, WindowsWindow::OnClose);
 	glfwSetWindowSizeCallback(m_Window, WindowsWindow::OnResize);
+	glfwSetKeyCallback(m_Window, WindowsWindow::OnKey);
+	glfwSetCharCallback(m_Window, WindowsWindow::OnSetChar);
+	glfwSetCursorPosCallback(m_Window, WindowsWindow::OnMouseMove);
+	glfwSetScrollCallback(m_Window, WindowsWindow::OnMouseScroll);
+	glfwSetMouseButtonCallback(m_Window, WindowsWindow::OnMouseKey);
 }
 
 void snd::WindowsWindow::Shutdown()
@@ -72,7 +84,7 @@ void snd::WindowsWindow::OnClose(GLFWwindow* window)
 {
 	Data& data = *(Data*)glfwGetWindowUserPointer(window);
 
-	WindowCloseEvent event;
+	WindowClosedEvent event;
 	data.EventCallback(event);
 }
 
@@ -82,9 +94,87 @@ void snd::WindowsWindow::OnResize(GLFWwindow* window, int width, int height)
 	data.Width = width;
 	data.Height = height;
 
-	WindowResizeEvent event(width, height);
+	WindowResizedEvent event(width, height);
 	data.EventCallback(event);
 }
+
+void snd::WindowsWindow::OnKey(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	Data& data = *(Data*)glfwGetWindowUserPointer(window);
+	const KeyCode keyCode = KeyCode(key);
+
+	switch (action)
+	{
+	case GLFW_PRESS:
+	{
+		KeyPressedEvent event(keyCode, false);
+		data.EventCallback(event);
+		break;
+	}
+	case GLFW_RELEASE:
+	{
+		KeyReleasedEvent event(keyCode);
+		data.EventCallback(event);
+		break;
+	}
+	case GLFW_REPEAT:
+	{
+		KeyPressedEvent event(keyCode, true);
+		data.EventCallback(event);
+		break;
+	}
+	default: SND_LOG_ERROR("Unknown key action \'{}\'", action);
+	}
+}
+
+void snd::WindowsWindow::OnSetChar(GLFWwindow* window, unsigned int key)
+{
+	Data& data = *(Data*)glfwGetWindowUserPointer(window);
+	const KeyCode keyCode = KeyCode(key);
+
+	KeyTypedEvent event(keyCode);
+	data.EventCallback(event);
+}
+
+void snd::WindowsWindow::OnMouseMove(GLFWwindow* window, double xPos, double yPos)
+{
+	Data& data = *(Data*)glfwGetWindowUserPointer(window);
+
+	MouseMovedEvent event((float)xPos, (float)yPos);
+	data.EventCallback(event);
+}
+
+void snd::WindowsWindow::OnMouseScroll(GLFWwindow* window, double xOffset, double yOffset)
+{
+	Data& data = *(Data*)glfwGetWindowUserPointer(window);
+
+	MouseScrolledEvent event((float)xOffset, (float)yOffset);
+	data.EventCallback(event);
+}
+
+void snd::WindowsWindow::OnMouseKey(GLFWwindow* window, int key, int action, int mods)
+{
+	Data& data = *(Data*)glfwGetWindowUserPointer(window);
+	const MouseCode mouseCode = MouseCode(key);
+
+	switch (action)
+	{
+	case GLFW_PRESS:
+	{
+		MouseKeyPressedEvent event(mouseCode);
+		data.EventCallback(event);
+		break;
+	}
+	case GLFW_RELEASE:
+	{
+		MouseKeyReleasedEvent event(mouseCode);
+		data.EventCallback(event);
+		break;
+	}
+	default: SND_LOG_ERROR("Unknown mouse key action \'{}\'", action);
+	}
+}
+
 
 bool snd::WindowsWindow::IsVsync() const
 {
@@ -101,7 +191,7 @@ bool snd::WindowsWindow::ShouldClose() const
 	return glfwWindowShouldClose(m_Window);
 }
 
-void snd::WindowsWindow::OnUpdate() const
+void snd::WindowsWindow::Tick(float dt) const
 {
 	glfwPollEvents();
 }

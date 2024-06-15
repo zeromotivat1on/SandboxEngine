@@ -6,16 +6,16 @@
 								virtual EventType GetEventType() const override { return GetStaticType(); }	\
 								virtual const char* GetName() const override { return #type; }
 
-#define EVENT_CLASS_CATEGORY(category) virtual uint32_t GetCategoryFlags() const override { return uint32_t(category); }
+#define EVENT_CLASS_CATEGORY(category) virtual uint32_t GetCategoryFlags() const override { return category; }
 
 namespace snd
 {
 	enum class EventType : uint32_t
 	{
 		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
+		WindowClosed, WindowResized, WindowFocused, WindowFocusLost, WindowMoved,
 		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
+		MouseKeyPressed, MouseKeyReleased, MouseMoved, MouseScrolled
 	};
 
 	enum class EventCategory : uint32_t
