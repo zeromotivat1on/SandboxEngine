@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(SOURCE_DIR "${PROJECT_SOURCE_DIR}/Source")
 set(VENDOR_DIR "${SOURCE_DIR}/Vendor")
-set(ENGINE_DIR "${SOURCE_DIR}/SandboxEngine")
 set(PLATFORM_DIR "${SOURCE_DIR}/Platform")
+set(PROJECT_ENGINE_DIR "${SOURCE_DIR}/SandboxEngine")
 
 # Specify project source files
 file(GLOB_RECURSE PROJECT_PRECOMPILED_HEADERS CONFIGURE_DEPENDS 
@@ -17,14 +17,15 @@ file(GLOB_RECURSE PROJECT_PRECOMPILED_HEADERS CONFIGURE_DEPENDS
 )
 
 file(GLOB_RECURSE PROJECT_SOURCE CONFIGURE_DEPENDS 
-    "${ENGINE_DIR}/*.h"
-    "${ENGINE_DIR}/*.cpp"
+    "${PROJECT_ENGINE_DIR}/*.h"
+    "${PROJECT_ENGINE_DIR}/*.cpp"
     "${PLATFORM_DIR}/${CMAKE_SYSTEM_NAME}/*.h"
     "${PLATFORM_DIR}/${CMAKE_SYSTEM_NAME}/*.cpp"
 )
 
 add_executable(${PROJECT_NAME} "${SOURCE_DIR}/Main.cpp" ${PROJECT_SOURCE} ${PROJECT_PRECOMPILED_HEADERS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${VENDOR_DIR})
 target_precompile_headers(${PROJECT_NAME} PUBLIC "${PROJECT_PRECOMPILED_HEADERS}")
 
 if (MSVC)
@@ -64,11 +65,31 @@ endif()
 add_subdirectory("${VENDOR_DIR}/glm")
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 
-# Add BGFX
-add_subdirectory("${VENDOR_DIR}/bgfx")
-target_link_libraries(${PROJECT_NAME} PRIVATE bgfx)
-
 # Add spdlog
 add_subdirectory("${VENDOR_DIR}/spdlog")
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 target_compile_definitions(${PROJECT_NAME} PRIVATE SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE) # set all log levels as active
+
+# Add BGFX
+add_subdirectory("${VENDOR_DIR}/bgfx")
+target_link_libraries(${PROJECT_NAME} PRIVATE bgfx bx bimg)
+
+# Add imgui
+file(GLOB IMGUI_CORE_SOURCE CONFIGURE_DEPENDS 
+    "${VENDOR_DIR}/imgui/*.h"
+    "${VENDOR_DIR}/imgui/*.cpp"
+)
+
+set(IMGUI_BACKEND_SOURCE
+    "${VENDOR_DIR}/imgui/backends/imgui_impl_glfw.h"
+    "${VENDOR_DIR}/imgui/backends/imgui_impl_opengl3.h"
+    "${VENDOR_DIR}/imgui/backends/imgui_impl_glfw.cpp"
+    "${VENDOR_DIR}/imgui/backends/imgui_impl_opengl3.cpp"
+)
+
+add_library(imgui STATIC ${IMGUI_CORE_SOURCE} ${IMGUI_BACKEND_SOURCE})
+target_include_directories(imgui PRIVATE "${VENDOR_DIR}/imgui")
+target_include_directories(imgui PRIVATE "${VENDOR_DIR}/glfw/include")
+target_include_directories(${PROJECT_NAME} PRIVATE "${VENDOR_DIR}/imgui")
+
+target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
