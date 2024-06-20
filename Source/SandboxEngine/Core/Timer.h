@@ -4,6 +4,10 @@
 
 namespace snd
 {
+	int64_t GetHighPrecisionCounter();
+	int64_t GetHighPrecisionFrequency();
+	float GetElapsedSeconds(int64_t counter); // get passed seconds since given high precision counter
+
 	// Encapsulates basic usage of chrono, providing a means to calculate float durations between time points via function calls.
 	class Timer
 	{
@@ -16,28 +20,28 @@ namespace snd
 		using DefaultResolution = Seconds;
 
 	public:
-		Timer() : _StartTime(Clock::now()), _PreviousTick(Clock::now()) {}
+		Timer() : m_StartTime(Clock::now()), m_PreviousTick(Clock::now()) {}
 
 		virtual ~Timer() = default;
 
 	public:
-		inline bool IsRunning() const { return _Running; }
+		inline bool IsRunning() const { return m_Running; }
 
 		// Starts the timer, Elapsed() now returns the duration since Start().
 		void Start()
 		{
-			if (!_Running)
+			if (!m_Running)
 			{
-				_Running = true;
-				_StartTime = Clock::now();
+				m_Running = true;
+				m_StartTime = Clock::now();
 			}
 		}
 
 		// Laps the timer, Elapsed() now returns the duration since the last Lap().
 		void Lap()
 		{
-			_Lapping = true;
-			_LapTime = Clock::now();
+			m_Lapping = true;
+			m_LapTime = Clock::now();
 		}
 
 		// Stops the timer, Elapsed() now returns 0.
@@ -45,17 +49,17 @@ namespace snd
 		template <typename T = DefaultResolution>
 		float Stop()
 		{
-			if (!_Running)
+			if (!m_Running)
 			{
 				return 0;
 			}
 
-			_Running = false;
-			_Lapping = false;
+			m_Running = false;
+			m_Lapping = false;
 
-			auto duration = std::chrono::duration<float, T>(Clock::now() - _StartTime);
-			_StartTime = Clock::now();
-			_LapTime = Clock::now();
+			auto duration = std::chrono::duration<float, T>(Clock::now() - m_StartTime);
+			m_StartTime = Clock::now();
+			m_LapTime = Clock::now();
 
 			return duration.count();
 		}
@@ -65,16 +69,16 @@ namespace snd
 		template <typename T = DefaultResolution>
 		float Elapsed()
 		{
-			if (!_Running)
+			if (!m_Running)
 			{
 				return 0;
 			}
 
-			Clock::time_point start = _StartTime;
+			Clock::time_point start = m_StartTime;
 
-			if (_Lapping)
+			if (m_Lapping)
 			{
-				start = _LapTime;
+				start = m_LapTime;
 			}
 
 			return std::chrono::duration<float, T>(Clock::now() - start).count();
@@ -86,16 +90,16 @@ namespace snd
 		float Tick()
 		{
 			auto now = Clock::now();
-			auto duration = std::chrono::duration<float, T>(now - _PreviousTick);
-			_PreviousTick = now;
+			auto duration = std::chrono::duration<float, T>(now - m_PreviousTick);
+			m_PreviousTick = now;
 			return duration.count();
 		}
 
 	private:
-		bool _Running = false;
-		bool _Lapping = false;
-		Clock::time_point _StartTime;
-		Clock::time_point _LapTime;
-		Clock::time_point _PreviousTick;
+		bool m_Running = false;
+		bool m_Lapping = false;
+		Clock::time_point m_StartTime;
+		Clock::time_point m_LapTime;
+		Clock::time_point m_PreviousTick;
 	};
 }

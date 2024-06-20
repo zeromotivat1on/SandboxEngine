@@ -20,3 +20,4 @@
 #include "SandboxEngine/Core/Error.h"
 #include "SandboxEngine/Core/Timer.h"
 #include "SandboxEngine/Core/Profile.h"
+#include "SandboxEngine/Core/FileSystem.h"

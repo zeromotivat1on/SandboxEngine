@@ -24,26 +24,25 @@ static const bgfx::Memory* LoadMemory(bx::FileReaderI* reader, const bx::FilePat
 	return nullptr;
 }
 
-
 static bgfx::ShaderHandle LoadShader(bx::FileReaderI* reader, const char* name)
 {
-	bx::FilePath filePath("Shaders/");
+	bx::FilePath filePath("Shaders/Bin/");
 
-	switch (bgfx::getRendererType())
-	{
-	case bgfx::RendererType::Noop:
-	case bgfx::RendererType::Direct3D11:
-	case bgfx::RendererType::Direct3D12:	filePath.join("dx11");  break;
-	case bgfx::RendererType::Agc:
-	case bgfx::RendererType::Gnm:			filePath.join("pssl");  break;
-	case bgfx::RendererType::Metal:			filePath.join("metal"); break;
-	case bgfx::RendererType::Nvn:			filePath.join("nvn");   break;
-	case bgfx::RendererType::OpenGL:		filePath.join("glsl");  break;
-	case bgfx::RendererType::OpenGLES:		filePath.join("essl");  break;
-	case bgfx::RendererType::Vulkan:		filePath.join("spirv"); break;
-	case bgfx::RendererType::Count:		
-	default:								SND_ASSERT(false, "You should not be here!"); break;
-	}
+	//switch (bgfx::getRendererType())
+	//{
+	//case bgfx::RendererType::Noop:
+	//case bgfx::RendererType::Direct3D11:
+	//case bgfx::RendererType::Direct3D12:	filePath.join("dx11");  break;
+	//case bgfx::RendererType::Agc:
+	//case bgfx::RendererType::Gnm:			filePath.join("pssl");  break;
+	//case bgfx::RendererType::Metal:			filePath.join("metal"); break;
+	//case bgfx::RendererType::Nvn:			filePath.join("nvn");   break;
+	//case bgfx::RendererType::OpenGL:		filePath.join("glsl");  break;
+	//case bgfx::RendererType::OpenGLES:		filePath.join("essl");  break;
+	//case bgfx::RendererType::Vulkan:		filePath.join("spirv"); break;
+	//case bgfx::RendererType::Count:		
+	//default:								SND_ASSERT(false, "You should not be here!"); break;
+	//}
 
 	char fileName[512];
 	bx::strCopy(fileName, BX_COUNTOF(fileName), name);
