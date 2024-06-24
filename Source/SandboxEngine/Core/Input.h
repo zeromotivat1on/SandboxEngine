@@ -13,4 +13,5 @@ namespace snd::input
 	bool IsMouseKeyPressed(MouseCode button);
 	float GetMouseX();
 	float GetMouseY();
+	glm::vec2 GetMousePosition();
 }

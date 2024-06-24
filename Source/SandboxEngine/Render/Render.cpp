@@ -3,9 +3,11 @@
 #include "SandboxEngine/Core/FileSystem.h"
 #include <bgfx/bgfx.h>
 #include <bx/math.h>
+#include <glm/gtc/type_ptr.hpp>
 
 // Current window we render on.
 static snd::Window* s_Window = nullptr;
+static snd::render::Camera s_Camera;
 
 struct PosColorVertex
 {
@@ -94,6 +96,13 @@ void snd::render::Init(Window* window)
 	s_ibh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeTriList, sizeof(s_cubeTriList)));
 
 	s_TestTimer.Start();
+
+	s_Camera.At = glm::vec3(0.0f);
+	s_Camera.Up = glm::vec3(0.0f, 1.0f, 0.0f);
+	s_Camera.Eye = glm::vec3(0.0f, 0.0f, -35.0f);
+	s_Camera.Fov = 60.0f;
+	s_Camera.Near = 0.1f;
+	s_Camera.Far = 1000.0f;
 }
 
 void snd::render::Shutdown()
@@ -113,29 +122,26 @@ void snd::render::OnWindowResized(uint32_t width, uint32_t height)
 	bgfx::reset(width, height, flags);
 }
 
+void snd::render::SetViewTransform(int32_t viewId, const glm::mat4& view, const glm::mat4& proj)
+{
+	bgfx::setViewTransform(viewId, glm::value_ptr(view), glm::value_ptr(proj));
+}
+
+snd::render::Camera& snd::render::GetCamera()
+{
+	return s_Camera;
+}
+
 void snd::render::Tick(float dt)
 {
-	// Set view and projection matrix for view 0.
-	{
-		const bx::Vec3 at = { 0.0f, 0.0f, 0.0f };
-		const bx::Vec3 eye = { 0.0f, 0.0f, -35.0f };
+	SetViewTransform(0, s_Camera.ViewMatrix(), s_Camera.PerpsectiveProjectionMatrix(s_Window->GetAspectRatio()));
 
-		float view[16];
-		bx::mtxLookAt(view, eye, at);
-
-		float proj[16];
-		bx::mtxProj(proj, 60.0f, float(s_Window->GetWidth()) / float(s_Window->GetHeight()), 0.1f, 1000.0f, bgfx::getCaps()->homogeneousDepth);
-		bgfx::setViewTransform(0, view, proj);
-
-		// Set view 0 default viewport.
-		bgfx::setViewRect(0, 0, 0, uint16_t(s_Window->GetWidth()), uint16_t(s_Window->GetHeight()));
-	}
+	bgfx::setViewRect(0, 0, 0, (uint16_t)s_Window->GetWidth(), (uint16_t)s_Window->GetHeight());
 
 	// This dummy draw call is here to make sure that view 0 is cleared
 	// if no other draw calls are submitted to view 0.
 	bgfx::touch(0);
 
-	// Clear buffer for debug info.
 	bgfx::dbgTextClear();
 
 	const float time = s_TestTimer.Elapsed();

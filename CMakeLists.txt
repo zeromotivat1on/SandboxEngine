@@ -74,6 +74,7 @@ endif()
 # Add GLM
 add_subdirectory("${VENDOR_DIR}/glm")
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
+target_compile_definitions(${PROJECT_NAME} PRIVATE  GLM_ENABLE_EXPERIMENTAL)
 
 # Add spdlog
 add_subdirectory("${VENDOR_DIR}/spdlog")

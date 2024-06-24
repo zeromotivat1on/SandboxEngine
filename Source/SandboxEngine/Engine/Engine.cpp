@@ -74,6 +74,26 @@ bool snd::Engine::OnWindowResized(WindowResizedEvent& event)
 
 bool snd::Engine::OnKeyPressed(KeyPressedEvent& event)
 {
+	switch (event.GetKeyCode())
+	{
+	case KeyCode::A:
+		render::GetCamera().MoveLeft(1.0f); break;
+	case KeyCode::D:
+		render::GetCamera().MoveRight(1.0f); break;
+	case KeyCode::W:
+		render::GetCamera().MoveForward(1.0f); break;
+	case KeyCode::S:
+		render::GetCamera().MoveBackward(1.0f); break;
+	case KeyCode::Left:
+		render::GetCamera().RotateLeft(1.0f); break;
+	case KeyCode::Right:
+		render::GetCamera().RotateRight(1.0f); break;
+	case KeyCode::Up:
+		render::GetCamera().RotateUp(1.0f); break;
+	case KeyCode::Down:
+		render::GetCamera().RotateDown(1.0f); break;
+	}
+
 	return true;
 }
 

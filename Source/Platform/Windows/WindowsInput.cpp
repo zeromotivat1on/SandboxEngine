@@ -12,12 +12,13 @@ void snd::input::Init(Window* window)
 
 void snd::input::Shutdown()
 {
+	s_GlfwWindow = nullptr;
 }
 
 bool snd::input::IsKeyPressed(KeyCode key)
 {
 	const int state = glfwGetKey(s_GlfwWindow, static_cast<int32_t>(key));
-	return state == GLFW_PRESS;
+	return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
 bool snd::input::IsMouseKeyPressed(MouseCode mouse)
@@ -28,18 +29,19 @@ bool snd::input::IsMouseKeyPressed(MouseCode mouse)
 
 float snd::input::GetMouseX()
 {
-	double xpos = 0.0; 
-	double ypos = 0.0f;
-	glfwGetCursorPos(s_GlfwWindow, &xpos, &ypos);
-
-	return (float)xpos;
+	return GetMousePosition().x;
 }
 
 float snd::input::GetMouseY()
+{
+	return GetMousePosition().y;
+}
+
+glm::vec2 snd::input::GetMousePosition()
 {
 	double xpos = 0.0;
 	double ypos = 0.0f;
 	glfwGetCursorPos(s_GlfwWindow, &xpos, &ypos);
 
-	return (float)ypos;
+	return glm::vec2((float)xpos, (float)ypos);
 }
