@@ -7,6 +7,7 @@
 namespace snd::input
 {
 	void Init(Window* window);
+	void Tick(float dt);
 	void Shutdown();
 
 	bool IsKeyPressed(KeyCode key);

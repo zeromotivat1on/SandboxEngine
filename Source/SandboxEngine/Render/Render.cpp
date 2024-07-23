@@ -1,13 +1,14 @@
 #include "sndpch.h"
 #include "SandboxEngine/Render/Render.h"
 #include "SandboxEngine/Core/FileSystem.h"
+#include "SandboxEngine/World/Camera.h"
 #include <bgfx/bgfx.h>
 #include <bx/math.h>
 #include <glm/gtc/type_ptr.hpp>
 
 // Current window we render on.
 static snd::Window* s_Window = nullptr;
-static snd::render::Camera s_Camera;
+static snd::Camera* s_Camera = nullptr;
 
 struct PosColorVertex
 {
@@ -68,7 +69,7 @@ void snd::render::Init(Window* window)
 	s_Window = window;
 
 	bgfx::Init bgfxInit;
-	bgfxInit.type = bgfx::RendererType::Count;
+	bgfxInit.type = bgfx::RendererType::OpenGL;
 	bgfxInit.platformData.nwh = window->GetNativeHandle();
 	bgfxInit.resolution.width = window->GetWidth();
 	bgfxInit.resolution.height = window->GetHeight();
@@ -96,13 +97,6 @@ void snd::render::Init(Window* window)
 	s_ibh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeTriList, sizeof(s_cubeTriList)));
 
 	s_TestTimer.Start();
-
-	s_Camera.At = glm::vec3(0.0f);
-	s_Camera.Up = glm::vec3(0.0f, 1.0f, 0.0f);
-	s_Camera.Eye = glm::vec3(0.0f, 0.0f, -35.0f);
-	s_Camera.Fov = 60.0f;
-	s_Camera.Near = 0.1f;
-	s_Camera.Far = 1000.0f;
 }
 
 void snd::render::Shutdown()
@@ -122,20 +116,22 @@ void snd::render::OnWindowResized(uint32_t width, uint32_t height)
 	bgfx::reset(width, height, flags);
 }
 
-void snd::render::SetViewTransform(int32_t viewId, const glm::mat4& view, const glm::mat4& proj)
+void snd::render::SetCamera(snd::Camera* camera)
 {
-	bgfx::setViewTransform(viewId, glm::value_ptr(view), glm::value_ptr(proj));
+	SND_ASSERT(camera);
+	s_Camera = camera;
 }
 
-snd::render::Camera& snd::render::GetCamera()
+std::string ToString(const glm::vec3& vec)
 {
-	return s_Camera;
+	std::ostringstream oss;
+	oss << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
+	return oss.str();
 }
 
 void snd::render::Tick(float dt)
 {
-	SetViewTransform(0, s_Camera.ViewMatrix(), s_Camera.PerpsectiveProjectionMatrix(s_Window->GetAspectRatio()));
-
+	bgfx::setViewTransform(0, glm::value_ptr(s_Camera->GetViewMatrix()), glm::value_ptr(s_Camera->GetProjectionMatrix()));
 	bgfx::setViewRect(0, 0, 0, (uint16_t)s_Window->GetWidth(), (uint16_t)s_Window->GetHeight());
 
 	// This dummy draw call is here to make sure that view 0 is cleared
@@ -151,6 +147,8 @@ void snd::render::Tick(float dt)
 	bgfx::dbgTextPrintf(1, 3, 0x0f, "Delta time: %.2fms", (dt * 1000.0f));
 	bgfx::dbgTextPrintf(1, 4, 0x0f, "FPS: %.2f", (1.0f / dt));
 	bgfx::dbgTextPrintf(1, 5, 0x0f, "Vsync: %s", s_Window->IsVsync() ? "ON" : "OFF");
+
+	bgfx::dbgTextPrintf(1, 6, 0x0f, "Camera: location %s, target %s", ToString(s_Camera->GetLocation()).c_str(), ToString(s_Camera->GetTarget()).c_str());
 
 	for (uint32_t yy = 0; yy < 11; ++yy)
 	{

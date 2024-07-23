@@ -4,38 +4,37 @@
 
 namespace snd::render
 {
-	// Data structure to manipulate and get camera-specific data.
+	// Data structure to manipulate and calculate camera-specific data.
 	struct Camera
 	{
-		glm::vec3 At;
-		glm::vec3 Up;
-		glm::vec3 Eye;
+		glm::vec3 At = {};	// the point in space the camera is looking at (target position)
+		glm::vec3 Up = {};	// the up vector defining the camera's vertical direction
+		glm::vec3 Eye = {};	// the position of the camera in the world space
 
-		float Fov;	// how wide camera can see
-		float Near;	// how near camera can see
-		float Far;	// how far camera can see
+		float Fov = 0.0f;		// the field of camera view
+		float Aspect = 0.0f;	// the aspect ratio
+
+		float Near = 0.0f;		// the camera near clipping plane
+		float Far = 0.0f;		// the camera far clipping plane
+
+		float Left = 0.0f;		// the camera left clipping plane
+		float Right = 0.0f;		// the camera right clipping plane
+		float Bottom = 0.0f;	// the camera bottom clipping plane
+		float Top = 0.0f;		// the camera top clipping plane
 
 		// Calculate and get view matrix.
-		glm::mat4 ViewMatrix();
+		glm::mat4 ViewMatrix() const;
 
 		// Calculate and get perspective projection matrix.
-		glm::mat4 PerpsectiveProjectionMatrix(float aspect);
+		glm::mat4 PerpsectiveProjectionMatrix() const;
 		
 		// Calculate and get orthographic projection matrix.
-		glm::mat4 OrthographicProjectionMatrix(float l, float r, float b, float t);
-		glm::mat4 OrthographicProjectionMatrix(const glm::vec4& data); // data [l, r, b, t]
+		glm::mat4 OrthographicProjectionMatrix() const;
 
-		glm::vec3 ForwardVector();
-		glm::vec3 RightVector();
+		// Calculate camera forward vector.
+		glm::vec3 ForwardVector() const;
 
-		void MoveForward(float delta);
-		void MoveBackward(float delta);
-		void MoveLeft(float delta);
-		void MoveRight(float delta);
-
-		void RotateLeft(float angle);
-		void RotateRight(float angle);
-		void RotateUp(float angle);
-		void RotateDown(float angle);
+		// Calculate camera right vector.
+		glm::vec3 RightVector() const;
 	};
 }

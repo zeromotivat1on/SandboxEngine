@@ -1,79 +1,28 @@
 #include "SandboxEngine/Render/Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/rotate_vector.hpp>
 
-glm::mat4 snd::render::Camera::ViewMatrix()
+glm::mat4 snd::render::Camera::ViewMatrix() const
 {
 	return glm::lookAt(Eye, At, Up);
 }
 
-glm::mat4 snd::render::Camera::PerpsectiveProjectionMatrix(float aspect)
+glm::mat4 snd::render::Camera::PerpsectiveProjectionMatrix() const
 {
-	return glm::perspective(glm::radians(Fov), aspect, Near, Far);
+	return glm::perspective(glm::radians(Fov), Aspect, Near, Far);
 }
 
-glm::mat4 snd::render::Camera::OrthographicProjectionMatrix(float l, float r, float b, float t)
+glm::mat4 snd::render::Camera::OrthographicProjectionMatrix() const
 {
-	return glm::ortho(l, r, b, t, Near, Far);
+	return glm::ortho(Left, Right, Bottom, Top, Near, Far);
 }
 
-glm::mat4 snd::render::Camera::OrthographicProjectionMatrix(const glm::vec4& data)
-{
-	return OrthographicProjectionMatrix(data[0], data[1], data[2], data[3]);
-}
-
-glm::vec3 snd::render::Camera::ForwardVector()
+glm::vec3 snd::render::Camera::ForwardVector() const
 {
 	return glm::normalize(At - Eye);
 }
 
-glm::vec3 snd::render::Camera::RightVector()
+glm::vec3 snd::render::Camera::RightVector() const
 {
 	return glm::normalize(glm::cross(ForwardVector(), Up));
 }
 
-void snd::render::Camera::MoveForward(float delta)
-{
-	const glm::vec3 forward = ForwardVector();
-	Eye += forward * delta;
-	At += forward * delta;
-}
-
-void snd::render::Camera::MoveBackward(float delta)
-{
-	MoveForward(-delta);
-}
-
-void snd::render::Camera::MoveLeft(float delta)
-{
-	const glm::vec3 right = RightVector();
-	Eye -= right * delta;
-	At -= right * delta;
-}
-
-void snd::render::Camera::MoveRight(float delta)
-{
-	MoveLeft(-delta);
-}
-
-void snd::render::Camera::RotateLeft(float angle)
-{
-	const glm::vec3 rotation = glm::rotateY(ForwardVector(), glm::radians(angle));
-	At = Eye + rotation;
-}
-
-void snd::render::Camera::RotateRight(float angle)
-{
-	RotateLeft(-angle);
-}
-
-void snd::render::Camera::RotateUp(float angle)
-{
-	const glm::vec3 rotation = glm::rotate(ForwardVector(), glm::radians(angle), RightVector());
-	At = Eye + rotation;
-}
-
-void snd::render::Camera::RotateDown(float angle)
-{
-	RotateUp(-angle);
-}

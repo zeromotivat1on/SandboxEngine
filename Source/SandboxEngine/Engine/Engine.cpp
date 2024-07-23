@@ -3,6 +3,9 @@
 #include "SandboxEngine/UI/UI.h"
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Render/Render.h"
+#include "SandboxEngine/World/Camera.h"
+
+snd::Camera g_DebugCamera = snd::Camera(snd::Camera::Type::Perspective);
 
 snd::Engine::Engine(std::unique_ptr<Window>&& window)
 	: m_Window(std::move(window))
@@ -30,6 +33,12 @@ void snd::Engine::Init()
 	input::Init(m_Window.get());
 	render::Init(m_Window.get());
 	ui::Init(m_Window.get());
+
+	g_DebugCamera.SetLocation(glm::vec3(0.0f, 0.0f, -35.0f));
+	g_DebugCamera.SetTarget(glm::vec3(0.0f));
+	g_DebugCamera.SetPerspective(60.0f, m_Window->GetAspectRatio(), 0.1f, 1000.0f);
+
+	render::SetCamera(&g_DebugCamera);
 }
 
 void snd::Engine::Shutdown()
@@ -77,21 +86,29 @@ bool snd::Engine::OnKeyPressed(KeyPressedEvent& event)
 	switch (event.GetKeyCode())
 	{
 	case KeyCode::A:
-		render::GetCamera().MoveLeft(1.0f); break;
+		g_DebugCamera.SetMoveSidewayDelta(-1.0f);
+		break;
 	case KeyCode::D:
-		render::GetCamera().MoveRight(1.0f); break;
+		g_DebugCamera.SetMoveSidewayDelta(1.0f);
+		break;
 	case KeyCode::W:
-		render::GetCamera().MoveForward(1.0f); break;
+		g_DebugCamera.SetMoveStraightDelta(1.0f);
+		break;
 	case KeyCode::S:
-		render::GetCamera().MoveBackward(1.0f); break;
+		g_DebugCamera.SetMoveStraightDelta(-1.0f);
+		break;
 	case KeyCode::Left:
-		render::GetCamera().RotateLeft(1.0f); break;
+		g_DebugCamera.SetRotateHorizontallyAngle(-1.0f);
+		break;
 	case KeyCode::Right:
-		render::GetCamera().RotateRight(1.0f); break;
+		g_DebugCamera.SetRotateHorizontallyAngle(1.0f);
+		break;
 	case KeyCode::Up:
-		render::GetCamera().RotateUp(1.0f); break;
+		g_DebugCamera.SetRotateVerticallyAngle(1.0f);
+		break;
 	case KeyCode::Down:
-		render::GetCamera().RotateDown(1.0f); break;
+		g_DebugCamera.SetRotateVerticallyAngle(-1.0f);
+		break;
 	}
 
 	return true;
@@ -103,6 +120,35 @@ bool snd::Engine::OnKeyReleased(KeyReleasedEvent& event)
 	{
 		SND_LOG_TRACE("Manual shutdown was requested", m_Window->GetTitle());
 		m_ExitRequested = true;
+		return true;
+	}
+
+	switch (event.GetKeyCode())
+	{
+	case KeyCode::A:
+		g_DebugCamera.SetMoveSidewayDelta(0.0f);
+		break;
+	case KeyCode::D:
+		g_DebugCamera.SetMoveSidewayDelta(0.0f);
+		break;
+	case KeyCode::W:
+		g_DebugCamera.SetMoveStraightDelta(0.0f);
+		break;
+	case KeyCode::S:
+		g_DebugCamera.SetMoveStraightDelta(0.0f);
+		break;
+	case KeyCode::Left:
+		g_DebugCamera.SetRotateHorizontallyAngle(0.0f);
+		break;
+	case KeyCode::Right:
+		g_DebugCamera.SetRotateHorizontallyAngle(0.0f);
+		break;
+	case KeyCode::Up:
+		g_DebugCamera.SetRotateVerticallyAngle(0.0f);
+		break;
+	case KeyCode::Down:
+		g_DebugCamera.SetRotateVerticallyAngle(0.0f);
+		break;
 	}
 
 	return true;
@@ -136,6 +182,12 @@ bool snd::Engine::OnMouseKeyReleased(MouseKeyReleasedEvent& event)
 void snd::Engine::Tick(float dt)
 {
 	m_Window->Tick(dt);
-	ui::Tick(dt);
+
+	input::Tick(dt);
+	
+	g_DebugCamera.Tick(dt);
+
 	render::Tick(dt);
+
+	ui::Tick(dt);
 }

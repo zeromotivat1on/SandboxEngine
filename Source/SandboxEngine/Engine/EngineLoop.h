@@ -1,10 +1,11 @@
 #pragma once
 
 #include "SandboxEngine/Engine/Engine.h"
-#include "SandboxEngine/Core/Timer.h"
 
 namespace snd
 {
+	inline float GetTargetFramerate() { return 1.0f / 60.0f; }
+
 	class EngineLoop final
 	{
 	public:
@@ -15,6 +16,5 @@ namespace snd
 
 	private:
 		Engine m_Engine;
-		Timer m_TickTimer;
 	};
 }

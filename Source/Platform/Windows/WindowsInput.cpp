@@ -10,6 +10,11 @@ void snd::input::Init(Window* window)
 	SND_ASSERT(s_GlfwWindow, "Given window was null or was not a GLFW window handle");
 }
 
+void snd::input::Tick(float dt)
+{
+
+}
+
 void snd::input::Shutdown()
 {
 	s_GlfwWindow = nullptr;

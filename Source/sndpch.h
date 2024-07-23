@@ -15,6 +15,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <cmath>
 
 #ifdef SND_PLATFORM_WINDOWS
 	#define NOMINMAX // disable windows min/max macro definitions to avoid possible name conflicts
