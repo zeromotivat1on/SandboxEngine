@@ -23,6 +23,14 @@ static void ConvertBits(int32_t* outConvertedBits)
 	}
 }
 
+template<typename T>
+static void DetectButtonsUpDown(const T& thisFrameButtons, const T& prevFrameButtons, T& outDowns, T& outUps)
+{
+	const auto buttonChanges = thisFrameButtons ^ prevFrameButtons;
+	outDowns = buttonChanges & thisFrameButtons;
+	outUps = buttonChanges & (~thisFrameButtons);
+}
+
 void snd::input::Init(Window* window)
 {
 	s_Window = static_cast<WindowsWindow*>(window);
@@ -44,19 +52,28 @@ void snd::input::Shutdown()
 void snd::input::Update()
 {
 	// Update keyboard state.
-	for (uint32_t i = 0; i < static_cast<uint32_t>(KeyboardBit::Count); ++i)
 	{
-		const int32_t keyState = glfwGetKey(s_GlfwWindow, s_ConvertedKeyboardBits[i]);
-		s_KeyboardState.Buttons.set(i, keyState == GLFW_PRESS || keyState == GLFW_REPEAT);
-	}
+		// Update button states.
+		for (uint8_t i = 0; i < static_cast<uint8_t>(KeyboardBit::Count); ++i)
+		{
+			const int32_t keyState = glfwGetKey(s_GlfwWindow, s_ConvertedKeyboardBits[i]);
+			s_KeyboardState.Buttons.set(i, keyState == GLFW_PRESS || keyState == GLFW_REPEAT);
+		}
 
+		// Detect pressed/released buttons this frame.
+		DetectButtonsUpDown(s_KeyboardState.Buttons, s_KeyboardState.PrevButtons, s_KeyboardState.ButtonsDown, s_KeyboardState.ButtonsUp);
+
+		// Cache prev button states.
+		s_KeyboardState.PrevButtons = s_KeyboardState.Buttons;
+	}
+	
 	// Update gamepad state.
 	{
 		GLFWgamepadstate gamepadstate;
 		glfwGetGamepadState(0, &gamepadstate); // support only 1 gamepad for now
 
-		// Update pressed/released buttons.
-		for (int32_t i = 0; i < static_cast<int32_t>(GamepadBit::Count); ++i)
+		// Update button states.
+		for (uint8_t i = 0; i < static_cast<uint8_t>(GamepadBit::Count); ++i)
 		{
 			if (gamepadstate.buttons[s_ConvertedGamepadBits[i]])
 			{
@@ -68,6 +85,9 @@ void snd::input::Update()
 			}
 		}
 
+		// Detect pressed/released buttons this frame.
+		DetectButtonsUpDown(s_GamepadState.Buttons, s_GamepadState.PrevButtons, s_GamepadState.ButtonsDown, s_GamepadState.ButtonsUp);
+
 		// Update axis buttons.
 		s_GamepadState.ThumbLX	= gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
 		s_GamepadState.ThumbLY	= gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
@@ -75,11 +95,15 @@ void snd::input::Update()
 		s_GamepadState.ThumbRY	= gamepadstate.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
 		s_GamepadState.TriggerL = gamepadstate.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER];
 		s_GamepadState.TriggerR = gamepadstate.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
+
+		// Cache prev button states.
+		s_GamepadState.PrevButtons = s_GamepadState.Buttons;
 	}
 	
 	// Update mouse state.
 	{
-		for (int32_t i = 0; i < static_cast<int32_t>(MouseBit::Count); ++i)
+		// Update button states.
+		for (uint8_t i = 0; i < static_cast<uint8_t>(MouseBit::Count); ++i)
 		{
 			const int32_t keyState = glfwGetMouseButton(s_GlfwWindow, s_ConvertedMouseBits[i]);
 
@@ -93,12 +117,19 @@ void snd::input::Update()
 			}
 		}
 
+		// Detect pressed/released buttons this frame.
+		DetectButtonsUpDown(s_MouseState.Buttons, s_MouseState.PrevButtons, s_MouseState.ButtonsDown, s_MouseState.ButtonsUp);
+
+		// Update mouse position.
 		double mouseX = 0;
 		double mouseY = 0;
 		glfwGetCursorPos(s_GlfwWindow, &mouseX, &mouseY);
 		
 		s_MouseState.X = static_cast<float>(mouseX);
 		s_MouseState.Y = static_cast<float>(mouseY);
+
+		// Cache prev button states.
+		s_MouseState.PrevButtons = s_MouseState.Buttons;
 	}
 }
 
@@ -117,22 +148,58 @@ const snd::input::Mouse& snd::input::MouseState()
 	return s_MouseState;
 }
 
-bool snd::input::IsButtonDown(KeyboardBit bit)
+bool snd::input::ButtonDown(KeyboardBit bit)
 {
-	const uint32_t pos = static_cast<uint32_t>(bit);
+	const uint8_t pos = static_cast<uint8_t>(bit);
 	return s_KeyboardState.Buttons.test(pos);
 }
 
-bool snd::input::IsButtonDown(GamepadBit bit)
+bool snd::input::ButtonDown(GamepadBit bit)
 {
-	const uint32_t pos = static_cast<uint32_t>(bit);
+	const uint8_t pos = static_cast<uint8_t>(bit);
 	return CHECK_BIT(s_GamepadState.Buttons, pos);
 }
 
-bool snd::input::IsButtonDown(MouseBit bit)
+bool snd::input::ButtonDown(MouseBit bit)
+{
+	const uint8_t pos = static_cast<uint8_t>(bit);
+	return CHECK_BIT(s_MouseState.Buttons, pos);
+}
+
+bool snd::input::ButtonJustWentDown(KeyboardBit bit)
+{
+	const uint8_t pos = static_cast<uint8_t>(bit);
+	return s_KeyboardState.ButtonsDown.test(pos);
+}
+
+bool snd::input::ButtonJustWentDown(GamepadBit bit)
+{
+	const uint8_t pos = static_cast<uint8_t>(bit);
+	return CHECK_BIT(s_GamepadState.ButtonsDown, pos);
+}
+
+bool snd::input::ButtonJustWentDown(MouseBit bit)
+{
+	const uint8_t pos = static_cast<uint8_t>(bit);
+	return CHECK_BIT(s_MouseState.ButtonsDown, pos);
+}
+
+bool snd::input::ButtonJustWentUp(KeyboardBit bit)
+{
+	const uint8_t pos = static_cast<uint8_t>(bit);
+	return s_KeyboardState.ButtonsUp.test(pos);
+}
+
+bool snd::input::ButtonJustWentUp(GamepadBit bit)
+{
+	const uint8_t pos = static_cast<uint8_t>(bit);
+	return CHECK_BIT(s_GamepadState.ButtonsUp, pos);
+}
+
+bool snd::input::ButtonJustWentUp(MouseBit bit)
 {
 	const uint32_t pos = static_cast<uint32_t>(bit);
-	return CHECK_BIT(s_MouseState.Buttons, pos);
+	return CHECK_BIT(s_MouseState.ButtonsUp, pos);
 }
 
 glm::vec2 snd::input::GetMousePosition()

@@ -11,42 +11,42 @@ snd::Camera::Camera(Type type)
 
 void snd::Camera::Tick(float dt)
 {
-	if (input::IsButtonDown(input::KeyboardBit::A))
+	if (input::ButtonDown(input::KeyboardBit::A))
 	{
 		MoveRight(-1.0f);
 	}
 
-	if (input::IsButtonDown(input::KeyboardBit::D))
+	if (input::ButtonDown(input::KeyboardBit::D))
 	{
 		MoveRight(1.0f);
 	}
 
-	if (input::IsButtonDown(input::KeyboardBit::S))
+	if (input::ButtonDown(input::KeyboardBit::S))
 	{
 		MoveForward(-1.0f);
 	}
 
-	if (input::IsButtonDown(input::KeyboardBit::W))
+	if (input::ButtonDown(input::KeyboardBit::W))
 	{
 		MoveForward(1.0f);
 	}
 
-	if (input::IsButtonDown(input::KeyboardBit::Left))
+	if (input::ButtonDown(input::KeyboardBit::Left))
 	{
 		RotateRight(-1.0f);
 	}
 
-	if (input::IsButtonDown(input::KeyboardBit::Right))
+	if (input::ButtonDown(input::KeyboardBit::Right))
 	{
 		RotateRight(1.0f);
 	}
 
-	if (input::IsButtonDown(input::KeyboardBit::Down))
+	if (input::ButtonDown(input::KeyboardBit::Down))
 	{
 		RotateUp(-1.0f);
 	}
 
-	if (input::IsButtonDown(input::KeyboardBit::Up))
+	if (input::ButtonDown(input::KeyboardBit::Up))
 	{
 		RotateUp(1.0f);
 	}

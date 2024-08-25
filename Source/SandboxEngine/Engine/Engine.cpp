@@ -84,13 +84,6 @@ bool snd::Engine::OnKeyPressed(KeyPressedEvent& event)
 
 bool snd::Engine::OnKeyReleased(KeyReleasedEvent& event)
 {
-	if (event.GetKeyCode() == KeyCode::Escape)
-	{
-		SND_LOG_TRACE("Manual shutdown was requested", m_Window->GetTitle());
-		m_ExitRequested = true;
-		return true;
-	}
-
 	return true;
 }
 
@@ -124,6 +117,12 @@ void snd::Engine::Tick(float dt)
 	m_Window->Update();
 
 	input::Update();
+
+	if (input::ButtonJustWentUp(input::KeyboardBit::Escape))
+	{
+		SND_LOG_TRACE("Manual shutdown was requested", m_Window->GetTitle());
+		m_ExitRequested = true;
+	}
 	
 	g_DebugCamera.Tick(dt);
 	

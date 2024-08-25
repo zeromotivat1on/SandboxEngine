@@ -1,165 +1,39 @@
 #pragma once
 
 #include "SandboxEngine/Core/Window.h"
+#include "SandboxEngine/Core/InputBits.h"
 
 namespace snd::input
 {
-	// Describes key code and the position of bit in button state.
-	enum class KeyboardBit : uint32_t
-	{
-		Space,
-		Apostrophe,		/* ' */
-		Comma,			/* , */
-		Minus,			/* - */
-		Period,			/* . */
-		Slash,			/* / */
-		_0,
-		_1,
-		_2,
-		_3,
-		_4,
-		_5,
-		_6,
-		_7,
-		_8,
-		_9,
-		Semicolon,		/* ; */
-		Equal,			/* = */
-		A,
-		B,
-		C,
-		D,
-		E,
-		F,
-		G,
-		H,
-		I,
-		J,
-		K,
-		L,
-		M,
-		N,
-		O,
-		P,
-		Q,
-		R,
-		S,
-		T,
-		U,
-		V,
-		W,
-		X,
-		Y,
-		Z,
-		LeftBracket,	/* [ */
-		Backslash,		/* \ */
-		RightBracket,	/* ] */
-		GraveAccent,	/* ` */
-		Escape,
-		Enter,
-		Tab,
-		Backspace,
-		Insert,
-		Delete,
-		Right,
-		Left,
-		Down,
-		Up,
-		PageUp,
-		PageDown,
-		Home,
-		End,
-		CapsLock,
-		ScrollLock,
-		NumLock,
-		PrintScreen,
-		Pause,
-		F1,
-		F2,
-		F3,
-		F4,
-		F5,
-		F6,
-		F7,
-		F8,
-		F9,
-		F10,
-		F11,
-		F12,
-		KP0,
-		KP1,
-		KP2,
-		KP3,
-		KP4,
-		KP5,
-		KP6,
-		KP7,
-		KP8,
-		KP9,
-		KPDecimal,
-		KPDivide,
-		KPMultiply,
-		KPSubtract,
-		KPAdd,
-		KPEnter,
-		KPEqual,
-		LeftShift,
-		LeftControl,
-		LeftAlt,
-		RightShift,
-		RightControl,
-		RightAlt,
-		Count
-	};
-
-	// Describes key code and the position of bit in gamepad state.
-	enum class GamepadBit : uint32_t
-	{
-		DpadUp,
-		DpadDown,
-		DpadLeft,
-		DpadRight,
-		FaceUp,
-		FaceDown,
-		FaceLeft,
-		FaceRight,
-		SpecialLeft,
-		SpecialRight,
-		ThumbLeft,
-		ThumbRight,
-		BumperLeft,
-		BumperRight,
-		Count
-	};
-
-	// Describes key code and the position of bit in mouse state.
-	enum class MouseBit : uint32_t
-	{
-		Left,
-		Right,
-		Middle,
-		Count
-	};
-
-	// Current frame state of keyboard input.
+	// State of keyboard input.
 	struct Keyboard
 	{
-		std::bitset<static_cast<uint32_t>(KeyboardBit::Count)> Buttons = 0;
+		std::bitset<static_cast<uint8_t>(KeyboardBit::Count)> Buttons = 0;		// current frame's button states
+		std::bitset<static_cast<uint8_t>(KeyboardBit::Count)> PrevButtons = 0;	// previous frame's button states
+		std::bitset<static_cast<uint8_t>(KeyboardBit::Count)> ButtonsDown = 0;	// pressed buttons this frame
+		std::bitset<static_cast<uint8_t>(KeyboardBit::Count)> ButtonsUp = 0;	// released buttons this frame
 	};
 
-	// Current frame state of mouse input.
+	// State of mouse input.
 	struct Mouse
 	{
 		float X = 0.0f;
 		float Y = 0.0f;
+		
 		uint8_t Buttons = 0;
+		uint8_t PrevButtons = 0;
+		uint8_t ButtonsDown = 0;
+		uint8_t ButtonsUp = 0;
 	};
 
-	// Current frame state of gamepad input.
-	// Thumbstick and trigger values range from -1.0 to 1.0 inclusive.
+	// State of gamepad input. Thumbstick and trigger values range from -1.0 to 1.0 inclusive.
 	struct Gamepad
 	{
 		uint32_t Buttons = 0;
+		uint32_t PrevButtons = 0;
+		uint32_t ButtonsDown = 0;
+		uint32_t ButtonsUp = 0;
+		
 		float ThumbLX = 0;
 		float ThumbLY = 0;
 		float ThumbRX = 0;
@@ -172,20 +46,34 @@ namespace snd::input
 	void Shutdown();
 	void Update();
 
+	// Get input state.
 	const Keyboard&	KeyboardState();
 	const Gamepad&	GamepadState();
 	const Mouse&	MouseState();
 
 	glm::vec2 GetMousePosition();
 
-	bool IsButtonDown(KeyboardBit bit);
-	bool IsButtonDown(GamepadBit bit);
-	bool IsButtonDown(MouseBit bit);
-	
+	// Check if given button is currently pressed.
+	bool ButtonDown(KeyboardBit bit);
+	bool ButtonDown(GamepadBit bit);
+	bool ButtonDown(MouseBit bit);
+
+	// Check if given button was pressed this frame.
+	bool ButtonJustWentDown(KeyboardBit bit);
+	bool ButtonJustWentDown(GamepadBit bit);
+	bool ButtonJustWentDown(MouseBit bit);
+
+	// Check if given button was released this frame.
+	bool ButtonJustWentUp(KeyboardBit bit);
+	bool ButtonJustWentUp(GamepadBit bit);
+	bool ButtonJustWentUp(MouseBit bit);
+
+	// Convert platform keycode to engine system key.
 	KeyboardBit ConvertKeyboardCode(int32_t keycode);
 	GamepadBit	ConvertGamepadCode(int32_t keycode);
 	MouseBit	ConvertMouseCode(int32_t keycode);
 
+	// Convert engine system key to platform keycode.
 	int32_t ConvertBit(KeyboardBit bit);
 	int32_t ConvertBit(GamepadBit bit);
 	int32_t ConvertBit(MouseBit bit);
