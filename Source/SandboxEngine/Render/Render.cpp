@@ -1,6 +1,7 @@
 #include "sndpch.h"
 #include "SandboxEngine/Render/Render.h"
 #include "SandboxEngine/Core/FileSystem.h"
+#include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/World/Camera.h"
 #include <bgfx/bgfx.h>
 #include <bx/math.h>
@@ -129,6 +130,13 @@ std::string ToString(const glm::vec3& vec)
 	return oss.str();
 }
 
+std::string ToString(const glm::vec2& vec)
+{
+	std::ostringstream oss;
+	oss << "(" << vec.x << ", " << vec.y << ")";
+	return oss.str();
+}
+
 void snd::render::Tick(float dt)
 {
 	bgfx::setViewTransform(0, glm::value_ptr(s_Camera->GetViewMatrix()), glm::value_ptr(s_Camera->GetProjectionMatrix()));
@@ -142,14 +150,46 @@ void snd::render::Tick(float dt)
 
 	const float time = s_TestTimer.Elapsed();
 
-	bgfx::dbgTextPrintf(1, 1, 0x0f, "Window size: %dx%d", s_Window->GetWidth(), s_Window->GetHeight());
-	bgfx::dbgTextPrintf(1, 2, 0x0f, "Run time: %.2fs", time);
-	bgfx::dbgTextPrintf(1, 3, 0x0f, "Delta time: %.2fms", (dt * 1000.0f));
-	bgfx::dbgTextPrintf(1, 4, 0x0f, "FPS: %.2f", (1.0f / dt));
-	bgfx::dbgTextPrintf(1, 5, 0x0f, "Vsync: %s", s_Window->IsVsync() ? "ON" : "OFF");
+	uint8_t dbgTextY = 1;
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Window size: %dx%d", s_Window->GetWidth(), s_Window->GetHeight());
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Run time: %.2fs", time);
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Delta time: %.2fms", (dt * 1000.0f));
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "FPS: %.2f", (1.0f / dt));
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Vsync: %s", s_Window->IsVsync() ? "ON" : "OFF");
 
-	bgfx::dbgTextPrintf(1, 6, 0x0f, "Camera: location %s, target %s", ToString(s_Camera->GetLocation()).c_str(), ToString(s_Camera->GetTarget()).c_str());
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Camera: location %s, target %s", ToString(s_Camera->GetLocation()).c_str(), ToString(s_Camera->GetTarget()).c_str());
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Mouse: position %s", ToString(input::GetMousePosition()).c_str());
 
+	std::stringstream pressedKeyboardButtons;
+	for (int32_t i = 0; i < static_cast<int32_t>(input::KeyboardBit::Count); ++i)
+	{
+		if (input::KeyboardState().Buttons[i])
+		{
+			pressedKeyboardButtons << i << ' ';
+		}
+	}
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Pressed Keyboardcodes: %s", pressedKeyboardButtons.str().c_str());
+
+	std::stringstream pressedGamepadButtons;
+	for (int32_t i = 0; i < static_cast<int32_t>(input::GamepadBit::Count); ++i)
+	{
+		if (CHECK_BIT(input::GamepadState().Buttons, i))
+		{
+			pressedGamepadButtons << i << ' ';
+		}
+	}
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Pressed Gamepadcodes: %s", pressedGamepadButtons.str().c_str());
+
+	std::stringstream pressedMouseButtons;
+	for (int32_t i = 0; i < static_cast<int32_t>(input::MouseBit::Count); ++i)
+	{
+		if (CHECK_BIT(input::MouseState().Buttons, i))
+		{
+			pressedMouseButtons << i << ' ';
+		}
+	}
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Pressed Mousecodes: %s", pressedMouseButtons.str().c_str());
+	
 	for (uint32_t yy = 0; yy < 11; ++yy)
 	{
 		for (uint32_t xx = 0; xx < 11; ++xx)
