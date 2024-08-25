@@ -52,20 +52,16 @@ void snd::Engine::Shutdown()
 
 void snd::Engine::OnEvent(Event& event)
 {
-#define DISPATCH_EVENT(eventType) dispatcher.Dispatch<eventType##Event>(SND_BIND_EVENT_FN(Engine::On##eventType))
-
 	EventDispatcher dispatcher(event);
-	DISPATCH_EVENT(WindowClosed);
-	DISPATCH_EVENT(WindowResized);
-	DISPATCH_EVENT(KeyPressed);
-	DISPATCH_EVENT(KeyReleased);
-	DISPATCH_EVENT(KeyTyped);
-	DISPATCH_EVENT(MouseMoved);
-	DISPATCH_EVENT(MouseScrolled);
-	DISPATCH_EVENT(MouseKeyPressed);
-	DISPATCH_EVENT(MouseKeyReleased);
-
-#undef DISPATCH_EVENT
+	dispatcher.Dispatch<WindowClosedEvent>		(SND_BIND_EVENT_FN(Engine::OnWindowClosed));
+	dispatcher.Dispatch<WindowResizedEvent>		(SND_BIND_EVENT_FN(Engine::OnWindowResized));
+	dispatcher.Dispatch<KeyPressedEvent>		(SND_BIND_EVENT_FN(Engine::OnKeyPressed));
+	dispatcher.Dispatch<KeyReleasedEvent>		(SND_BIND_EVENT_FN(Engine::OnKeyReleased));
+	dispatcher.Dispatch<KeyTypedEvent>			(SND_BIND_EVENT_FN(Engine::OnKeyTyped));
+	dispatcher.Dispatch<MouseMovedEvent>		(SND_BIND_EVENT_FN(Engine::OnMouseMoved));
+	dispatcher.Dispatch<MouseScrolledEvent>		(SND_BIND_EVENT_FN(Engine::OnMouseScrolled));
+	dispatcher.Dispatch<MouseKeyPressedEvent>	(SND_BIND_EVENT_FN(Engine::OnMouseKeyPressed));
+	dispatcher.Dispatch<MouseKeyReleasedEvent>	(SND_BIND_EVENT_FN(Engine::OnMouseKeyReleased));
 }
 
 bool snd::Engine::OnWindowClosed(WindowClosedEvent& event)
@@ -83,34 +79,6 @@ bool snd::Engine::OnWindowResized(WindowResizedEvent& event)
 
 bool snd::Engine::OnKeyPressed(KeyPressedEvent& event)
 {
-	switch (event.GetKeyCode())
-	{
-	case KeyCode::A:
-		g_DebugCamera.SetMoveSidewayDelta(-1.0f);
-		break;
-	case KeyCode::D:
-		g_DebugCamera.SetMoveSidewayDelta(1.0f);
-		break;
-	case KeyCode::W:
-		g_DebugCamera.SetMoveStraightDelta(1.0f);
-		break;
-	case KeyCode::S:
-		g_DebugCamera.SetMoveStraightDelta(-1.0f);
-		break;
-	case KeyCode::Left:
-		g_DebugCamera.SetRotateHorizontallyAngle(-1.0f);
-		break;
-	case KeyCode::Right:
-		g_DebugCamera.SetRotateHorizontallyAngle(1.0f);
-		break;
-	case KeyCode::Up:
-		g_DebugCamera.SetRotateVerticallyAngle(1.0f);
-		break;
-	case KeyCode::Down:
-		g_DebugCamera.SetRotateVerticallyAngle(-1.0f);
-		break;
-	}
-
 	return true;
 }
 
@@ -121,34 +89,6 @@ bool snd::Engine::OnKeyReleased(KeyReleasedEvent& event)
 		SND_LOG_TRACE("Manual shutdown was requested", m_Window->GetTitle());
 		m_ExitRequested = true;
 		return true;
-	}
-
-	switch (event.GetKeyCode())
-	{
-	case KeyCode::A:
-		g_DebugCamera.SetMoveSidewayDelta(0.0f);
-		break;
-	case KeyCode::D:
-		g_DebugCamera.SetMoveSidewayDelta(0.0f);
-		break;
-	case KeyCode::W:
-		g_DebugCamera.SetMoveStraightDelta(0.0f);
-		break;
-	case KeyCode::S:
-		g_DebugCamera.SetMoveStraightDelta(0.0f);
-		break;
-	case KeyCode::Left:
-		g_DebugCamera.SetRotateHorizontallyAngle(0.0f);
-		break;
-	case KeyCode::Right:
-		g_DebugCamera.SetRotateHorizontallyAngle(0.0f);
-		break;
-	case KeyCode::Up:
-		g_DebugCamera.SetRotateVerticallyAngle(0.0f);
-		break;
-	case KeyCode::Down:
-		g_DebugCamera.SetRotateVerticallyAngle(0.0f);
-		break;
 	}
 
 	return true;
@@ -181,12 +121,12 @@ bool snd::Engine::OnMouseKeyReleased(MouseKeyReleasedEvent& event)
 
 void snd::Engine::Tick(float dt)
 {
-	m_Window->Tick(dt);
+	m_Window->Update();
 
-	input::Tick(dt);
+	input::Update();
 	
 	g_DebugCamera.Tick(dt);
-
+	
 	render::Tick(dt);
 
 	ui::Tick(dt);
