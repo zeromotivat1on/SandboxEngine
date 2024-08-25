@@ -85,6 +85,26 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE SPDLOG_ACTIVE_LEVEL=SPDLOG_LE
 add_subdirectory("${VENDOR_DIR}/bgfx")
 target_link_libraries(${PROJECT_NAME} PRIVATE bgfx bx bimg)
 
+# Add imgui
+file(GLOB IMGUI_CORE_SOURCE CONFIGURE_DEPENDS 
+    "${VENDOR_DIR}/imgui/*.h"
+    "${VENDOR_DIR}/imgui/*.cpp"
+)
+
+set(IMGUI_BACKEND_SOURCE
+    "${VENDOR_DIR}/imgui/backends/imgui_impl_glfw.h"
+    "${VENDOR_DIR}/imgui/backends/imgui_impl_glfw.cpp"
+)
+
+add_library(imgui STATIC ${IMGUI_CORE_SOURCE} ${IMGUI_BACKEND_SOURCE})
+target_include_directories(imgui PRIVATE "${VENDOR_DIR}/imgui")
+target_include_directories(imgui PRIVATE "${VENDOR_DIR}/glfw/include")
+target_include_directories(${PROJECT_NAME} PRIVATE "${VENDOR_DIR}/imgui")
+set_def_output_dirs(imgui)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
+
+# Compile shaders
 if(COMPILE_SHADERS)
     function(compile_shader shader_name shader_type)
         set(input_file "${SHADER_DIR}/${shader_name}.sc")
@@ -129,22 +149,3 @@ if(COMPILE_SHADERS)
 
     add_dependencies(${PROJECT_NAME} bgfx_shader_compilation)
 endif()
-
-# Add imgui
-file(GLOB IMGUI_CORE_SOURCE CONFIGURE_DEPENDS 
-    "${VENDOR_DIR}/imgui/*.h"
-    "${VENDOR_DIR}/imgui/*.cpp"
-)
-
-set(IMGUI_BACKEND_SOURCE
-    "${VENDOR_DIR}/imgui/backends/imgui_impl_glfw.h"
-    "${VENDOR_DIR}/imgui/backends/imgui_impl_glfw.cpp"
-)
-
-add_library(imgui STATIC ${IMGUI_CORE_SOURCE} ${IMGUI_BACKEND_SOURCE})
-target_include_directories(imgui PRIVATE "${VENDOR_DIR}/imgui")
-target_include_directories(imgui PRIVATE "${VENDOR_DIR}/glfw/include")
-target_include_directories(${PROJECT_NAME} PRIVATE "${VENDOR_DIR}/imgui")
-set_def_output_dirs(imgui)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
