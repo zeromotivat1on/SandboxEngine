@@ -60,13 +60,13 @@ void snd::WindowsWindow::Init(const Window::Props& props)
 
 	s_GlfwWindowCount++;
 
-	glfwSetWindowCloseCallback(m_Window, WindowsWindow::OnClose);
-	glfwSetWindowSizeCallback(m_Window, WindowsWindow::OnResize);
-	glfwSetKeyCallback(m_Window, WindowsWindow::OnKey);
-	glfwSetCharCallback(m_Window, WindowsWindow::OnSetChar);
-	glfwSetCursorPosCallback(m_Window, WindowsWindow::OnMouseMove);
-	glfwSetScrollCallback(m_Window, WindowsWindow::OnMouseScroll);
-	glfwSetMouseButtonCallback(m_Window, WindowsWindow::OnMouseKey);
+	glfwSetWindowCloseCallback	(m_Window, WindowsWindow::OnClose);
+	glfwSetWindowSizeCallback	(m_Window, WindowsWindow::OnResize);
+	glfwSetKeyCallback			(m_Window, WindowsWindow::OnKey);
+	glfwSetCharCallback			(m_Window, WindowsWindow::OnSetChar);
+	glfwSetCursorPosCallback	(m_Window, WindowsWindow::OnMouseMove);
+	glfwSetScrollCallback		(m_Window, WindowsWindow::OnMouseScroll);
+	glfwSetMouseButtonCallback	(m_Window, WindowsWindow::OnMouseKey);
 }
 
 void snd::WindowsWindow::Shutdown()
@@ -82,7 +82,7 @@ void snd::WindowsWindow::Shutdown()
 
 void snd::WindowsWindow::OnClose(GLFWwindow* window)
 {
-	Data& data = *(Data*)glfwGetWindowUserPointer(window);
+	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
 
 	WindowClosedEvent event;
 	data.EventCallback(event);
@@ -90,7 +90,7 @@ void snd::WindowsWindow::OnClose(GLFWwindow* window)
 
 void snd::WindowsWindow::OnResize(GLFWwindow* window, int width, int height)
 {
-	Data& data = *(Data*)glfwGetWindowUserPointer(window);
+	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
 	data.Width = width;
 	data.Height = height;
 
@@ -100,8 +100,8 @@ void snd::WindowsWindow::OnResize(GLFWwindow* window, int width, int height)
 
 void snd::WindowsWindow::OnKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	Data& data = *(Data*)glfwGetWindowUserPointer(window);
-	const KeyCode keyCode = KeyCode(key);
+	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
+	const KeyCode keyCode = static_cast<KeyCode>(key);
 
 	switch (action)
 	{
@@ -129,8 +129,8 @@ void snd::WindowsWindow::OnKey(GLFWwindow* window, int key, int scancode, int ac
 
 void snd::WindowsWindow::OnSetChar(GLFWwindow* window, unsigned int key)
 {
-	Data& data = *(Data*)glfwGetWindowUserPointer(window);
-	const KeyCode keyCode = KeyCode(key);
+	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
+	const KeyCode keyCode = static_cast<KeyCode>(key);
 
 	KeyTypedEvent event(keyCode);
 	data.EventCallback(event);
@@ -138,24 +138,24 @@ void snd::WindowsWindow::OnSetChar(GLFWwindow* window, unsigned int key)
 
 void snd::WindowsWindow::OnMouseMove(GLFWwindow* window, double xPos, double yPos)
 {
-	Data& data = *(Data*)glfwGetWindowUserPointer(window);
+	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
 
-	MouseMovedEvent event((float)xPos, (float)yPos);
+	MouseMovedEvent event(static_cast<float>(xPos), static_cast<float>(yPos));
 	data.EventCallback(event);
 }
 
 void snd::WindowsWindow::OnMouseScroll(GLFWwindow* window, double xOffset, double yOffset)
 {
-	Data& data = *(Data*)glfwGetWindowUserPointer(window);
+	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
 
-	MouseScrolledEvent event((float)xOffset, (float)yOffset);
+	MouseScrolledEvent event(static_cast<float>(xOffset), static_cast<float>(yOffset));
 	data.EventCallback(event);
 }
 
 void snd::WindowsWindow::OnMouseKey(GLFWwindow* window, int key, int action, int mods)
 {
-	Data& data = *(Data*)glfwGetWindowUserPointer(window);
-	const MouseCode mouseCode = MouseCode(key);
+	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
+	const MouseCode mouseCode = static_cast<MouseCode>(key);
 
 	switch (action)
 	{
@@ -175,7 +175,6 @@ void snd::WindowsWindow::OnMouseKey(GLFWwindow* window, int key, int action, int
 	}
 }
 
-
 bool snd::WindowsWindow::IsVsync() const
 {
 	return m_Data.Vsync;
@@ -191,7 +190,7 @@ bool snd::WindowsWindow::ShouldClose() const
 	return glfwWindowShouldClose(m_Window);
 }
 
-void snd::WindowsWindow::Tick(float dt) const
+void snd::WindowsWindow::Update()
 {
 	glfwPollEvents();
 }

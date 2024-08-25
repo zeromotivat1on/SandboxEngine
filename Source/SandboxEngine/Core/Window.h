@@ -36,7 +36,7 @@ namespace snd
 
 		virtual bool ShouldClose() const = 0;
 
-		virtual void Tick(float dt) const = 0;
+		virtual void Update() = 0;
 
 	public:
 		inline float GetWidthF32() { return (float)GetWidth(); }

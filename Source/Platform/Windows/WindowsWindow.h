@@ -7,6 +7,7 @@ namespace snd
 {
 	class WindowsWindow : public Window
 	{
+	public:
 		struct Data
 		{
 			std::string Title = "";
@@ -34,7 +35,7 @@ namespace snd
 
 		bool ShouldClose() const override;
 
-		void Tick(float dt) const override;
+		void Update() override;
 
 	private:
 		void Init(const Window::Props& props);
