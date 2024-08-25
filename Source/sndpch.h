@@ -8,14 +8,15 @@
 #include <chrono>
 
 #include <string>
-#include <sstream>
+#include <bitset>
 #include <vector>
+#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
-#include <cmath>
 
 #ifdef SND_PLATFORM_WINDOWS
 	#define NOMINMAX // disable windows min/max macro definitions to avoid possible name conflicts
