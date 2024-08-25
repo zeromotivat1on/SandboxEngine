@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SandboxEngine/Core/Window.h"
-#include <glm/glm.hpp>
 
 namespace snd
 {
