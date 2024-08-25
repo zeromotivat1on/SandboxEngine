@@ -117,6 +117,29 @@ const snd::input::Mouse& snd::input::MouseState()
 	return s_MouseState;
 }
 
+bool snd::input::IsButtonDown(KeyboardBit bit)
+{
+	const uint32_t pos = static_cast<uint32_t>(bit);
+	return s_KeyboardState.Buttons.test(pos);
+}
+
+bool snd::input::IsButtonDown(GamepadBit bit)
+{
+	const uint32_t pos = static_cast<uint32_t>(bit);
+	return CHECK_BIT(s_GamepadState.Buttons, pos);
+}
+
+bool snd::input::IsButtonDown(MouseBit bit)
+{
+	const uint32_t pos = static_cast<uint32_t>(bit);
+	return CHECK_BIT(s_MouseState.Buttons, pos);
+}
+
+glm::vec2 snd::input::GetMousePosition()
+{
+	return glm::vec2(s_MouseState.X, s_MouseState.Y);
+}
+
 snd::input::KeyboardBit snd::input::ConvertKeyboardCode(int32_t keycode)
 {
 	switch (keycode)
@@ -416,27 +439,4 @@ int32_t snd::input::ConvertBit(MouseBit bit)
 			SND_LOG_ERROR("Unknown mouse bit {}", static_cast<int32_t>(bit));
 			return -1;
 	}
-}
-
-bool snd::input::IsButtonDown(KeyboardBit bit)
-{
-	const uint32_t pos = static_cast<uint32_t>(bit);
-	return s_KeyboardState.Buttons.test(pos);
-}
-
-bool snd::input::IsButtonDown(GamepadBit bit)
-{
-	const uint32_t pos = static_cast<uint32_t>(bit);
-	return CHECK_BIT(s_GamepadState.Buttons, pos);
-}
-
-bool snd::input::IsButtonDown(MouseBit bit)
-{
-	const uint32_t pos = static_cast<uint32_t>(bit);
-	return CHECK_BIT(s_MouseState.Buttons, pos);
-}
-
-glm::vec2 snd::input::GetMousePosition()
-{
-	return glm::vec2(s_MouseState.X, s_MouseState.Y);
 }

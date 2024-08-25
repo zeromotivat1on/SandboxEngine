@@ -1,8 +1,6 @@
 #pragma once
 
 #include "SandboxEngine/Core/Window.h"
-#include "SandboxEngine/Events/KeyEvent.h"
-#include "SandboxEngine/Events/MouseEvent.h"
 
 namespace snd::input
 {
@@ -177,6 +175,12 @@ namespace snd::input
 	const Keyboard&	KeyboardState();
 	const Gamepad&	GamepadState();
 	const Mouse&	MouseState();
+
+	glm::vec2 GetMousePosition();
+
+	bool IsButtonDown(KeyboardBit bit);
+	bool IsButtonDown(GamepadBit bit);
+	bool IsButtonDown(MouseBit bit);
 	
 	KeyboardBit ConvertKeyboardCode(int32_t keycode);
 	GamepadBit	ConvertGamepadCode(int32_t keycode);
@@ -185,10 +189,4 @@ namespace snd::input
 	int32_t ConvertBit(KeyboardBit bit);
 	int32_t ConvertBit(GamepadBit bit);
 	int32_t ConvertBit(MouseBit bit);
-
-	bool IsButtonDown(KeyboardBit bit);
-	bool IsButtonDown(GamepadBit bit);
-	bool IsButtonDown(MouseBit bit);
-
-	glm::vec2 GetMousePosition();
 }
