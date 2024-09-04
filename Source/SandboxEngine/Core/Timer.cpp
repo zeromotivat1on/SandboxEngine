@@ -1,20 +1,32 @@
-#include "sndpch.h"
-#include "SandboxEngine/Core/Timer.h"
+﻿#include "sndpch.h"
+#include "Timer.h"
 #include <bx/timer.h>
 
-int64_t snd::GetHighPrecisionCounter()
+static int64_t StartupCounter = snd::HighPrecisionCounter();
+
+float snd::CurrentTime()
 {
-	return bx::getHPCounter();
+    return std::chrono::duration<float>(Timer::Clock::now().time_since_epoch()).count();
 }
 
-int64_t snd::GetHighPrecisionFrequency()
+float snd::StartupTime()
 {
-	return bx::getHPFrequency();
+    return ElapsedSeconds(StartupCounter);
 }
 
-float snd::GetElapsedSeconds(int64_t counter)
+int64_t snd::HighPrecisionCounter()
 {
-	const float frequency = static_cast<float>(GetHighPrecisionFrequency());
-	const int64_t deltaCounter = GetHighPrecisionCounter() - counter;
-	return static_cast<float>(deltaCounter) / frequency;
+    return bx::getHPCounter();
+}
+
+int64_t snd::HighPrecisionFrequency()
+{
+    return bx::getHPFrequency();
+}
+
+float snd::ElapsedSeconds(int64_t counter)
+{
+    const float frequency = static_cast<float>(HighPrecisionFrequency());
+    const int64_t deltaCounter = HighPrecisionCounter() - counter;
+    return static_cast<float>(deltaCounter) / frequency;
 }

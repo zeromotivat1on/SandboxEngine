@@ -1,13 +1,19 @@
 #pragma once
 
-#include "sndpch.h"
+#include <chrono>
 
 namespace snd
 {
-	int64_t GetHighPrecisionCounter();
-	int64_t GetHighPrecisionFrequency();
-	float GetElapsedSeconds(int64_t counter); // get passed seconds since given high precision counter
+	// Get current time in seconds.
+	float CurrentTime();
 
+	// Get time in seconds since engine startup.
+	float StartupTime();
+    
+	int64_t HighPrecisionCounter();
+	int64_t HighPrecisionFrequency();
+	float ElapsedSeconds(int64_t counter); // get passed seconds since given high precision counter
+	
 	// Encapsulates basic usage of chrono, providing a means to calculate float durations between time points via function calls.
 	class Timer
 	{
@@ -25,7 +31,7 @@ namespace snd
 		virtual ~Timer() = default;
 
 	public:
-		inline bool IsRunning() const { return m_Running; }
+		inline bool Running() const { return m_Running; }
 
 		// Starts the timer, Elapsed() now returns the duration since Start().
 		void Start()
@@ -57,14 +63,14 @@ namespace snd
 			m_Running = false;
 			m_Lapping = false;
 
-			auto duration = std::chrono::duration<float, T>(Clock::now() - m_StartTime);
+			const auto duration = std::chrono::duration<float, T>(Clock::now() - m_StartTime);
 			m_StartTime = Clock::now();
 			m_LapTime = Clock::now();
 
 			return duration.count();
 		}
 
-		// Calculates the time difference between now and when the timer was started if Lap() was called, then between now and when the timer was last lapped.
+		// Calculates the time difference between now and when the timer was started, if Lap() was called, then between now and when the timer was last lapped.
 		// @return The duration between the two time points (default in seconds).
 		template <typename T = DefaultResolution>
 		float Elapsed()
@@ -89,8 +95,8 @@ namespace snd
 		template <typename T = DefaultResolution>
 		float Tick()
 		{
-			auto now = Clock::now();
-			auto duration = std::chrono::duration<float, T>(now - m_PreviousTick);
+			const auto now = Clock::now();
+			const auto duration = std::chrono::duration<float, T>(now - m_PreviousTick);
 			m_PreviousTick = now;
 			return duration.count();
 		}
