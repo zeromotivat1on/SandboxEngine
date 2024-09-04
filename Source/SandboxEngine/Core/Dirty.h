@@ -4,7 +4,7 @@
 
 namespace snd
 {
-    // Type with an ability to detect its dirty state.
+    // Template type with an ability to detect its dirty state.
     template <typename T>
     class Dirty
     {
@@ -63,12 +63,12 @@ namespace snd
             }
         }
 
-        inline const T& Get() const { return m_Current; }
-        inline std::optional<T> GetOld() const { return m_Old; }
+        inline const T&                Current() const { return m_Current; }
+        inline const std::optional<T>& Old()     const { return m_Old; }
         
         inline bool IsDirty() const { return m_IsDirty; }
 
-        inline void MakeDirty() { m_IsDirty = true; }
+        inline void MakeDirty()  { m_IsDirty = true; }
         inline void ClearDirty() { m_IsDirty = false; }
 
     private:
