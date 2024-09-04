@@ -2,7 +2,7 @@
 
 // The header describes HID abstract input keys. 
 
-namespace snd::input
+namespace snd
 {
     // Describes key code and the position of bit in button state.
     enum class KeyboardBit : uint8_t

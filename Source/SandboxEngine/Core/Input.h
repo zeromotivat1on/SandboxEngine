@@ -51,23 +51,28 @@ namespace snd::input
 	const Gamepad&	GamepadState();
 	const Mouse&	MouseState();
 
-	glm::vec2 GetMousePosition();
+	glm::vec2 MousePosition();
 
 	// Check if given button is currently pressed.
 	bool ButtonDown(KeyboardBit bit);
 	bool ButtonDown(GamepadBit bit);
 	bool ButtonDown(MouseBit bit);
-
+	
 	// Check if given button was pressed this frame.
 	bool ButtonJustWentDown(KeyboardBit bit);
 	bool ButtonJustWentDown(GamepadBit bit);
 	bool ButtonJustWentDown(MouseBit bit);
 
+	// Check if any button was pressed this frame except for a given one.
+	bool AnyButtonJustWentDownExcept(KeyboardBit bit);
+	bool AnyButtonJustWentDownExcept(GamepadBit bit);
+	bool AnyButtonJustWentDownExcept(MouseBit bit);
+	
 	// Check if given button was released this frame.
 	bool ButtonJustWentUp(KeyboardBit bit);
 	bool ButtonJustWentUp(GamepadBit bit);
 	bool ButtonJustWentUp(MouseBit bit);
-
+	
 	// Convert platform keycode to engine system key.
 	KeyboardBit ConvertKeyboardCode(int32_t keycode);
 	GamepadBit	ConvertGamepadCode(int32_t keycode);

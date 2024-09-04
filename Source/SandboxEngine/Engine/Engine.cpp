@@ -1,5 +1,7 @@
 #include "sndpch.h"
 #include "SandboxEngine/Engine/Engine.h"
+
+#include "InputHelpers.h"
 #include "SandboxEngine/UI/UI.h"
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Render/Render.h"
@@ -18,7 +20,7 @@ snd::Engine::~Engine()
 	Shutdown();
 }
 
-bool snd::Engine::IsRunning() const
+bool snd::Engine::Running() const
 {
 	return !m_ExitRequested;
 }
@@ -117,8 +119,8 @@ void snd::Engine::Tick(float dt)
 	m_Window->Update();
 
 	input::Update();
-
-	if (input::ButtonJustWentUp(input::KeyboardBit::Escape))
+	
+	if (input::ButtonJustWentUp(KeyboardBit::Escape))
 	{
 		SND_LOG_TRACE("Manual shutdown was requested", m_Window->GetTitle());
 		m_ExitRequested = true;

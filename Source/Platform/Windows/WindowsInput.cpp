@@ -10,9 +10,9 @@ static snd::input::Keyboard s_KeyboardState;
 static snd::input::Gamepad s_GamepadState;
 static snd::input::Mouse s_MouseState;
 
-static int32_t s_ConvertedKeyboardBits[static_cast<uint32_t>(snd::input::KeyboardBit::Count)];
-static int32_t s_ConvertedGamepadBits[static_cast<uint32_t>(snd::input::GamepadBit::Count)];
-static int32_t s_ConvertedMouseBits[static_cast<uint32_t>(snd::input::MouseBit::Count)];
+static int32_t s_ConvertedKeyboardBits[static_cast<uint32_t>(snd::KeyboardBit::Count)];
+static int32_t s_ConvertedGamepadBits[static_cast<uint32_t>(snd::GamepadBit::Count)];
+static int32_t s_ConvertedMouseBits[static_cast<uint32_t>(snd::MouseBit::Count)];
 
 template<typename TInputBit>
 static void ConvertBits(int32_t* outConvertedBits)
@@ -184,6 +184,52 @@ bool snd::input::ButtonJustWentDown(MouseBit bit)
 	return CHECK_BIT(s_MouseState.ButtonsDown, pos);
 }
 
+bool snd::input::AnyButtonJustWentDownExcept(KeyboardBit bit)
+{
+	const uint8_t pos = static_cast<uint8_t>(bit);
+	return s_KeyboardState.ButtonsDown.any() && !s_KeyboardState.ButtonsDown.test(pos);
+}
+
+bool snd::input::AnyButtonJustWentDownExcept(GamepadBit bit)
+{
+	const uint8_t pos = static_cast<uint8_t>(bit);
+
+	for (uint8_t i = 0; i < static_cast<uint8_t>(GamepadBit::Count); ++i)
+	{
+		if (i == pos)
+		{
+			continue;
+		}
+
+		if (CHECK_BIT(s_GamepadState.Buttons, i))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool snd::input::AnyButtonJustWentDownExcept(MouseBit bit)
+{
+	const uint8_t pos = static_cast<uint8_t>(bit);
+
+	for (uint8_t i = 0; i < static_cast<uint8_t>(MouseBit::Count); ++i)
+	{
+		if (i == pos)
+		{
+			continue;
+		}
+
+		if (CHECK_BIT(s_MouseState.Buttons, i))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool snd::input::ButtonJustWentUp(KeyboardBit bit)
 {
 	const uint8_t pos = static_cast<uint8_t>(bit);
@@ -202,12 +248,12 @@ bool snd::input::ButtonJustWentUp(MouseBit bit)
 	return CHECK_BIT(s_MouseState.ButtonsUp, pos);
 }
 
-glm::vec2 snd::input::GetMousePosition()
+glm::vec2 snd::input::MousePosition()
 {
 	return glm::vec2(s_MouseState.X, s_MouseState.Y);
 }
 
-snd::input::KeyboardBit snd::input::ConvertKeyboardCode(int32_t keycode)
+snd::KeyboardBit snd::input::ConvertKeyboardCode(int32_t keycode)
 {
 	switch (keycode)
 	{
@@ -320,7 +366,7 @@ snd::input::KeyboardBit snd::input::ConvertKeyboardCode(int32_t keycode)
 
 }
 
-snd::input::GamepadBit snd::input::ConvertGamepadCode(int32_t keycode)
+snd::GamepadBit snd::input::ConvertGamepadCode(int32_t keycode)
 {
 	switch (keycode)
 	{
@@ -345,7 +391,7 @@ snd::input::GamepadBit snd::input::ConvertGamepadCode(int32_t keycode)
 	}
 }
 
-snd::input::MouseBit snd::input::ConvertMouseCode(int32_t keycode)
+snd::MouseBit snd::input::ConvertMouseCode(int32_t keycode)
 {
 	switch (keycode)
 	{
