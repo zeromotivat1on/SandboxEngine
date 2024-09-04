@@ -26,4 +26,5 @@
 #include "SandboxEngine/Core/Dirty.h"
 #include "SandboxEngine/Core/Timer.h"
 #include "SandboxEngine/Core/Profile.h"
+#include "SandboxEngine/Core/StringId.h"
 #include "SandboxEngine/Core/FileSystem.h"
