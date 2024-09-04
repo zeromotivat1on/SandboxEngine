@@ -14,14 +14,14 @@ snd::EngineLoop::~EngineLoop()
 void snd::EngineLoop::Run()
 {
 	float dt = GetTargetFramerate();
-	int64_t beginCounter = GetHighPrecisionCounter();
+	int64_t beginCounter = HighPrecisionCounter();
 
-	while (m_Engine.IsRunning())
+	while (m_Engine.Running())
 	{
 		m_Engine.Tick(dt);
 
-		const int64_t endCounter = GetHighPrecisionCounter();
-		dt = float(endCounter - beginCounter) / float(GetHighPrecisionFrequency());
+		const int64_t endCounter = HighPrecisionCounter();
+		dt = static_cast<float>(endCounter - beginCounter) / static_cast<float>(HighPrecisionFrequency());
 
 #ifdef SND_DEBUG
 		// If dt is too large, we must have resumed from a breakpoint, frame-lock to the target rate this frame.
