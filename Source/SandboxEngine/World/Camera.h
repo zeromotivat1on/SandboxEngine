@@ -26,14 +26,14 @@ namespace snd
 		void SetOrthographic(float l, float r, float b, float t, float n, float f);
 		void SetOrthographic(const glm::vec4& ortho, float n, float f); // ortho should be as follows - [l, r, b, t]
 
-		glm::vec3 GetLocation() const;
-		glm::vec3 GetTarget() const;
+		glm::vec3 Location() const;
+		glm::vec3 Target() const;
 
-		glm::vec3 GetForwardVector();
-		glm::vec3 GetRightVector();
+		glm::vec3 ForwardVector();
+		glm::vec3 RightVector();
 
-		glm::mat4 GetViewMatrix();
-		glm::mat4 GetProjectionMatrix();
+		glm::mat4 ViewMatrix();
+		glm::mat4 ProjectionMatrix();
 
 		void MoveForward(float delta);
 		void MoveRight(float delta);

@@ -101,17 +101,17 @@ void snd::Camera::SetOrthographic(const glm::vec4& ortho, float n, float f)
 	SetOrthographic(ortho[0], ortho[1], ortho[2], ortho[3], n, f);
 }
 
-glm::vec3 snd::Camera::GetLocation() const
+glm::vec3 snd::Camera::Location() const
 {
 	return m_Proxy.Eye;
 }
 
-glm::vec3 snd::Camera::GetTarget() const
+glm::vec3 snd::Camera::Target() const
 {
 	return m_Proxy.At;
 }
 
-glm::vec3 snd::Camera::GetForwardVector()
+glm::vec3 snd::Camera::ForwardVector()
 {
 	if (m_ForwardVector.IsDirty())
 	{
@@ -119,10 +119,10 @@ glm::vec3 snd::Camera::GetForwardVector()
 		m_ForwardVector.ClearDirty();
 	}
 
-	return m_ForwardVector.Get();
+	return m_ForwardVector.Current();
 }
 
-glm::vec3 snd::Camera::GetRightVector()
+glm::vec3 snd::Camera::RightVector()
 {
 	if (m_RightVector.IsDirty())
 	{
@@ -130,10 +130,10 @@ glm::vec3 snd::Camera::GetRightVector()
 		m_RightVector.ClearDirty();
 	}
 
-	return m_RightVector.Get();
+	return m_RightVector.Current();
 }
 
-glm::mat4 snd::Camera::GetViewMatrix()
+glm::mat4 snd::Camera::ViewMatrix()
 {
 	if (m_ViewMatrix.IsDirty())
 	{
@@ -141,10 +141,10 @@ glm::mat4 snd::Camera::GetViewMatrix()
 		m_ViewMatrix.ClearDirty();
 	}
 
-	return m_ViewMatrix.Get();
+	return m_ViewMatrix.Current();
 }
 
-glm::mat4 snd::Camera::GetProjectionMatrix()
+glm::mat4 snd::Camera::ProjectionMatrix()
 {
 	if (m_ProjectionMatrix.IsDirty())
 	{
@@ -163,31 +163,31 @@ glm::mat4 snd::Camera::GetProjectionMatrix()
 		m_ProjectionMatrix.ClearDirty();
 	}
 
-	return m_ProjectionMatrix.Get();
+	return m_ProjectionMatrix.Current();
 }
 
 void snd::Camera::MoveForward(float delta)
 {
-	const glm::vec3 forward = GetForwardVector();
-	SetLocation(GetLocation() + forward * delta);
-	SetTarget(GetTarget() + forward * delta);
+	const glm::vec3 forward = ForwardVector();
+	SetLocation(Location() + forward * delta);
+	SetTarget(Target() + forward * delta);
 }
 
 void snd::Camera::MoveRight(float delta)
 {
-	const glm::vec3 right = GetRightVector();
-	SetLocation(GetLocation() + right * delta);
-	SetTarget(GetTarget() + right * delta);
+	const glm::vec3 right = RightVector();
+	SetLocation(Location() + right * delta);
+	SetTarget(Target() + right * delta);
 }
 
 void snd::Camera::RotateUp(float angle)
 {
-	const glm::vec3 rotateDirection = glm::rotate(GetForwardVector(), glm::radians(angle), m_Proxy.RightVector());
-	SetTarget(GetLocation() + rotateDirection);
+	const glm::vec3 rotateDirection = glm::rotate(ForwardVector(), glm::radians(angle), m_Proxy.RightVector());
+	SetTarget(Location() + rotateDirection);
 }
 
 void snd::Camera::RotateRight(float angle)
 {
-	const glm::vec3 rotateDirection = glm::rotateY(GetForwardVector(), glm::radians(-angle));
-	SetTarget(GetLocation() + rotateDirection);
+	const glm::vec3 rotateDirection = glm::rotateY(ForwardVector(), glm::radians(-angle));
+	SetTarget(Location() + rotateDirection);
 }
