@@ -14,7 +14,7 @@ namespace snd
 		Engine(std::unique_ptr<Window>&& window);
 		~Engine();
 
-		bool IsRunning() const;
+		bool Running() const;
 
 		void Tick(float dt);
 
