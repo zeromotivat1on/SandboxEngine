@@ -63,6 +63,9 @@ set_def_output_dirs(${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OBJECT_OUTPUT_DIR "${CMAKE_BINARY_DIR}/Intermediates/${PROJECT_NAME}")
 
+# Add fastdelegate
+target_include_directories(${PROJECT_NAME} PRIVATE "${VENDOR_DIR}/fastdelegate/FastDelegate.h")
+
 # Add GLFW
 add_subdirectory("${VENDOR_DIR}/glfw")
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
