@@ -1,10 +1,8 @@
 #include "sndpch.h"
 #include "SandboxEngine/Engine/Engine.h"
-
-#include "InputHelpers.h"
-#include "SandboxEngine/UI/UI.h"
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Render/Render.h"
+#include "SandboxEngine/UI/UI.h"
 #include "SandboxEngine/World/Camera.h"
 
 snd::Camera g_DebugCamera = snd::Camera(snd::Camera::Type::Perspective);
