@@ -1,9 +1,9 @@
 #pragma once
 
 #ifdef SND_BUILD_DLL
-	#define SND_API __declspec(dllexport)
+    #define SND_API __declspec(dllexport)
 #else
-	#define SND_API __declspec(dllimport)
+    #define SND_API __declspec(dllimport)
 #endif
 
 #define SND_EXPAND_MACRO(x) x
@@ -22,12 +22,3 @@
 #define SND_INLINE __forceinline
 
 #define SND_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
-
-#include "SandboxEngine/Core/Log.h"
-#include "SandboxEngine/Core/Error.h"
-#include "SandboxEngine/Core/Dirty.h"
-#include "SandboxEngine/Core/Timer.h"
-#include "SandboxEngine/Core/Profile.h"
-#include "SandboxEngine/Core/StringId.h"
-#include "SandboxEngine/Core/Delegate.h"
-#include "SandboxEngine/Core/FileSystem.h"

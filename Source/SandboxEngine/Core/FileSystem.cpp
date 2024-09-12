@@ -1,6 +1,6 @@
 #include <sndpch.h>
-#include "FileSystem.h"
-#include "SandboxEngine/Core/Core.h"
+#include "SandboxEngine/Core/FileSystem.h"
+#include "SandboxEngine/Core/Log.h"
 #include <bx/file.h>
 
 static bx::FileReader s_FileReader = bx::FileReader();

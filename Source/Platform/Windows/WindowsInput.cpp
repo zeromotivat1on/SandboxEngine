@@ -1,5 +1,6 @@
 #include "sndpch.h"
 #include "SandboxEngine/Core/Input.h"
+#include "SandboxEngine/Core/Error.h"
 #include "Platform/Windows/WindowsWindow.h"
 #include <GLFW/glfw3.h>
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SandboxEngine/Core/Log.h"
+
 #ifdef SND_DEBUG
 	#define SND_ENABLE_ASSERT
 	#ifdef SND_PLATFORM_WINDOWS

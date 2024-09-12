@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SandboxEngine/Core/Core.h"
+#include "SandboxEngine/Core/CoreIncludes.h"
 #include "SandboxEngine/Core/Window.h"
 #include "SandboxEngine/Events/WindowEvent.h"
 #include "SandboxEngine/Events/KeyEvent.h"

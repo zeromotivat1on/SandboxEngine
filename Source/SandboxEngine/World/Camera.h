@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SandboxEngine/Render/Camera.h"
-#include "SandboxEngine/Core/Core.h"
+#include "SandboxEngine/Core/Dirty.h"
 
 namespace snd
 {

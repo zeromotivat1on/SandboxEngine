@@ -1,5 +1,6 @@
 #include "sndpch.h"
 #include "SandboxEngine/World/Camera.h"
+#include "SandboxEngine/Core/Error.h"
 #include "SandboxEngine/Core/Input.h"
 #include <glm/gtx/rotate_vector.hpp>
 
