@@ -9,12 +9,12 @@ namespace snd
 	class EngineLoop final
 	{
 	public:
-		EngineLoop();
-		~EngineLoop();
+						EngineLoop();
+						~EngineLoop();
 
-		void Run();
+		void			Run();
 
 	private:
-		Engine m_Engine;
+		Engine			m_Engine;
 	};
 }

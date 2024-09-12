@@ -53,65 +53,6 @@ void snd::Camera::Tick(float dt)
 	}
 }
 
-void snd::Camera::SetLocation(const glm::vec3& location)
-{
-	m_Proxy.Eye = location;
-
-	m_ViewMatrix.MakeDirty();
-	m_RightVector.MakeDirty();
-	m_ForwardVector.MakeDirty();
-}
-
-void snd::Camera::SetTarget(const glm::vec3& target)
-{
-	m_Proxy.At = target;
-
-	m_ViewMatrix.MakeDirty();
-	m_RightVector.MakeDirty();
-	m_ForwardVector.MakeDirty();
-}
-
-void snd::Camera::SetPerspective(float fov, float aspect, float n, float f)
-{
-	SND_ASSERT(m_Type == Type::Perspective, "Camera is not perspective");
-
-	m_Proxy.Fov = fov;
-	m_Proxy.Aspect = aspect;
-	m_Proxy.Near = n;
-	m_Proxy.Far = f;
-
-	m_ProjectionMatrix.MakeDirty();
-}
-
-void snd::Camera::SetOrthographic(float l, float r, float b, float t, float n, float f)
-{
-	SND_ASSERT(m_Type == Type::Orthographic, "Camera is not orthographic");
-
-	m_Proxy.Left = l;
-	m_Proxy.Right = r;
-	m_Proxy.Bottom = b;
-	m_Proxy.Top = t;
-	m_Proxy.Near = n;
-	m_Proxy.Far = f;
-
-	m_ProjectionMatrix.MakeDirty();
-}
-
-void snd::Camera::SetOrthographic(const glm::vec4& ortho, float n, float f)
-{
-	SetOrthographic(ortho[0], ortho[1], ortho[2], ortho[3], n, f);
-}
-
-glm::vec3 snd::Camera::Location() const
-{
-	return m_Proxy.Eye;
-}
-
-glm::vec3 snd::Camera::Target() const
-{
-	return m_Proxy.At;
-}
-
 glm::vec3 snd::Camera::ForwardVector()
 {
 	if (m_ForwardVector.IsDirty())
@@ -165,6 +106,55 @@ glm::mat4 snd::Camera::ProjectionMatrix()
 	}
 
 	return m_ProjectionMatrix.Current();
+}
+
+void snd::Camera::SetLocation(const glm::vec3& location)
+{
+	m_Proxy.Eye = location;
+
+	m_ViewMatrix.MakeDirty();
+	m_RightVector.MakeDirty();
+	m_ForwardVector.MakeDirty();
+}
+
+void snd::Camera::SetTarget(const glm::vec3& target)
+{
+	m_Proxy.At = target;
+
+	m_ViewMatrix.MakeDirty();
+	m_RightVector.MakeDirty();
+	m_ForwardVector.MakeDirty();
+}
+
+void snd::Camera::SetPerspective(float fov, float aspect, float n, float f)
+{
+	SND_ASSERT(m_Type == Type::Perspective, "Camera is not perspective");
+
+	m_Proxy.Fov = fov;
+	m_Proxy.Aspect = aspect;
+	m_Proxy.Near = n;
+	m_Proxy.Far = f;
+
+	m_ProjectionMatrix.MakeDirty();
+}
+
+void snd::Camera::SetOrthographic(float l, float r, float b, float t, float n, float f)
+{
+	SND_ASSERT(m_Type == Type::Orthographic, "Camera is not orthographic");
+
+	m_Proxy.Left = l;
+	m_Proxy.Right = r;
+	m_Proxy.Bottom = b;
+	m_Proxy.Top = t;
+	m_Proxy.Near = n;
+	m_Proxy.Far = f;
+
+	m_ProjectionMatrix.MakeDirty();
+}
+
+void snd::Camera::SetOrthographic(const glm::vec4& ortho, float n, float f)
+{
+	SetOrthographic(ortho[0], ortho[1], ortho[2], ortho[3], n, f);
 }
 
 void snd::Camera::MoveForward(float delta)
