@@ -19,6 +19,8 @@
 #define GLUE_INNER(a, b) a ## b
 #define GLUE(a, b) GLUE_INNER(a, b)
 
+#define SND_INLINE __forceinline
+
 #define SND_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
 #include "SandboxEngine/Core/Log.h"
