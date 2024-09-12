@@ -30,7 +30,7 @@ namespace snd
     class Delegate
     {
     public:
-        using DelegateImpl =    fastdelegate::FastDelegate<TReturn(Params...)>;
+        using DelegateImpl      = fastdelegate::FastDelegate<TReturn(Params...)>;
         
     public:
         void                    BindRaw(TReturn (*bindFunction)(Params... params));

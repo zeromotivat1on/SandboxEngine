@@ -9,71 +9,110 @@ namespace snd
     class Dirty
     {
     public:
-        Dirty() = default;
+                            Dirty();
+        explicit            Dirty(const T& value);
+        explicit            Dirty(T&& value);
 
-        explicit Dirty(const T& value)
-            : m_Current(value) 
-        {}
+        Dirty&              operator=(const T& value);
+        Dirty&              operator=(T&& value);
 
-        explicit Dirty(T&& value)
-            : m_Current(std::move(value)) 
-        {}
+        void                Set(const T& value);
+        void                Set(T&& value);
 
-        Dirty& operator=(const T& value)
-        {
-            if (m_Current != value)
-            {
-                m_Old = m_Current;
-                m_Current = value;
-                m_IsDirty = true;
-            }
+        const T&            Current() const;
+        const auto&         Old() const;
 
-            return *this;
-        }
-
-        Dirty& operator=(T&& value)
-        {
-            if (m_Current != value)
-            {
-                m_Old = std::move(m_Current);
-                m_Current = std::move(value);
-                m_IsDirty = true;
-            }
-
-            return *this;
-        }
-
-        void Set(const T& value)
-        {
-            if (m_Current != value)
-            {
-                m_Old = m_Current;
-                m_Current = value;
-                m_IsDirty = true;
-            }
-        }
-
-        void Set(T&& value)
-        {
-            if (m_Current != value)
-            {
-                m_Old = std::move(m_Current);
-                m_Current = std::move(value);
-                m_IsDirty = true;
-            }
-        }
-
-        inline const T&                Current() const { return m_Current; }
-        inline const std::optional<T>& Old()     const { return m_Old; }
-        
-        inline bool IsDirty() const { return m_IsDirty; }
-
-        inline void MakeDirty()  { m_IsDirty = true; }
-        inline void ClearDirty() { m_IsDirty = false; }
+        bool                IsDirty() const;
+        void                MakeDirty();
+        void                ClearDirty();
 
     private:
-        T m_Current = {};
-        std::optional<T> m_Old = std::nullopt;
-        bool m_IsDirty = false;
+        T                   m_Current;
+        std::optional<T>    m_Old;
+        bool                m_IsDirty;
     };
+
+    template <typename T>
+    Dirty<T>::Dirty()
+        : m_Current(), m_IsDirty(false)
+    {
+    }
+
+    template <typename T>
+    Dirty<T>::Dirty(const T& value)
+        : m_Current(value), m_IsDirty(false)
+    {
+    }
+
+    template <typename T>
+    Dirty<T>::Dirty(T&& value)
+        : m_Current(std::move(value)), m_IsDirty(false)
+    {
+    }
+
+    template <typename T>
+    Dirty<T>& Dirty<T>::operator=(const T& value)
+    {
+        Set(value);
+        return *this;
+    }
+
+    template <typename T>
+    Dirty<T>& Dirty<T>::operator=(T&& value)
+    {
+        Set(value);
+        return *this;
+    }
+
+    template <typename T>
+    void Dirty<T>::Set(const T& value)
+    {
+        if (m_Current != value)
+        {
+            m_Old = m_Current;
+            m_Current = value;
+            m_IsDirty = true;
+        }
+    }
+
+    template <typename T>
+    void Dirty<T>::Set(T&& value)
+    {
+        if (m_Current != value)
+        {
+            m_Old = std::move(m_Current);
+            m_Current = std::move(value);
+            m_IsDirty = true;
+        }
+    }
+
+    template <typename T>
+    const T& Dirty<T>::Current() const
+    {
+        return m_Current;
+    }
+
+    template <typename T>
+    const auto& Dirty<T>::Old() const
+    {
+        return m_Old;
+    }
+
+    template <typename T>
+    bool Dirty<T>::IsDirty() const
+    {
+        return m_IsDirty;
+    }
+
+    template <typename T>
+    void Dirty<T>::MakeDirty()
+    {
+        m_IsDirty = true;
+    }
+
+    template <typename T>
+    void Dirty<T>::ClearDirty()
+    {
+        m_IsDirty = false;
+    }
 }
