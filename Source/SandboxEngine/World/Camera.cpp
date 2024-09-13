@@ -7,6 +7,7 @@
 snd::Camera::Camera(Type type)
 	: m_Type(type)
 {
+	memset(&m_Proxy, 0, sizeof(m_Proxy));
 	m_Proxy.Up = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
