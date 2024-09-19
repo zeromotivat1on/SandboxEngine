@@ -1,5 +1,5 @@
 #include "sndpch.h"
-#include "EntryPoint.h"
+#include "SandboxEngine/Core/EntryPoint.h"
 #include "SandboxEngine/Core/Log.h"
 #include "SandboxEngine/Engine/EngineLoop.h"
 
