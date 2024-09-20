@@ -26,6 +26,7 @@
 // Miscellaneous 
 
 #define INVALID_INDEX           (-1)
+#define INVALID_UINDEX          (-1u)
 #define INVALID_SIZE_INDEX      static_cast<size_t>(-1)
 
 #define SND_INLINE              __forceinline

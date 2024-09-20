@@ -11,7 +11,7 @@ snd::Camera::Camera(Type type)
 	m_Proxy.Up = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
-void snd::Camera::Tick(float dt)
+void snd::Camera::Tick(f32 dt)
 {
 	if (input::ButtonDown(KeyboardBit::A))
 	{
@@ -100,7 +100,7 @@ glm::mat4 snd::Camera::ProjectionMatrix()
 			m_ProjectionMatrix = m_Proxy.PerpsectiveProjectionMatrix();
 			break;
 		default:
-			SND_LOG_ERROR("Unknown camera type {}", static_cast<int32_t>(m_Type));
+			SND_LOG_ERROR("Unknown camera type {}", static_cast<i32>(m_Type));
 		}
 
 		m_ProjectionMatrix.ClearDirty();
@@ -127,7 +127,7 @@ void snd::Camera::SetTarget(const glm::vec3& target)
 	m_ForwardVector.MakeDirty();
 }
 
-void snd::Camera::SetPerspective(float fov, float aspect, float n, float f)
+void snd::Camera::SetPerspective(f32 fov, f32 aspect, f32 n, f32 f)
 {
 	SND_ASSERT(m_Type == Type::Perspective, "Camera is not perspective");
 
@@ -139,7 +139,7 @@ void snd::Camera::SetPerspective(float fov, float aspect, float n, float f)
 	m_ProjectionMatrix.MakeDirty();
 }
 
-void snd::Camera::SetOrthographic(float l, float r, float b, float t, float n, float f)
+void snd::Camera::SetOrthographic(f32 l, f32 r, f32 b, f32 t, f32 n, f32 f)
 {
 	SND_ASSERT(m_Type == Type::Orthographic, "Camera is not orthographic");
 
@@ -153,32 +153,32 @@ void snd::Camera::SetOrthographic(float l, float r, float b, float t, float n, f
 	m_ProjectionMatrix.MakeDirty();
 }
 
-void snd::Camera::SetOrthographic(const glm::vec4& ortho, float n, float f)
+void snd::Camera::SetOrthographic(const glm::vec4& ortho, f32 n, f32 f)
 {
 	SetOrthographic(ortho[0], ortho[1], ortho[2], ortho[3], n, f);
 }
 
-void snd::Camera::MoveForward(float delta)
+void snd::Camera::MoveForward(f32 delta)
 {
 	const glm::vec3 forward = ForwardVector();
 	SetLocation(Location() + forward * delta);
 	SetTarget(Target() + forward * delta);
 }
 
-void snd::Camera::MoveRight(float delta)
+void snd::Camera::MoveRight(f32 delta)
 {
 	const glm::vec3 right = RightVector();
 	SetLocation(Location() + right * delta);
 	SetTarget(Target() + right * delta);
 }
 
-void snd::Camera::RotateUp(float angle)
+void snd::Camera::RotateUp(f32 angle)
 {
 	const glm::vec3 rotateDirection = glm::rotate(ForwardVector(), glm::radians(angle), m_Proxy.RightVector());
 	SetTarget(Location() + rotateDirection);
 }
 
-void snd::Camera::RotateRight(float angle)
+void snd::Camera::RotateRight(f32 angle)
 {
 	const glm::vec3 rotateDirection = glm::rotateY(ForwardVector(), glm::radians(-angle));
 	SetTarget(Location() + rotateDirection);

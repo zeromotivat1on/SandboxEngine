@@ -7,11 +7,11 @@ namespace snd
 	class WindowResizedEvent : public Event
 	{
 	public:
-		WindowResizedEvent(uint32_t width, uint32_t height)
+		WindowResizedEvent(u32 width, u32 height)
 			: m_Width(width), m_Height(height) {}
 
-		inline uint32_t GetWidth() const { return m_Width; }
-		inline uint32_t GetHeight() const { return m_Height; }
+		inline u32 GetWidth() const { return m_Width; }
+		inline u32 GetHeight() const { return m_Height; }
 
 		inline std::string ToString() const override
 		{
@@ -21,11 +21,11 @@ namespace snd
 		}
 
 		EVENT_CLASS_TYPE(WindowResized);
-		EVENT_CLASS_CATEGORY(uint32_t(EventCategory::Window));
+		EVENT_CLASS_CATEGORY(u32(EventCategory::Window));
 
 	private:
-		uint32_t m_Width; 
-		uint32_t m_Height;
+		u32 m_Width; 
+		u32 m_Height;
 	};
 
 	class WindowClosedEvent : public Event
@@ -34,6 +34,6 @@ namespace snd
 		WindowClosedEvent() = default;
 
 		EVENT_CLASS_TYPE(WindowClosed);
-		EVENT_CLASS_CATEGORY(uint32_t(EventCategory::Window));
+		EVENT_CLASS_CATEGORY(u32(EventCategory::Window));
 	};
 }

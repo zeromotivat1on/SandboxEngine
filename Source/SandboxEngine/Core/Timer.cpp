@@ -2,31 +2,31 @@
 #include "Timer.h"
 #include <bx/timer.h>
 
-static int64_t StartupCounter = snd::HighPrecisionCounter();
+i64 g_StartupCounter = snd::HighPrecisionCounter();
 
-float snd::CurrentTime()
+f32 snd::CurrentTime()
 {
-    return std::chrono::duration<float>(Timer::Clock::now().time_since_epoch()).count();
+    return std::chrono::duration<f32>(Timer::Clock::now().time_since_epoch()).count();
 }
 
-float snd::StartupTime()
+f32 snd::StartupTime()
 {
-    return ElapsedSeconds(StartupCounter);
+    return ElapsedSeconds(g_StartupCounter);
 }
 
-int64_t snd::HighPrecisionCounter()
+i64 snd::HighPrecisionCounter()
 {
     return bx::getHPCounter();
 }
 
-int64_t snd::HighPrecisionFrequency()
+i64 snd::HighPrecisionFrequency()
 {
     return bx::getHPFrequency();
 }
 
-float snd::ElapsedSeconds(int64_t counter)
+f32 snd::ElapsedSeconds(i64 counter)
 {
-    const float frequency = static_cast<float>(HighPrecisionFrequency());
-    const int64_t deltaCounter = HighPrecisionCounter() - counter;
-    return static_cast<float>(deltaCounter) / frequency;
+    const f32 frequency = static_cast<f32>(HighPrecisionFrequency());
+    const i64 deltaCounter = HighPrecisionCounter() - counter;
+    return static_cast<f32>(deltaCounter) / frequency;
 }

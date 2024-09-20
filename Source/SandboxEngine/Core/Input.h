@@ -8,38 +8,38 @@ namespace snd::input
 	// State of keyboard input.
 	struct Keyboard
 	{
-		std::bitset<static_cast<uint8_t>(KeyboardBit::Count)> Buttons = 0;		// current frame's button states
-		std::bitset<static_cast<uint8_t>(KeyboardBit::Count)> PrevButtons = 0;	// previous frame's button states
-		std::bitset<static_cast<uint8_t>(KeyboardBit::Count)> ButtonsDown = 0;	// pressed buttons this frame
-		std::bitset<static_cast<uint8_t>(KeyboardBit::Count)> ButtonsUp = 0;	// released buttons this frame
+		std::bitset<static_cast<u8>(KeyboardBit::Count)> Buttons;		// current frame's button states
+		std::bitset<static_cast<u8>(KeyboardBit::Count)> PrevButtons;	// previous frame's button states
+		std::bitset<static_cast<u8>(KeyboardBit::Count)> ButtonsDown;	// pressed buttons this frame
+		std::bitset<static_cast<u8>(KeyboardBit::Count)> ButtonsUp;		// released buttons this frame
 	};
 
 	// State of mouse input.
 	struct Mouse
 	{
-		float X = 0.0f;
-		float Y = 0.0f;
+		f32 X;
+		f32 Y;
 		
-		uint8_t Buttons = 0;
-		uint8_t PrevButtons = 0;
-		uint8_t ButtonsDown = 0;
-		uint8_t ButtonsUp = 0;
+		u8 Buttons;
+		u8 PrevButtons;
+		u8 ButtonsDown;
+		u8 ButtonsUp;
 	};
 
 	// State of gamepad input. Thumbstick and trigger values range from -1.0 to 1.0 inclusive.
 	struct Gamepad
 	{
-		uint32_t Buttons = 0;
-		uint32_t PrevButtons = 0;
-		uint32_t ButtonsDown = 0;
-		uint32_t ButtonsUp = 0;
+		u32 Buttons;
+		u32 PrevButtons;
+		u32 ButtonsDown;
+		u32 ButtonsUp;
 		
-		float ThumbLX = 0;
-		float ThumbLY = 0;
-		float ThumbRX = 0;
-		float ThumbRY = 0;
-		float TriggerL = 0;
-		float TriggerR = 0;
+		f32 ThumbLX;
+		f32 ThumbLY;
+		f32 ThumbRX;
+		f32 ThumbRY;
+		f32 TriggerL;
+		f32 TriggerR;
 	};
 
 	void Init(Window* window);
@@ -74,12 +74,12 @@ namespace snd::input
 	bool ButtonJustWentUp(MouseBit bit);
 	
 	// Convert platform keycode to engine system key.
-	KeyboardBit ConvertKeyboardCode(int32_t keycode);
-	GamepadBit	ConvertGamepadCode(int32_t keycode);
-	MouseBit	ConvertMouseCode(int32_t keycode);
+	KeyboardBit ConvertKeyboardCode(i32 keycode);
+	GamepadBit	ConvertGamepadCode(i32 keycode);
+	MouseBit	ConvertMouseCode(i32 keycode);
 
 	// Convert engine system key to platform keycode.
-	int32_t ConvertBit(KeyboardBit bit);
-	int32_t ConvertBit(GamepadBit bit);
-	int32_t ConvertBit(MouseBit bit);
+	i32 ConvertBit(KeyboardBit bit);
+	i32 ConvertBit(GamepadBit bit);
+	i32 ConvertBit(MouseBit bit);
 }

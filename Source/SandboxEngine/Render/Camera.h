@@ -11,16 +11,16 @@ namespace snd::render
 		glm::vec3 			Up;		// the up vector defining the camera's vertical direction
 		glm::vec3 			Eye;	// the position of the camera in the world space
 
-		float 				Fov;	// the field of camera view
-		float 				Aspect;	// the aspect ratio
+		f32 				Fov;	// the field of camera view
+		f32 				Aspect;	// the aspect ratio
 
-		float 				Near;	// the camera near clipping plane
-		float 				Far;	// the camera far clipping plane
+		f32 				Near;	// the camera near clipping plane
+		f32 				Far;	// the camera far clipping plane
 
-		float 				Left;	// the camera left clipping plane
-		float 				Right;	// the camera right clipping plane
-		float 				Bottom;	// the camera bottom clipping plane
-		float 				Top;	// the camera top clipping plane
+		f32 				Left;	// the camera left clipping plane
+		f32 				Right;	// the camera right clipping plane
+		f32 				Bottom;	// the camera bottom clipping plane
+		f32 				Top;	// the camera top clipping plane
 		
 		glm::vec3			ForwardVector() const;					// calculate camera forward vector
 		glm::vec3			RightVector() const;					// calculate camera right vector

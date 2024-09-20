@@ -9,7 +9,7 @@ namespace snd
 	class Camera
 	{
 	public:
-		enum class Type : uint8_t
+		enum class Type : u8
 		{
 			Orthographic,
 			Perspective,
@@ -18,7 +18,7 @@ namespace snd
 	public:
 								Camera(Type type);
 
-		void					Tick(float dt);
+		void					Tick(f32 dt);
 
 		glm::vec3 				Location() const;
 		glm::vec3 				Target() const;
@@ -32,15 +32,15 @@ namespace snd
 		void 					SetLocation(const glm::vec3& location);
 		void 					SetTarget(const glm::vec3& target);
 
-		void 					SetPerspective(float fov, float aspect, float n, float f);
-		void 					SetOrthographic(float l, float r, float b, float t, float n, float f);
-		void 					SetOrthographic(const glm::vec4& ortho, float n, float f); // ortho should be as follows - [l, r, b, t]
+		void 					SetPerspective(f32 fov, f32 aspect, f32 n, f32 f);
+		void 					SetOrthographic(f32 l, f32 r, f32 b, f32 t, f32 n, f32 f);
+		void 					SetOrthographic(const glm::vec4& ortho, f32 n, f32 f); // ortho should be as follows - [l, r, b, t]
 
-		void 					MoveForward(float delta);
-		void 					MoveRight(float delta);
+		void 					MoveForward(f32 delta);
+		void 					MoveRight(f32 delta);
 		
-		void 					RotateUp(float angle);
-		void 					RotateRight(float angle);
+		void 					RotateUp(f32 angle);
+		void 					RotateRight(f32 angle);
 
 	private:
 		render::Camera			m_Proxy;

@@ -1,6 +1,7 @@
 #include "sndpch.h"
 #include "SandboxEngine/Engine/Engine.h"
 #include "SandboxEngine/Core/CoreMacros.h"
+#include "SandboxEngine/Core/Error.h"
 #include "SandboxEngine/Core/Profile.h"
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Render/Render.h"
@@ -9,8 +10,8 @@
 
 snd::Camera g_DebugCamera = snd::Camera(snd::Camera::Type::Perspective);
 
-snd::Engine::Engine(std::unique_ptr<Window>&& window)
-	: m_Window(std::move(window))
+snd::Engine::Engine(Window* window)
+	: m_Window(window), m_ExitRequested(false)
 {
 	Init();
 }
@@ -32,9 +33,9 @@ void snd::Engine::Init()
 
 	m_Window->SetEventCallback(SND_BIND_EVENT_FN(Engine::OnEvent));
 
-	input::Init(m_Window.get());
-	render::Init(m_Window.get());
-	ui::Init(m_Window.get());
+	input::Init(m_Window);
+	render::Init(m_Window);
+	ui::Init(m_Window);
 
 	g_DebugCamera.SetLocation(glm::vec3(0.0f, 0.0f, -35.0f));
 	g_DebugCamera.SetTarget(glm::vec3(0.0f));
@@ -114,7 +115,7 @@ bool snd::Engine::OnMouseKeyReleased(MouseKeyReleasedEvent& event)
 	return true;
 }
 
-void snd::Engine::Tick(float dt)
+void snd::Engine::Tick(f32 dt)
 {
 	m_Window->Update();
 

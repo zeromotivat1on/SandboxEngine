@@ -5,7 +5,7 @@
 namespace snd
 {
     // Describes key code and the position of bit in button state.
-    enum class KeyboardBit : uint8_t
+    enum class KeyboardBit : u8
     {
         Space,
         Apostrophe,		/* ' */
@@ -113,7 +113,7 @@ namespace snd
     };
 
     // Describes key code and the position of bit in gamepad state.
-    enum class GamepadBit : uint8_t
+    enum class GamepadBit : u8
     {
         DpadUp,
         DpadDown,
@@ -133,7 +133,7 @@ namespace snd
     };
 
     // Describes key code and the position of bit in mouse state.
-    enum class MouseBit : uint8_t
+    enum class MouseBit : u8
     {
         Left,
         Right,

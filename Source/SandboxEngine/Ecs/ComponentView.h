@@ -11,7 +11,7 @@ namespace snd
         struct Iterator
         {
         public:
-                                    Iterator(EntityContainer* container, EntityIndex index, size_t* ids, size_t idCount);
+                                    Iterator(EntityContainer* container, EntityIndex index, u16* ids, u8 idCount);
             
             EntityId                operator*() const;
             bool                    operator==(const Iterator& other) const;
@@ -20,14 +20,14 @@ namespace snd
 
         private:
             EntityContainer*        m_Container;
-            size_t*                 m_Ids;
-            size_t                  m_IdCount;
+            u16*                    m_Ids;
+            u8                      m_IdCount;
             EntityIndex             m_Index;
         };
         
     public:
                                     ComponentView() = default;
-                                    ComponentView(EntityContainer* container, size_t* componentIds, size_t idCount);
+                                    ComponentView(EntityContainer* container, u16* componentIds, u8 idCount);
                                     NOT_COPYABLE(ComponentView);
                                     NOT_MOVABLE (ComponentView);
                                     ~ComponentView() = default;
@@ -37,8 +37,8 @@ namespace snd
         
     private:
         EntityContainer*            m_Container;    // container to grab entities and components from
-        size_t*                     m_Ids;          // component ids to observe
-        size_t                      m_IdCount;      // amount of component ids
+        u16*                        m_Ids;          // component ids to observe
+        u8                          m_IdCount;      // amount of component ids
     };
 
     template <typename ...TComponents>
@@ -47,28 +47,31 @@ namespace snd
     public:
         using Iterator = ComponentView::Iterator;
 
-        static constexpr uint8_t s_MaxComponentIdCount = 32;
+        static constexpr u8 s_MaxComponentIdCount = 32;
         
     public:
                             ComponentViewTemplate(EntityContainer* container);
+                            NOT_COPYABLE(ComponentViewTemplate);
+                            NOT_MOVABLE (ComponentViewTemplate);
+                            ~ComponentViewTemplate() = default;
         
         const Iterator      begin() const;
         const Iterator      end() const;
         
     private:
         ComponentView       m_View;                         // view general implementation
-        size_t              m_Ids[s_MaxComponentIdCount];   // allocated component ids to outlive component view
+        u16                 m_Ids[s_MaxComponentIdCount];   // allocated component ids to outlive component view
     };
 
     // Check whether a given entity index is valid for further iteration.
-    SND_INLINE bool ValidIndex(const EntityContainer* container, EntityIndex index, size_t* componentIds, size_t idCount)
+    SND_INLINE bool ValidIndex(const EntityContainer* container, EntityIndex index, const u16* componentIds, u8 idCount)
     {
         return index != INVALID_ENTITY_INDEX && container->Has(index, componentIds, idCount);
     }
     
     // ComponentView
     
-    SND_INLINE ComponentView::ComponentView(EntityContainer* container, size_t* componentIds, size_t idCount)
+    SND_INLINE ComponentView::ComponentView(EntityContainer* container, u16* componentIds, u8 idCount)
         : m_Container(container), m_Ids(componentIds), m_IdCount(idCount)
     {
         
@@ -76,14 +79,14 @@ namespace snd
 
     SND_INLINE const ComponentView::Iterator ComponentView::begin() const
     {
-        size_t firstIndex = 0;
+        EntityIndex firstIndex = 0;
         
         while (firstIndex < m_Container->Count() && !ValidIndex(m_Container, firstIndex, m_Ids, m_IdCount)) 
         {
             firstIndex++;
         }
         
-        return Iterator(m_Container, static_cast<EntityIndex>(firstIndex), m_Ids, m_IdCount);
+        return Iterator(m_Container, firstIndex, m_Ids, m_IdCount);
     }
 
     
@@ -94,7 +97,7 @@ namespace snd
 
     // ComponentView::Iterator
 
-    SND_INLINE ComponentView::Iterator::Iterator(EntityContainer* container, EntityIndex index, size_t* ids, size_t idCount)
+    SND_INLINE ComponentView::Iterator::Iterator(EntityContainer* container, EntityIndex index, u16* ids, u8 idCount)
         : m_Container(container), m_Ids(ids), m_IdCount(idCount), m_Index(index)
     {
     }
@@ -130,7 +133,7 @@ namespace snd
     template <typename ... TComponents>
     ComponentViewTemplate<TComponents...>::ComponentViewTemplate(EntityContainer* container)
     {
-        constexpr size_t componentIdCount = sizeof...(TComponents);
+        constexpr u8 componentIdCount = sizeof...(TComponents);
 
         if constexpr (componentIdCount > 0)
         {

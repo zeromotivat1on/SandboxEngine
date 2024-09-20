@@ -7,32 +7,30 @@
 
 namespace snd
 {
-    using                           EntityId            = uint64_t;
-    using                           EntityIndex         = uint32_t;
-    using                           EntityVersion       = uint32_t;
+    using                           EntityId            = u64;
+    using                           EntityIndex         = u32;
+    using                           EntityVersion       = u32;
     
-    inline constexpr uint16_t       g_MaxEntities       = 2048;                             // max amount of entities we can process
-    inline constexpr uint16_t       g_MaxComponents     = 128;                             // max amount of components we can store
+    inline constexpr u16            g_MaxEntities       = 2048;     // max amount of entities we can process
+    inline constexpr u16            g_MaxComponents     = 128;      // max amount of components we can store
     
-    using                           ComponentMask       = std::bitset<g_MaxComponents>;     // mask to determine which components entity has
-
     namespace ecs
     {
-        inline size_t g_ComponentTypeCounter = 0;
+        inline u16 g_ComponentTypeCounter = 0;
     }
     
     template<typename TComponent>
-    size_t GetComponentId()
+    u16 GetComponentId()
     {
-        static size_t s_ComponentId = ecs::g_ComponentTypeCounter++;
+        static u16 s_ComponentId = ecs::g_ComponentTypeCounter++;
         return s_ComponentId;
     }
 
     template <typename ...TComponents>
-    void GetComponentIds(size_t* outIds)
+    void GetComponentIds(u16* outIds)
     {
-        size_t ids[] = { GetComponentId<TComponents>()... };
-        memcpy(outIds, ids, sizeof...(TComponents) * sizeof(size_t));
+        u16 ids[] = { GetComponentId<TComponents>()... };
+        memcpy(outIds, ids, sizeof...(TComponents) * sizeof(u8));
     }
     
     SND_INLINE EntityId GetEntityId(EntityIndex index, EntityVersion version)

@@ -30,7 +30,7 @@ void snd::EntityContainer::Destroy(EntityId id)
     m_FreeEntityIndices.push_back(GetEntityIndex(id));
 }
 
-void* snd::EntityContainer::Assign(EntityId id, size_t componentId, size_t componentSize)
+void* snd::EntityContainer::Assign(EntityId id, u16 componentId, u16 componentSize)
 {
     const EntityIndex index = GetEntityIndex(id);
     if (m_Entities[index] != id)
@@ -51,7 +51,7 @@ void* snd::EntityContainer::Assign(EntityId id, size_t componentId, size_t compo
     return m_ComponentBuffers[componentId].GetOrAllocate(index);
 }
 
-void* snd::EntityContainer::Get(EntityId id, size_t componentId) const
+void* snd::EntityContainer::Get(EntityId id, u16 componentId) const
 {
     const EntityIndex index = GetEntityIndex(id);
     if (m_Entities[index] != id)
@@ -62,7 +62,7 @@ void* snd::EntityContainer::Get(EntityId id, size_t componentId) const
     return m_ComponentBuffers[componentId].Get(index);
 }
 
-bool snd::EntityContainer::Remove(EntityId id, size_t componentId)
+bool snd::EntityContainer::Remove(EntityId id, u16 componentId)
 {
     const EntityIndex index = GetEntityIndex(id);
     if (m_Entities[index] != id)
@@ -78,7 +78,7 @@ bool snd::EntityContainer::Remove(EntityId id, size_t componentId)
     return m_ComponentBuffers[componentId].Remove(index);
 }
 
-bool snd::EntityContainer::Has(EntityId id, size_t* componentIds, size_t idCount) const
+bool snd::EntityContainer::Has(EntityId id, const u16* componentIds, u8 idCount) const
 {
     const EntityIndex index = GetEntityIndex(id);
 
@@ -90,7 +90,7 @@ bool snd::EntityContainer::Has(EntityId id, size_t* componentIds, size_t idCount
     return Has(index, componentIds, idCount);
 }
 
-bool snd::EntityContainer::Has(EntityIndex index, size_t* componentIds, size_t idCount) const
+bool snd::EntityContainer::Has(EntityIndex index, const u16* componentIds, u8 idCount) const
 {
     const EntityId entityId = m_Entities[index];
     

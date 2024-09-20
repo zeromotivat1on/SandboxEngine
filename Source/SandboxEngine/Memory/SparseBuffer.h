@@ -11,7 +11,7 @@ namespace snd
     {
     public:
                             SparseBuffer();
-                            SparseBuffer(size_t sparseCapacity, size_t denseElementSize);
+                            SparseBuffer(u32 sparseCapacity, u16 denseElementSize);
                             SparseBuffer(const SparseBuffer&) = delete;
                             SparseBuffer(SparseBuffer&& other) noexcept;
                             ~SparseBuffer();
@@ -19,19 +19,19 @@ namespace snd
         SparseBuffer&       operator=(const SparseBuffer&) = delete;
         SparseBuffer&       operator=(SparseBuffer&& other) noexcept;
         
-        void                Realloc(size_t sparseCapacity);
+        void                Realloc(u32 sparseCapacity);
         void                Free();
-        void*               Get(size_t index) const;
-        void*               Allocate(size_t index);
-        void*               GetOrAllocate(size_t index);
-        bool                Remove(size_t index);
+        void*               Get(u32 index) const;
+        void*               Allocate(u32 index);
+        void*               GetOrAllocate(u32 index);
+        bool                Remove(u32 index);
 
         bool                Valid() const;      // is buffer initialized
 
     private:
-        size_t              m_SparseCapacity;   // max amount of sparse indices
-        size_t              m_DenseCount;       // current amount of dense elements
-        size_t*             m_SparseIndices;    // sparse indices data
+        u32                 m_SparseCapacity;   // max amount of sparse indices
+        u32                 m_DenseCount;       // current amount of dense elements
+        u32*                m_SparseIndices;    // sparse indices data
         Buffer              m_DenseData;        // dense elements data
     };
 
@@ -40,13 +40,13 @@ namespace snd
     {
     }
 
-    SND_INLINE SparseBuffer::SparseBuffer(size_t sparseCapacity, size_t denseElementSize)
+    SND_INLINE SparseBuffer::SparseBuffer(u32 sparseCapacity, u16 denseElementSize)
         : m_SparseCapacity(sparseCapacity),
           m_DenseCount(0),
-          m_SparseIndices(new size_t[sparseCapacity]),
+          m_SparseIndices(new u32[sparseCapacity]),
           m_DenseData(0, denseElementSize)
     {
-        memset(m_SparseIndices, INVALID_SIZE_INDEX, m_SparseCapacity * sizeof(size_t));
+        memset(m_SparseIndices, INVALID_SIZE_INDEX, m_SparseCapacity * sizeof(u32));
     }
 
     SND_INLINE SparseBuffer::SparseBuffer(SparseBuffer&& other) noexcept
@@ -87,14 +87,14 @@ namespace snd
         return *this;
     }
 
-    SND_INLINE void SparseBuffer::Realloc(size_t sparseCapacity)
+    SND_INLINE void SparseBuffer::Realloc(u32 sparseCapacity)
     {
         if (sparseCapacity <= m_SparseCapacity)
         {
             return;
         }
 
-        size_t* sparseIndices = new size_t[sparseCapacity];
+        u32* sparseIndices = new u32[sparseCapacity];
 
         memset(sparseIndices + m_SparseCapacity, INVALID_SIZE_INDEX, (sparseCapacity - m_SparseCapacity) * sizeof(size_t));
         memcpy(sparseIndices, m_SparseIndices, m_SparseCapacity * sizeof(size_t));
@@ -116,14 +116,14 @@ namespace snd
         m_DenseCount = 0;
     }
 
-    SND_INLINE void* SparseBuffer::Get(size_t index) const
+    SND_INLINE void* SparseBuffer::Get(u32 index) const
     {
         if (index >= m_SparseCapacity)
         {
             return nullptr;
         }
         
-        const size_t denseIndex = m_SparseIndices[index];
+        const u32 denseIndex = m_SparseIndices[index];
 
         if (denseIndex >= m_DenseCount)
         {
@@ -133,26 +133,26 @@ namespace snd
         return m_DenseData.Get(denseIndex);
     }
 
-    SND_INLINE void* SparseBuffer::Allocate(size_t index)
+    SND_INLINE void* SparseBuffer::Allocate(u32 index)
     {
         if (index >= m_SparseCapacity)
         {
             return nullptr;
         }
 
-        const size_t denseIndex = m_DenseCount++;
+        const u32 denseIndex = m_DenseCount++;
         m_SparseIndices[index] = denseIndex;
 
         if (denseIndex >= m_DenseData.Capacity())
         {
-            const size_t newCapacity = m_DenseData.Capacity() * 2 + 1; 
+            const u32 newCapacity = m_DenseData.Capacity() * 2 + 1; 
             m_DenseData.Realloc(newCapacity);
         }
         
         return m_DenseData.Get(denseIndex);
     }
 
-    SND_INLINE void* SparseBuffer::GetOrAllocate(size_t index)
+    SND_INLINE void* SparseBuffer::GetOrAllocate(u32 index)
     {
         if (void* data = Get(index))
         {
@@ -162,15 +162,15 @@ namespace snd
         return Allocate(index);
     }
 
-    SND_INLINE bool SparseBuffer::Remove(size_t index)
+    SND_INLINE bool SparseBuffer::Remove(u32 index)
     {
-        if (index >= m_SparseCapacity || m_SparseIndices[index] == INVALID_SIZE_INDEX)
+        if (index >= m_SparseCapacity || m_SparseIndices[index] == INVALID_UINDEX)
         {
             return false;
         }
 
-        const size_t denseIndex     = m_SparseIndices[index];
-        const size_t lastDenseIndex = m_DenseCount - 1;
+        const u32 denseIndex     = m_SparseIndices[index];
+        const u32 lastDenseIndex = m_DenseCount - 1;
         
         m_SparseIndices[index] = INVALID_SIZE_INDEX;
 
@@ -185,7 +185,7 @@ namespace snd
 
         memcpy(targetElement, lastElement, m_DenseData.ElementSize());
 
-        for (size_t i = 0; i < m_SparseCapacity; ++i)
+        for (u32 i = 0; i < m_SparseCapacity; ++i)
         {
             if (m_SparseIndices[i] == lastDenseIndex)
             {

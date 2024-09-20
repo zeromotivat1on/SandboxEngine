@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "SandboxEngine/Core/Timer.h"
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Core/Delegate.h"
 
@@ -10,15 +11,15 @@ namespace snd::input
     class ButtonTapDetector
     {
     public:
-                            ButtonTapDetector(TInputBit button, float maxDt);
+                            ButtonTapDetector(TInputBit button, f32 maxDt);
 
         bool                GestureValid() const;
         void                Update();
 
     private:
         TInputBit           m_Button;
-        float               m_MaxDt;
-        float               m_LastTime;
+        f32                 m_MaxDt;
+        f32                 m_LastTime;
     };
 
     // Class that detects the given button sequence.
@@ -27,23 +28,23 @@ namespace snd::input
     class ButtonSequenceDetector
     {
     public:
-                            ButtonSequenceDetector(TInputBit* buttons, uint32_t buttonCount, float maxDt, SimpleDelegate& delegate);
+                            ButtonSequenceDetector(TInputBit* buttons, u32 buttonCount, f32 maxDt, SimpleDelegate& delegate);
 
         void                Update();
 
     private:
         SimpleDelegate*     m_Delegate;
         TInputBit*          m_Buttons;
-        uint32_t            m_ButtonCount;
-        uint32_t            m_NextButtonIndex;
-        float               m_MaxDt;
-        float               m_StartTime;
+        u32                 m_ButtonCount;
+        u32                 m_NextButtonIndex;
+        f32                 m_MaxDt;
+        f32                 m_StartTime;
     };
 
     // ButtonTapDetector
 
     template <typename TInputBit>
-    ButtonTapDetector<TInputBit>::ButtonTapDetector(TInputBit button, float maxDt)
+    ButtonTapDetector<TInputBit>::ButtonTapDetector(TInputBit button, f32 maxDt)
         : m_Button(button), m_MaxDt(maxDt), m_LastTime(CurrentTime() - maxDt)
     {
     }
@@ -51,7 +52,7 @@ namespace snd::input
     template <typename TInputBit>
     bool ButtonTapDetector<TInputBit>::GestureValid() const
     {
-        const float dt = CurrentTime() - m_LastTime;
+        const f32 dt = CurrentTime() - m_LastTime;
         return (dt < m_MaxDt);
     }
 
@@ -67,7 +68,7 @@ namespace snd::input
     // ButtonSequenceDetector
 
     template <typename TInputBit>
-    ButtonSequenceDetector<TInputBit>::ButtonSequenceDetector(TInputBit* buttons, uint32_t buttonCount, float maxDt, SimpleDelegate& delegate)
+    ButtonSequenceDetector<TInputBit>::ButtonSequenceDetector(TInputBit* buttons, u32 buttonCount, f32 maxDt, SimpleDelegate& delegate)
         : m_Delegate(&delegate), m_Buttons(buttons), m_ButtonCount(buttonCount), m_NextButtonIndex(0), m_MaxDt(maxDt), m_StartTime(0)
     {
     }
@@ -97,7 +98,7 @@ namespace snd::input
                 return;
             }
                 
-            const float dt = CurrentTime() - m_StartTime;
+            const f32 dt = CurrentTime() - m_StartTime;
             if (dt < m_MaxDt)
             {
                 // Sequence is still valid.

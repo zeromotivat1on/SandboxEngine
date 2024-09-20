@@ -15,10 +15,10 @@ static snd::Camera* s_Camera = nullptr;
 
 struct PosColorVertex
 {
-	float m_x;
-	float m_y;
-	float m_z;
-	uint32_t m_abgr;
+	f32 m_x;
+	f32 m_y;
+	f32 m_z;
+	u32 m_abgr;
 
 	static void init()
 	{
@@ -46,7 +46,7 @@ static PosColorVertex s_cubeVertices[] =
 	{ 1.0f, -1.0f, -1.0f, 0xffffffff },
 };
 
-static const uint16_t s_cubeTriList[] =
+static const u16 s_cubeTriList[] =
 {
 	0, 1, 2, // 0
 	1, 3, 2,
@@ -104,9 +104,9 @@ void snd::render::Shutdown()
 	bgfx::shutdown();
 }
 
-void snd::render::OnWindowResized(uint32_t width, uint32_t height)
+void snd::render::OnWindowResized(u16 width, u16 height)
 {
-	uint32_t flags = 0;
+	u32 flags = 0;
 
 	if (s_Window->IsVsync())
 	{
@@ -136,10 +136,10 @@ std::string ToString(const glm::vec2& vec)
 	return oss.str();
 }
 
-void snd::render::Tick(float dt)
+void snd::render::Tick(f32 dt)
 {
 	bgfx::setViewTransform(0, glm::value_ptr(s_Camera->ViewMatrix()), glm::value_ptr(s_Camera->ProjectionMatrix()));
-	bgfx::setViewRect(0, 0, 0, (uint16_t)s_Window->GetWidth(), (uint16_t)s_Window->GetHeight());
+	bgfx::setViewRect(0, 0, 0, s_Window->GetWidth(), s_Window->GetHeight());
 
 	// This dummy draw call is here to make sure that view 0 is cleared
 	// if no other draw calls are submitted to view 0.
@@ -147,9 +147,9 @@ void snd::render::Tick(float dt)
 
 	bgfx::dbgTextClear();
 
-	const float time = StartupTime();
+	const f32 time = StartupTime();
 
-	uint8_t dbgTextY = 1;
+	u8 dbgTextY = 1;
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Window size: %dx%d", s_Window->GetWidth(), s_Window->GetHeight());
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Run time: %.2fs", time);
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Delta time: %.2fms", (dt * 1000.0f));
@@ -160,7 +160,7 @@ void snd::render::Tick(float dt)
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Mouse: position %s", ToString(input::MousePosition()).c_str());
 
 	std::stringstream pressedKeyboardButtons;
-	for (int32_t i = 0; i < static_cast<int32_t>(KeyboardBit::Count); ++i)
+	for (u8 i = 0; i < static_cast<u8>(KeyboardBit::Count); ++i)
 	{
 		if (input::KeyboardState().Buttons[i])
 		{
@@ -170,7 +170,7 @@ void snd::render::Tick(float dt)
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Pressed Keyboardcodes: %s", pressedKeyboardButtons.str().c_str());
 
 	std::stringstream pressedGamepadButtons;
-	for (int32_t i = 0; i < static_cast<int32_t>(GamepadBit::Count); ++i)
+	for (u8 i = 0; i < static_cast<u8>(GamepadBit::Count); ++i)
 	{
 		if (CHECK_BIT(input::GamepadState().Buttons, i))
 		{
@@ -180,7 +180,7 @@ void snd::render::Tick(float dt)
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Pressed Gamepadcodes: %s", pressedGamepadButtons.str().c_str());
 
 	std::stringstream pressedMouseButtons;
-	for (int32_t i = 0; i < static_cast<int32_t>(MouseBit::Count); ++i)
+	for (u8 i = 0; i < static_cast<u8>(MouseBit::Count); ++i)
 	{
 		if (CHECK_BIT(input::MouseState().Buttons, i))
 		{
@@ -189,14 +189,14 @@ void snd::render::Tick(float dt)
 	}
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Pressed Mousecodes: %s", pressedMouseButtons.str().c_str());
 	
-	for (uint32_t yy = 0; yy < 11; ++yy)
+	for (u8 yy = 0; yy < 11; ++yy)
 	{
-		for (uint32_t xx = 0; xx < 11; ++xx)
+		for (u8 xx = 0; xx < 11; ++xx)
 		{
-			float mtx[16];
+			f32 mtx[16];
 			bx::mtxRotateXY(mtx, time + xx * 0.21f, time + yy * 0.37f);
-			mtx[12] = -15.0f + float(xx) * 3.0f;
-			mtx[13] = -15.0f + float(yy) * 3.0f;
+			mtx[12] = -15.0f + static_cast<f32>(xx) * 3.0f;
+			mtx[13] = -15.0f + static_cast<f32>(yy) * 3.0f;
 			mtx[14] = 0.0f;
 
 			// Set model matrix for rendering.

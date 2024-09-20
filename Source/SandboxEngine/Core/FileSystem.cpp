@@ -9,7 +9,7 @@ static const bgfx::Memory* LoadMemory(bx::FileReaderI* reader, const bx::FilePat
 {
 	if (bx::open(reader, path))
 	{
-		const uint32_t size = (uint32_t)bx::getSize(reader);
+		const i32 size = static_cast<i32>(bx::getSize(reader));
 		const bgfx::Memory* mem = bgfx::alloc(size + 1);
 		
 		bx::read(reader, mem->data, size, bx::ErrorAssert());

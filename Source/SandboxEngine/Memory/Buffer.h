@@ -6,11 +6,12 @@
 namespace snd
 {
     // General buffer with an ability to store elements of given size.
+    // Max size this buffer can hold ~= 4GB * ElementSize.
     struct Buffer
     {
     public:
                             Buffer();
-                            Buffer(size_t capacity, size_t elementSize);
+                            Buffer(u32 capacity, u16 elementSize);
                             Buffer(const Buffer&) = delete;
                             Buffer(Buffer&& other) noexcept;
                             ~Buffer();
@@ -18,24 +19,24 @@ namespace snd
         Buffer&             operator=(const Buffer&) = delete;
         Buffer&             operator=(Buffer&& other) noexcept;
         
-        void                Realloc(size_t capacity);
-        void                Realloc(size_t capacity, size_t elementSize);
+        void                Realloc(u32 capacity);
+        void                Realloc(u32 capacity, u16 elementSize);
         void                Free();
-        void*               Get(size_t index) const;
+        void*               Get(u32 index) const;
         
         bool                Valid() const;          // is buffer initialized
         void*               Data() const;           // internal data pointer
         void*               Last() const;           // pointer to last buffer element
-        size_t              Size() const;           // buffer size in bytes
-        size_t              Capacity() const;       // amount of buffer elements it can hold
-        size_t              ElementSize() const;    // buffer element size in bytes
+        u64                 Size() const;           // buffer size in bytes
+        u32                 Capacity() const;       // amount of buffer elements it can hold
+        u16                 ElementSize() const;    // buffer element size in bytes
 
-        void                Meminit(uint8_t val) const;
+        void                Meminit(u8 val) const;
         
     private:
-        uint8_t*            m_Data;
-        size_t              m_Capacity;
-        size_t              m_ElementSize;
+        u8*                 m_Data;
+        u32                 m_Capacity;
+        u16                 m_ElementSize;
     };
 
     SND_INLINE Buffer::Buffer()
@@ -43,7 +44,7 @@ namespace snd
     {
     }
 
-    SND_INLINE Buffer::Buffer(size_t capacity, size_t elementSize)
+    SND_INLINE Buffer::Buffer(u32 capacity, u16 elementSize)
         : m_Data(nullptr), m_Capacity(capacity), m_ElementSize(elementSize)
     {
         Realloc(capacity, elementSize);
@@ -85,12 +86,12 @@ namespace snd
         return *this;
     }
 
-    SND_INLINE void Buffer::Realloc(size_t capacity)
+    SND_INLINE void Buffer::Realloc(u32 capacity)
     {
         Realloc(capacity, m_ElementSize);
     }
 
-    SND_INLINE void Buffer::Realloc(size_t capacity, size_t elementSize)
+    SND_INLINE void Buffer::Realloc(u32 capacity, u16 elementSize)
     {
         if (capacity == 0 || elementSize == 0)
         {
@@ -98,9 +99,9 @@ namespace snd
             return;
         }
         
-        if (void* newData = realloc(m_Data, capacity * elementSize))
+        if (void* newData = realloc(m_Data, static_cast<u64>(capacity) * elementSize))
         {
-            m_Data = static_cast<uint8_t*>(newData);
+            m_Data = static_cast<u8*>(newData);
             m_Capacity = capacity;
             m_ElementSize = elementSize;
         }
@@ -121,14 +122,14 @@ namespace snd
         }
     }
 
-    SND_INLINE void* Buffer::Get(size_t index) const
+    SND_INLINE void* Buffer::Get(u32 index) const
     {
         if (index >= m_Capacity)
         {
             return nullptr;            
         }
         
-        return m_Data + index * m_ElementSize;
+        return m_Data + static_cast<u64>(index) * m_ElementSize;
     }
 
     SND_INLINE bool Buffer::Valid() const
@@ -146,26 +147,26 @@ namespace snd
         return m_Data + (m_Capacity - 1);
     }
 
-    SND_INLINE size_t Buffer::Size() const
+    SND_INLINE u64 Buffer::Size() const
     {
-        return m_Capacity * m_ElementSize;
+        return static_cast<u64>(m_Capacity) * m_ElementSize;
     }
 
-    SND_INLINE size_t Buffer::Capacity() const
+    SND_INLINE u32 Buffer::Capacity() const
     {
         return m_Capacity;
     }
 
-    SND_INLINE size_t Buffer::ElementSize() const
+    SND_INLINE u16 Buffer::ElementSize() const
     {
         return m_ElementSize;
     }
 
-    SND_INLINE void Buffer::Meminit(uint8_t val) const
+    SND_INLINE void Buffer::Meminit(u8 val) const
     {
         if (m_Data)
         {
-            memset(m_Data, val, m_Capacity * m_ElementSize);
+            memset(m_Data, val, static_cast<u64>(m_Capacity) * m_ElementSize);
         }
     }
 }

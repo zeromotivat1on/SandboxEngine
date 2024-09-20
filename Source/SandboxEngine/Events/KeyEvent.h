@@ -5,7 +5,7 @@
 namespace snd
 {
 	// From GLFW
-	enum class KeyCode : uint16_t
+	enum class KeyCode : u16
 	{
 		Space			= 32,
 		Apostrophe		= 39,	/* ' */
@@ -116,7 +116,7 @@ namespace snd
 	public:
 		inline KeyCode GetKeyCode() const { return m_KeyCode; }
 
-		EVENT_CLASS_CATEGORY(uint32_t(EventCategory::Input) | uint32_t(EventCategory::Keyboard));
+		EVENT_CLASS_CATEGORY(u32(EventCategory::Input) | u32(EventCategory::Keyboard));
 	
 	protected:
 		KeyEvent(KeyCode code) : m_KeyCode(code) {}
@@ -140,7 +140,7 @@ namespace snd
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << uint32_t(m_KeyCode) << " (repeat = " << m_IsRepeat << ")";
+			ss << "KeyPressedEvent: " << u32(m_KeyCode) << " (repeat = " << m_IsRepeat << ")";
 			return ss.str();
 		}
 
@@ -157,7 +157,7 @@ namespace snd
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyReleasedEvent: " << uint32_t(m_KeyCode);
+			ss << "KeyReleasedEvent: " << u32(m_KeyCode);
 			return ss.str();
 		}
 
@@ -173,7 +173,7 @@ namespace snd
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyTypedEvent: " << uint32_t(m_KeyCode);
+			ss << "KeyTypedEvent: " << u32(m_KeyCode);
 			return ss.str();
 		}
 

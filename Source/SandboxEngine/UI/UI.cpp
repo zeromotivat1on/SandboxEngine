@@ -14,7 +14,7 @@ void snd::ui::Init(Window* window)
 	
 	IMGUI_CHECKVERSION();
 	SND_ASSERT(ImGui::CreateContext());
-	SND_ASSERT(ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)window->GetHandle(), true));
+	SND_ASSERT(ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(window->GetHandle()), true));
 	ImGui_Implbgfx_Init(0);
 }
 
@@ -27,7 +27,7 @@ void snd::ui::Shutdown()
 	ImGui::DestroyContext();
 }
 
-void snd::ui::Tick(float dt)
+void snd::ui::Tick(f32 dt)
 {
 	ImGui_Implbgfx_NewFrame();
 	ImGui_ImplGlfw_NewFrame();

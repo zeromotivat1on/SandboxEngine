@@ -64,7 +64,7 @@ namespace snd
         using DelegateType =        Delegate<void, Params...>;
 
     public:
-        static constexpr uint8_t    MaxBindings = 16;
+        static constexpr u8    MaxBindings = 16;
 
     public:
         void                        Add(const DelegateType& delegate);
@@ -86,7 +86,7 @@ namespace snd
 
     private:
         DelegateType                m_Bindings[MaxBindings];
-        uint8_t                     m_BindingsNum = 0;
+        u8                          m_BindingsNum = 0;
     };
 
     using SimpleDelegate            = Delegate<void>;
@@ -200,7 +200,7 @@ namespace snd
     template <typename ... Params>
     void DelegateMulticast<Params...>::Broadcast(Params... params) const
     {
-        for (uint8_t i = 0; i < m_BindingsNum; ++i)
+        for (u8 i = 0; i < m_BindingsNum; ++i)
         {
             m_Bindings[i].Execute(params...);
         }

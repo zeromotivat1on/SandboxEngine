@@ -7,7 +7,7 @@
 namespace snd
 {
     // StringId hash type.
-    using sid_hash = uint64_t;
+    using sid_hash = u64;
 
     // Global string id table.
     inline std::unordered_map<sid_hash, std::string> g_StringIdTable;

@@ -15,11 +15,11 @@ namespace snd
         const EntityId*                 Data() const;
         size_t                          Count() const;
         
-        void*                           Assign(EntityId id, size_t componentId, size_t componentSize);
-        void*                           Get(EntityId id, size_t componentId) const;
-        bool                            Remove(EntityId id, size_t componentId);
-        bool                            Has(EntityId id, size_t* componentIds, size_t idCount) const;
-        bool                            Has(EntityIndex index, size_t* componentIds, size_t idCount) const;
+        void*                           Assign(EntityId id, u16 componentId, u16 componentSize);
+        void*                           Get(EntityId id, u16 componentId) const;
+        bool                            Remove(EntityId id, u16 componentId);
+        bool                            Has(EntityId id, const u16* componentIds, u8 idCount) const;
+        bool                            Has(EntityIndex index, const u16* componentIds, u8 idCount) const;
 
     private:
         std::vector<EntityId>           m_Entities;
@@ -57,8 +57,8 @@ namespace snd
         template <typename TComponent>
         TComponent* Assign(EntityId id)
         {
-            const size_t componentId   = GetComponentId<TComponent>();
-            const size_t componentSize = sizeof(TComponent);
+            const u8  componentId   = GetComponentId<TComponent>();
+            const u16 componentSize = sizeof(TComponent);
             
             if (void* componentData = g_EntityContainer.Assign(id, componentId, componentSize))
             {

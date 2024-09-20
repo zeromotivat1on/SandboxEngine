@@ -5,7 +5,7 @@
 namespace snd
 {
 	// From GLFW
-	enum class MouseCode : uint8_t
+	enum class MouseCode : u8
 	{
 		Button0			= 0,
 		Button1			= 1,
@@ -38,7 +38,7 @@ namespace snd
 		}
 
 		EVENT_CLASS_TYPE(MouseMoved);
-		EVENT_CLASS_CATEGORY(uint32_t(EventCategory::Input) | uint32_t(EventCategory::Mouse));
+		EVENT_CLASS_CATEGORY(u32(EventCategory::Input) | u32(EventCategory::Mouse));
 
 	private:
 		float m_PosX = 0.0f;
@@ -62,7 +62,7 @@ namespace snd
 		}
 
 		EVENT_CLASS_TYPE(MouseScrolled);
-		EVENT_CLASS_CATEGORY(uint32_t(EventCategory::Input) | uint32_t(EventCategory::Mouse));
+		EVENT_CLASS_CATEGORY(u32(EventCategory::Input) | u32(EventCategory::Mouse));
 
 	private:
 		float m_OffsetX = 0.0f; 
@@ -74,7 +74,7 @@ namespace snd
 	public:
 		inline MouseCode GetMouseCode() const { return m_MouseCode; }
 
-		EVENT_CLASS_CATEGORY(uint32_t(EventCategory::Input) | uint32_t(EventCategory::Mouse) | uint32_t(EventCategory::MouseButton));
+		EVENT_CLASS_CATEGORY(u32(EventCategory::Input) | u32(EventCategory::Mouse) | u32(EventCategory::MouseButton));
 
 	protected:
 		MouseKeyEvent(MouseCode mouseCode) : m_MouseCode(mouseCode) {}
@@ -92,7 +92,7 @@ namespace snd
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "MouseButtonPressedEvent: " << uint32_t(m_MouseCode);
+			ss << "MouseButtonPressedEvent: " << u32(m_MouseCode);
 			return ss.str();
 		}
 
@@ -108,7 +108,7 @@ namespace snd
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "MouseButtonReleasedEvent: " << uint32_t(m_MouseCode);
+			ss << "MouseButtonReleasedEvent: " << u32(m_MouseCode);
 			return ss.str();
 		}
 

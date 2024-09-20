@@ -22,7 +22,7 @@
 #include "bx/timer.h"
 
 // Data
-static uint8_t g_View = 255;
+static u8 g_View = 255;
 static bgfx::TextureHandle g_FontTexture = BGFX_INVALID_HANDLE;
 static bgfx::ProgramHandle g_ShaderHandle = BGFX_INVALID_HANDLE;
 static bgfx::UniformHandle g_AttribLocationTex = BGFX_INVALID_HANDLE;
@@ -48,7 +48,7 @@ void ImGui_Implbgfx_RenderDrawData(ImDrawData* draw_data)
 
 	// Setup render state: alpha-blending enabled, no face culling,
 	// no depth testing, scissor enabled
-	uint64_t state =
+	u64 state =
 		BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_MSAA |
 		BGFX_STATE_BLEND_FUNC(
 			BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA);
@@ -61,7 +61,7 @@ void ImGui_Implbgfx_RenderDrawData(ImDrawData* draw_data)
 		ortho, 0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, 0.0f, 1000.0f,
 		0.0f, caps->homogeneousDepth);
 	bgfx::setViewTransform(g_View, NULL, ortho);
-	bgfx::setViewRect(g_View, 0, 0, (uint16_t)fb_width, (uint16_t)fb_height);
+	bgfx::setViewRect(g_View, 0, 0, (u16)fb_width, (u16)fb_height);
 
 	// Render command lists
 	for (int n = 0; n < draw_data->CmdListsCount; n++) {
@@ -70,8 +70,8 @@ void ImGui_Implbgfx_RenderDrawData(ImDrawData* draw_data)
 		bgfx::TransientVertexBuffer tvb;
 		bgfx::TransientIndexBuffer tib;
 
-		uint32_t numVertices = (uint32_t)cmd_list->VtxBuffer.size();
-		uint32_t numIndices = (uint32_t)cmd_list->IdxBuffer.size();
+		u32 numVertices = (u32)cmd_list->VtxBuffer.size();
+		u32 numIndices = (u32)cmd_list->IdxBuffer.size();
 
 		if ((numVertices != bgfx::getAvailTransientVertexBuffer(
 			numVertices, g_VertexLayout)) ||
@@ -100,15 +100,15 @@ void ImGui_Implbgfx_RenderDrawData(ImDrawData* draw_data)
 				pcmd->UserCallback(cmd_list, pcmd);
 			}
 			else {
-				const uint16_t xx = (uint16_t)bx::max(pcmd->ClipRect.x, 0.0f);
-				const uint16_t yy = (uint16_t)bx::max(pcmd->ClipRect.y, 0.0f);
+				const u16 xx = (u16)bx::max(pcmd->ClipRect.x, 0.0f);
+				const u16 yy = (u16)bx::max(pcmd->ClipRect.y, 0.0f);
 				bgfx::setScissor(
-					xx, yy, (uint16_t)bx::min(pcmd->ClipRect.z, 65535.0f) - xx,
-					(uint16_t)bx::min(pcmd->ClipRect.w, 65535.0f) - yy);
+					xx, yy, (u16)bx::min(pcmd->ClipRect.z, 65535.0f) - xx,
+					(u16)bx::min(pcmd->ClipRect.w, 65535.0f) - yy);
 
 				bgfx::setState(state);
 				bgfx::TextureHandle texture = {
-					(uint16_t)((intptr_t)pcmd->TextureId & 0xffff) };
+					(u16)((intptr_t)pcmd->TextureId & 0xffff) };
 				bgfx::setTexture(0, g_AttribLocationTex, texture);
 				bgfx::setVertexBuffer(0, &tvb, 0, numVertices);
 				bgfx::setIndexBuffer(&tib, pcmd->IdxOffset, pcmd->ElemCount);
@@ -128,7 +128,7 @@ bool ImGui_Implbgfx_CreateFontsTexture()
 
 	// Upload texture to graphics system
 	g_FontTexture = bgfx::createTexture2D(
-		(uint16_t)width, (uint16_t)height, false, 1, bgfx::TextureFormat::BGRA8,
+		(u16)width, (u16)height, false, 1, bgfx::TextureFormat::BGRA8,
 		0, bgfx::copy(pixels, width * height * 4));
 
 	// Store our identifier
@@ -180,7 +180,7 @@ void ImGui_Implbgfx_InvalidateDeviceObjects()
 
 void ImGui_Implbgfx_Init(int view)
 {
-	g_View = (uint8_t)(view & 0xff);
+	g_View = (u8)(view & 0xff);
 }
 
 void ImGui_Implbgfx_Shutdown()

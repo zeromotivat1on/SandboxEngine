@@ -5,17 +5,14 @@
 
 namespace snd
 {
-	// Get current time in seconds.
-	float	CurrentTime();
-
-	// Get time in seconds since engine startup.
-	float	StartupTime();
+	f32	CurrentTime(); // get current time in seconds
+	f32	StartupTime(); // get time in seconds since engine startup
     
-	int64_t HighPrecisionCounter();
-	int64_t HighPrecisionFrequency();
-	float	ElapsedSeconds(int64_t counter); // get passed seconds since given high precision counter
+	i64 HighPrecisionCounter();
+	i64 HighPrecisionFrequency();
+	f32	ElapsedSeconds(i64 counter); // get passed seconds since given high precision counter
 	
-	// Encapsulates basic usage of chrono, providing a means to calculate float durations between time points via function calls.
+	// Encapsulates basic usage of chrono, providing a means to calculate f32 durations between time points via function calls.
 	class Timer
 	{
 	public:
@@ -36,25 +33,26 @@ namespace snd
 		void					Lap();
 
 		template <typename T = DefaultResolution>
-		float					Stop();
+		f32						Stop();
 
 		template <typename T = DefaultResolution>
-		float					Elapsed();
+		f32						Elapsed();
 
 		template <typename T = DefaultResolution>
-		float					Tick();
+		f32						Tick();
 
 	private:
-		bool 					m_Running = false;
-		bool 					m_Lapping = false;
+		bool 					m_Running;
+		bool 					m_Lapping;
 		Clock::time_point 		m_StartTime;
 		Clock::time_point 		m_LapTime;
 		Clock::time_point		m_PreviousTick;
 	};
 
 	SND_INLINE Timer::Timer()
-		: m_StartTime(Clock::now()), m_PreviousTick(Clock::now())
-	{}
+		: m_Running(false), m_Lapping(false), m_StartTime(Clock::now()), m_PreviousTick(Clock::now())
+	{
+	}
 
 	SND_INLINE bool Timer::Running() const
 	{
@@ -77,7 +75,7 @@ namespace snd
 	}
 
 	template <typename T>
-	float Timer::Stop()
+	f32 Timer::Stop()
 	{
 		if (!m_Running)
 		{
@@ -87,7 +85,7 @@ namespace snd
 		m_Running = false;
 		m_Lapping = false;
 
-		const auto duration = std::chrono::duration<float, T>(Clock::now() - m_StartTime);
+		const auto duration = std::chrono::duration<f32, T>(Clock::now() - m_StartTime);
 		m_StartTime = Clock::now();
 		m_LapTime = Clock::now();
 
@@ -95,7 +93,7 @@ namespace snd
 	}
 
 	template <typename T>
-	float Timer::Elapsed()
+	f32 Timer::Elapsed()
 	{
 		if (!m_Running)
 		{
@@ -103,14 +101,14 @@ namespace snd
 		}
 
 		const Clock::time_point start = m_Lapping ? m_LapTime : m_StartTime;
-		return std::chrono::duration<float, T>(Clock::now() - start).count();
+		return std::chrono::duration<f32, T>(Clock::now() - start).count();
 	}
 
 	template <typename T>
-	float Timer::Tick()
+	f32 Timer::Tick()
 	{
 		const auto now = Clock::now();
-		const auto duration = std::chrono::duration<float, T>(now - m_PreviousTick);
+		const auto duration = std::chrono::duration<f32, T>(now - m_PreviousTick);
 		m_PreviousTick = now;
 		return duration.count();
 	}

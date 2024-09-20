@@ -6,11 +6,11 @@
 								virtual EventType GetEventType() const override { return GetStaticType(); }	\
 								virtual const char* GetName() const override { return #type; }
 
-#define EVENT_CLASS_CATEGORY(category) virtual uint32_t GetCategoryFlags() const override { return category; }
+#define EVENT_CLASS_CATEGORY(category) virtual u32 GetCategoryFlags() const override { return category; }
 
 namespace snd
 {
-	enum class EventType : uint32_t
+	enum class EventType : u32
 	{
 		None = 0,
 		WindowClosed, WindowResized, WindowFocused, WindowFocusLost, WindowMoved,
@@ -18,7 +18,7 @@ namespace snd
 		MouseKeyPressed, MouseKeyReleased, MouseMoved, MouseScrolled
 	};
 
-	enum class EventCategory : uint32_t
+	enum class EventCategory : u32
 	{
 		None		= 0,
 		Window		= BIT(0),
@@ -40,11 +40,11 @@ namespace snd
 
 		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
-		virtual uint32_t GetCategoryFlags() const = 0;
+		virtual u32 GetCategoryFlags() const = 0;
 		virtual std::string ToString() const { return GetName(); }
 
 		inline bool IsHandled() const { return m_Handled; }
-		inline bool IsInCategory(EventCategory category) const { return GetCategoryFlags() & uint32_t(category); }
+		inline bool IsInCategory(EventCategory category) const { return GetCategoryFlags() & u32(category); }
 
 	private:
 		bool m_Handled = false;

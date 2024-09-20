@@ -7,5 +7,5 @@ namespace snd::ui
 	void Init(Window* window);
 	void Shutdown();
 
-	void Tick(float dt);
+	void Tick(f32 dt);
 }

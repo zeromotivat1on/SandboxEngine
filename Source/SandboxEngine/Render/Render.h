@@ -12,9 +12,9 @@ namespace snd::render
 	void Init(Window* window);
 	void Shutdown();
 
-	void Tick(float dt);
+	void Tick(f32 dt);
 
-	void OnWindowResized(uint32_t width, uint32_t height);
+	void OnWindowResized(u16 width, u16 height);
 
 	void SetCamera(snd::Camera* camera);
 }
