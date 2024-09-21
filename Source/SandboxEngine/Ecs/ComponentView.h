@@ -130,7 +130,7 @@ namespace snd
 
     // ComponentViewTemplate
     
-    template <typename ... TComponents>
+    template <typename ...TComponents>
     ComponentViewTemplate<TComponents...>::ComponentViewTemplate(EntityContainer* container)
     {
         constexpr u8 componentIdCount = sizeof...(TComponents);
@@ -146,13 +146,13 @@ namespace snd
         }
     }
 
-    template <typename ... TComponents>
+    template <typename ...TComponents>
     const typename ComponentViewTemplate<TComponents...>::Iterator ComponentViewTemplate<TComponents...>::begin() const
     {
         return m_View.begin();
     }
 
-    template <typename ... TComponents>
+    template <typename ...TComponents>
     const typename ComponentViewTemplate<TComponents...>::Iterator ComponentViewTemplate<TComponents...>::end() const
     {
         return m_View.end();
