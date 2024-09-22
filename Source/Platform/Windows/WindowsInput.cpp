@@ -4,19 +4,19 @@
 #include "Platform/Windows/WindowsWindow.h"
 #include <GLFW/glfw3.h>
 
-static snd::WindowsWindow* s_Window = nullptr;
-static GLFWwindow* s_GlfwWindow = nullptr;
+static snd::WindowsWindow*	s_Window = nullptr;
+static GLFWwindow*			s_GlfwWindow = nullptr;
 
-snd::input::Keyboard g_KeyboardState;
-snd::input::Gamepad g_GamepadState;
-snd::input::Mouse g_MouseState;
+snd::input::Keyboard 		g_KeyboardState;
+snd::input::Gamepad  		g_GamepadState;
+snd::input::Mouse	 		g_MouseState;
 
-i32 g_ConvertedKeyboardBits[snd::KeyboardBit::Count];
-i32 g_ConvertedGamepadBits[snd::GamepadBit::Count];
-i32 g_ConvertedMouseBits[snd::MouseBit::Count];
+i32 						g_ConvertedKeyboardBits [snd::KeyboardBit::Count];
+i32 						g_ConvertedGamepadBits	[snd::GamepadBit::Count];
+i32 						g_ConvertedMouseBits	[snd::MouseBit::Count];
 
-f32 g_MouseLastX;
-f32 g_MouseLastY;
+f32 						g_MouseLastX;
+f32 						g_MouseLastY;
 
 template<typename TInputBit>
 static void ConvertBits(i32* outConvertedBits)
