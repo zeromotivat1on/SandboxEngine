@@ -42,10 +42,14 @@ void snd::input::Init(Window* window)
 	s_GlfwWindow = static_cast<GLFWwindow*>(s_Window->Handle());
 	SND_ASSERT(s_Window && s_GlfwWindow);
 
+	memset(&g_KeyboardState, 0, sizeof(g_KeyboardState));
+	memset(&g_GamepadState,  0, sizeof(g_GamepadState));
+	memset(&g_MouseState,	 0, sizeof(g_MouseState));
+	
 	// Prepare converted input key bits from engine system to platform specific.
 	ConvertBits<KeyboardBit>(g_ConvertedKeyboardBits);
-	ConvertBits<GamepadBit>(g_ConvertedGamepadBits);
-	ConvertBits<MouseBit>(g_ConvertedMouseBits);
+	ConvertBits<GamepadBit> (g_ConvertedGamepadBits);
+	ConvertBits<MouseBit>	(g_ConvertedMouseBits);
 }
 
 void snd::input::Shutdown()
