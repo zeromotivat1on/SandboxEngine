@@ -5,6 +5,7 @@
 namespace snd
 {
 	class Camera;
+	class CameraComponent;
 }
 
 namespace snd::render
@@ -16,5 +17,5 @@ namespace snd::render
 
 	void OnWindowResized(u16 width, u16 height);
 
-	void SetCamera(snd::Camera* camera);
+	void SetCamera(const CameraComponent* camera);
 }

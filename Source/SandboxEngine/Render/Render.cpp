@@ -4,14 +4,14 @@
 #include "SandboxEngine/Core/Timer.h"
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Core/FileSystem.h"
-#include "SandboxEngine/World/Camera.h"
+#include "SandboxEngine/Components/CameraComponent.h"
 #include <bgfx/bgfx.h>
 #include <bx/math.h>
 #include <glm/gtc/type_ptr.hpp>
 
 // Current window we render on.
-static snd::Window* s_Window = nullptr;
-static snd::Camera* s_Camera = nullptr;
+static snd::Window*					s_Window = nullptr;
+static const snd::CameraComponent*	s_Camera = nullptr;
 
 struct PosColorVertex
 {
@@ -116,7 +116,7 @@ void snd::render::OnWindowResized(u16 width, u16 height)
 	bgfx::reset(width, height, flags);
 }
 
-void snd::render::SetCamera(snd::Camera* camera)
+void snd::render::SetCamera(const CameraComponent* camera)
 {
 	SND_ASSERT(camera);
 	s_Camera = camera;
@@ -138,7 +138,7 @@ std::string ToString(const glm::vec2& vec)
 
 void snd::render::Tick(f32 dt)
 {
-	bgfx::setViewTransform(0, glm::value_ptr(s_Camera->ViewMatrix()), glm::value_ptr(s_Camera->ProjectionMatrix()));
+	bgfx::setViewTransform(0, glm::value_ptr(s_Camera->ViewMatrix()), glm::value_ptr(s_Camera->PerspectiveProjectionMatrix()));
 	bgfx::setViewRect(0, 0, 0, s_Window->Width(), s_Window->Height());
 
 	// This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.
@@ -155,7 +155,7 @@ void snd::render::Tick(f32 dt)
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "FPS: %.2f", (1.0f / dt));
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Vsync: %s", s_Window->Vsync() ? "ON" : "OFF");
 
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Camera: location %s, target %s", ToString(s_Camera->Location()).c_str(), ToString(s_Camera->Target()).c_str());
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Camera: location %s, target %s", ToString(s_Camera->Eye).c_str(), ToString(s_Camera->At).c_str());
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Mouse: position %s", ToString(input::MousePosition()).c_str());
 	
 	for (u8 yy = 0; yy < 11; ++yy)

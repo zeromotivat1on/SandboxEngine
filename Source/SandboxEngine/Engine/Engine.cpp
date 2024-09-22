@@ -5,10 +5,11 @@
 #include "SandboxEngine/Core/Profile.h"
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Render/Render.h"
-#include "SandboxEngine/World/Camera.h"
 #include "SandboxEngine/UI/UI.h"
+#include "SandboxEngine/Ecs/EntityContainer.h"
+#include "SandboxEngine/Components/CameraComponent.h"
 
-snd::Camera g_DebugCamera = snd::Camera(snd::Camera::Type::Perspective);
+snd::EntityId g_PlayerEntity;
 
 snd::Engine::Engine(Window* window)
 	: m_Window(window), m_ExitRequested(false)
@@ -37,11 +38,20 @@ void snd::Engine::Init()
 	render::Init(m_Window);
 	ui::Init(m_Window);
 
-	g_DebugCamera.SetLocation(glm::vec3(0.0f, 0.0f, -35.0f));
-	g_DebugCamera.SetTarget(glm::vec3(0.0f));
-	g_DebugCamera.SetPerspective(60.0f, m_Window->GetAspectRatio(), 0.1f, 1000.0f);
+	g_PlayerEntity = ecs::NewEntity();
 
-	render::SetCamera(&g_DebugCamera);
+	auto* camera = ecs::Assign<CameraComponent>(g_PlayerEntity);
+	camera->Eye  	= glm::vec3(0.0f, 0.0f, -35.0f);
+	camera->At	 	= glm::vec3(0.0f);
+	camera->Up		= glm::vec3(0.0f, 1.0f, 0.0f);
+	camera->Yaw		= 0.0f;
+	camera->Pitch	= 0.0f;
+	camera->Fov		= 60.0f;
+	camera->Aspect	= m_Window->GetAspectRatio();
+	camera->Near	= 0.1f;
+	camera->Far		= 1000.0f;
+	
+	render::SetCamera(camera);
 }
 
 void snd::Engine::Shutdown()
@@ -131,8 +141,46 @@ void snd::Engine::Tick(f32 dt)
 		SND_TRACE("Manual shutdown was requested", m_Window->Title());
 		m_ExitRequested = true;
 	}
-	
-	g_DebugCamera.Tick(dt);
+
+	// Update camera controls
+	if (auto* camera = ecs::Get<CameraComponent>(g_PlayerEntity))
+	{
+		camera->OnMouseMove(input::MouseOffset(), 0.1f);
+
+		glm::vec3 moveDelta = glm::vec3(0.0f);
+
+		if (input::ButtonDown(KeyboardBit::W))
+		{
+			moveDelta.x += 1.0f;
+		}
+		
+		if (input::ButtonDown(KeyboardBit::S))
+		{
+			moveDelta.x -= 1.0f;
+		}
+
+		if (input::ButtonDown(KeyboardBit::D))
+		{
+			moveDelta.y += 1.0f;
+		}
+		
+		if (input::ButtonDown(KeyboardBit::A))
+		{
+			moveDelta.y -= 1.0f;
+		}
+
+		if (input::ButtonDown(KeyboardBit::E))
+		{
+			moveDelta.z += 1.0f;
+		}
+		
+		if (input::ButtonDown(KeyboardBit::Q))
+		{
+			moveDelta.z -= 1.0f;
+		}
+
+		camera->Move(moveDelta);
+	}
 	
 	render::Tick(dt);
 
