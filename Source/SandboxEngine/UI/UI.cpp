@@ -14,7 +14,7 @@ void snd::ui::Init(Window* window)
 	
 	IMGUI_CHECKVERSION();
 	SND_ASSERT(ImGui::CreateContext());
-	SND_ASSERT(ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(window->GetHandle()), true));
+	SND_ASSERT(ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(window->Handle()), true));
 	ImGui_Implbgfx_Init(0);
 }
 

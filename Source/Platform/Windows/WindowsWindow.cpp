@@ -28,13 +28,15 @@ void snd::WindowsWindow::Init(const Window::Props& props)
 
 	SND_INFO("Creating window \"{}\" {}x{}", props.Title, props.Width, props.Height);
 
-	m_Data.Title = props.Title;
-	m_Data.Width = props.Width;
-	m_Data.Height = props.Height;
+	m_Title = props.Title;
+	m_Width = props.Width;
+	m_Height = props.Height;
 
-	m_Window = glfwCreateWindow(m_Data.Width, m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
+	m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
 	glfwMakeContextCurrent(m_Window);
-	glfwSetWindowUserPointer(m_Window, &m_Data);
+	glfwSetWindowUserPointer(m_Window, this);
+	glfwSetInputMode(m_Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+	glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	SetVsync(true);
 
@@ -47,6 +49,7 @@ void snd::WindowsWindow::Init(const Window::Props& props)
 	glfwSetCursorPosCallback	(m_Window, WindowsWindow::OnMouseMove);
 	glfwSetScrollCallback		(m_Window, WindowsWindow::OnMouseScroll);
 	glfwSetMouseButtonCallback	(m_Window, WindowsWindow::OnMouseKey);
+	glfwSetWindowFocusCallback	(m_Window, WindowsWindow::OnFocus);
 }
 
 void snd::WindowsWindow::Shutdown()
@@ -62,25 +65,24 @@ void snd::WindowsWindow::Shutdown()
 
 void snd::WindowsWindow::OnClose(GLFWwindow* window)
 {
-	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
-
+	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
 	WindowClosedEvent event;
-	data.Callback(event);
+	win.m_Callback(event);
 }
 
 void snd::WindowsWindow::OnResize(GLFWwindow* window, int width, int height)
 {
-	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
-	data.Width = width;
-	data.Height = height;
+	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
+	win.m_Width = width;
+	win.m_Height = height;
 
 	WindowResizedEvent event(width, height);
-	data.Callback(event);
+	win.m_Callback(event);
 }
 
 void snd::WindowsWindow::OnKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
+	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
 	const KeyCode keyCode = static_cast<KeyCode>(key);
 
 	switch (action)
@@ -88,19 +90,19 @@ void snd::WindowsWindow::OnKey(GLFWwindow* window, int key, int scancode, int ac
 	case GLFW_PRESS:
 	{
 		KeyPressedEvent event(keyCode, false);
-		data.Callback(event);
+		win.m_Callback(event);
 		break;
 	}
 	case GLFW_RELEASE:
 	{
 		KeyReleasedEvent event(keyCode);
-		data.Callback(event);
+		win.m_Callback(event);
 		break;
 	}
 	case GLFW_REPEAT:
 	{
 		KeyPressedEvent event(keyCode, true);
-		data.Callback(event);
+		win.m_Callback(event);
 		break;
 	}
 	default: SND_ERROR("Unknown key action \'{}\'", action);
@@ -109,32 +111,29 @@ void snd::WindowsWindow::OnKey(GLFWwindow* window, int key, int scancode, int ac
 
 void snd::WindowsWindow::OnSetChar(GLFWwindow* window, unsigned int key)
 {
-	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
+	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
 	const KeyCode keyCode = static_cast<KeyCode>(key);
-
 	KeyTypedEvent event(keyCode);
-	data.Callback(event);
+	win.m_Callback(event);
 }
 
 void snd::WindowsWindow::OnMouseMove(GLFWwindow* window, double xPos, double yPos)
 {
-	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
-
-	MouseMovedEvent event(static_cast<float>(xPos), static_cast<float>(yPos));
-	data.Callback(event);
+	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
+	MouseMovedEvent event(static_cast<f32>(xPos), static_cast<f32>(yPos));
+	win.m_Callback(event);
 }
 
 void snd::WindowsWindow::OnMouseScroll(GLFWwindow* window, double xOffset, double yOffset)
 {
-	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
-
+	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
 	MouseScrolledEvent event(static_cast<float>(xOffset), static_cast<float>(yOffset));
-	data.Callback(event);
+	win.m_Callback(event);
 }
 
 void snd::WindowsWindow::OnMouseKey(GLFWwindow* window, int key, int action, int mods)
 {
-	Data& data = *static_cast<Data*>(glfwGetWindowUserPointer(window));
+	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
 	const MouseCode mouseCode = static_cast<MouseCode>(key);
 
 	switch (action)
@@ -142,15 +141,21 @@ void snd::WindowsWindow::OnMouseKey(GLFWwindow* window, int key, int action, int
 	case GLFW_PRESS:
 	{
 		MouseKeyPressedEvent event(mouseCode);
-		data.Callback(event);
+		win.m_Callback(event);
 		break;
 	}
 	case GLFW_RELEASE:
 	{
 		MouseKeyReleasedEvent event(mouseCode);
-		data.Callback(event);
+		win.m_Callback(event);
 		break;
 	}
 	default: SND_ERROR("Unknown mouse key action \'{}\'", action);
 	}
+}
+
+void snd::WindowsWindow::OnFocus(GLFWwindow* window, int focused)
+{
+	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
+	win.m_Focused = (focused == GLFW_TRUE);
 }

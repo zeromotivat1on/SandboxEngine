@@ -72,11 +72,11 @@ void snd::render::Init(Window* window)
 
 	bgfx::Init bgfxInit;
 	bgfxInit.type = bgfx::RendererType::OpenGL;
-	bgfxInit.platformData.nwh = window->GetNativeHandle();
-	bgfxInit.resolution.width = window->GetWidth();
-	bgfxInit.resolution.height = window->GetHeight();
+	bgfxInit.platformData.nwh = window->NativeHandle();
+	bgfxInit.resolution.width = window->Width();
+	bgfxInit.resolution.height = window->Height();
 
-	if (window->IsVsync())
+	if (window->Vsync())
 	{
 		bgfxInit.resolution.reset |= BGFX_RESET_VSYNC;
 	}
@@ -108,7 +108,7 @@ void snd::render::OnWindowResized(u16 width, u16 height)
 {
 	u32 flags = 0;
 
-	if (s_Window->IsVsync())
+	if (s_Window->Vsync())
 	{
 		flags |= BGFX_RESET_VSYNC;
 	}
@@ -139,10 +139,9 @@ std::string ToString(const glm::vec2& vec)
 void snd::render::Tick(f32 dt)
 {
 	bgfx::setViewTransform(0, glm::value_ptr(s_Camera->ViewMatrix()), glm::value_ptr(s_Camera->ProjectionMatrix()));
-	bgfx::setViewRect(0, 0, 0, s_Window->GetWidth(), s_Window->GetHeight());
+	bgfx::setViewRect(0, 0, 0, s_Window->Width(), s_Window->Height());
 
-	// This dummy draw call is here to make sure that view 0 is cleared
-	// if no other draw calls are submitted to view 0.
+	// This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.
 	bgfx::touch(0);
 
 	bgfx::dbgTextClear();
@@ -150,44 +149,14 @@ void snd::render::Tick(f32 dt)
 	const f32 time = StartupTime();
 
 	u8 dbgTextY = 1;
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Window size: %dx%d", s_Window->GetWidth(), s_Window->GetHeight());
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Window size: %dx%d", s_Window->Width(), s_Window->Height());
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Run time: %.2fs", time);
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Delta time: %.2fms", (dt * 1000.0f));
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "FPS: %.2f", (1.0f / dt));
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Vsync: %s", s_Window->IsVsync() ? "ON" : "OFF");
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Vsync: %s", s_Window->Vsync() ? "ON" : "OFF");
 
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Camera: location %s, target %s", ToString(s_Camera->Location()).c_str(), ToString(s_Camera->Target()).c_str());
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Mouse: position %s", ToString(input::MousePosition()).c_str());
-
-	std::stringstream pressedKeyboardButtons;
-	for (u8 i = 0; i < static_cast<u8>(KeyboardBit::Count); ++i)
-	{
-		if (input::KeyboardState().Buttons[i])
-		{
-			pressedKeyboardButtons << i << ' ';
-		}
-	}
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Pressed Keyboardcodes: %s", pressedKeyboardButtons.str().c_str());
-
-	std::stringstream pressedGamepadButtons;
-	for (u8 i = 0; i < static_cast<u8>(GamepadBit::Count); ++i)
-	{
-		if (CHECK_BIT(input::GamepadState().Buttons, i))
-		{
-			pressedGamepadButtons << i << ' ';
-		}
-	}
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Pressed Gamepadcodes: %s", pressedGamepadButtons.str().c_str());
-
-	std::stringstream pressedMouseButtons;
-	for (u8 i = 0; i < static_cast<u8>(MouseBit::Count); ++i)
-	{
-		if (CHECK_BIT(input::MouseState().Buttons, i))
-		{
-			pressedMouseButtons << i << ' ';
-		}
-	}
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Pressed Mousecodes: %s", pressedMouseButtons.str().c_str());
 	
 	for (u8 yy = 0; yy < 11; ++yy)
 	{

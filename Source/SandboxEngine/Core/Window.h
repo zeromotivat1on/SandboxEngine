@@ -23,18 +23,17 @@ namespace snd
 		
 		virtual						~Window() = default;
 
-		virtual void* 				GetHandle() const = 0;
-		virtual void* 				GetNativeHandle() const = 0;
+		virtual void* 				Handle() const = 0;
+		virtual void* 				NativeHandle() const = 0;
 
-		inline virtual u16			GetWidth() const = 0;
-		inline virtual u16			GetHeight() const = 0;
-		inline virtual const char*	GetTitle() const = 0;
-		
+		virtual u16					Width() const = 0;
+		virtual u16					Height() const = 0;
+		virtual const char*			Title() const = 0;
+		virtual bool 				Vsync() const = 0;
+		virtual bool				Focused() const = 0;
+
 		virtual void				SetEventCallback(const EventCallback& callback) = 0;
-
-		virtual bool 				IsVsync() const = 0;
 		virtual void 				SetVsync(bool enable) = 0;
-
 		virtual bool				ShouldClose() const = 0;
 
 		virtual void				Update() = 0;
@@ -51,13 +50,13 @@ namespace snd
 
 	SND_INLINE f32 Window::GetAspectRatio() const
 	{ 
-		return static_cast<f32>(GetWidth()) / static_cast<f32>(GetHeight());
+		return static_cast<f32>(Width()) / static_cast<f32>(Height());
 	}
 
 	SND_INLINE glm::vec4 Window::GetOrthoDataCentered() const
 	{ 
-		const f32 halfWidth  = static_cast<f32>(GetWidth())  * 0.5f;
-		const f32 halfHeight = static_cast<f32>(GetHeight()) * 0.5f;
+		const f32 halfWidth  = static_cast<f32>(Width())  * 0.5f;
+		const f32 halfHeight = static_cast<f32>(Height()) * 0.5f;
 
 		const f32 left		 = -halfWidth;
 		const f32 right		 = halfWidth;
@@ -70,8 +69,8 @@ namespace snd
 	SND_INLINE glm::vec4 Window::GetOrthoDataDirect() const
 	{
 		const f32 left   = 0.0f;
-		const f32 right  = GetWidth();
-		const f32 bottom = GetHeight();
+		const f32 right  = Width();
+		const f32 bottom = Height();
 		const f32 top    = 0.0f;
 
 		return glm::vec4(left, right, bottom, top);

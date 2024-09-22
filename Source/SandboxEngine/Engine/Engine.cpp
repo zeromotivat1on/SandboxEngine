@@ -119,6 +119,11 @@ void snd::Engine::Tick(f32 dt)
 {
 	m_Window->Update();
 
+	if (!m_Window->Focused())
+	{
+		return;
+	}
+	
 	input::Update();
 	
 	if (input::ButtonJustWentUp(KeyboardBit::Escape))

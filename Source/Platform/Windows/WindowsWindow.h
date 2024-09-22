@@ -10,33 +10,22 @@ namespace snd
 	class WindowsWindow : public Window
 	{
 	public:
-		struct Data
-		{
-			std::string		Title;
-			u16				Width;
-			u16				Height;
-			bool			Vsync;
-			EventCallback	Callback;
-		};
-
-	public:
 							WindowsWindow(const Props& props);
 							NOT_COPYABLE(WindowsWindow);
 							NOT_MOVABLE (WindowsWindow);
 							~WindowsWindow() override;
 
-		void* 				GetHandle() const override;
-		void* 				GetNativeHandle() const override;
+		void* 				Handle() const override;
+		void* 				NativeHandle() const override;
 
-		u16 				GetWidth() const override;
-		u16 				GetHeight() const override;
-		const char*			GetTitle() const override;
+		u16 				Width() const override;
+		u16 				Height() const override;
+		const char*			Title() const override;
+		bool 				Vsync() const override;
+		bool 				Focused() const override;
 
 		void				SetEventCallback(const EventCallback& callback) override;
-
-		bool 				IsVsync() const override;
 		void 				SetVsync(bool enable) override;
-
 		bool				ShouldClose() const override;
 
 		void				Update() override;
@@ -53,14 +42,20 @@ namespace snd
 		static void 		OnMouseMove(GLFWwindow* window, double xPos, double yPos);
 		static void 		OnMouseScroll(GLFWwindow* window, double xOffset, double yOffset);
 		static void 		OnMouseKey(GLFWwindow* window, int key, int action, int mods);
+		static void 		OnFocus(GLFWwindow* window, int focused);
 
 	private:
 		GLFWwindow*			m_Window;
-		Data				m_Data;
+		std::string			m_Title;
+		u16					m_Width;
+		u16					m_Height;
+		bool				m_Vsync;
+		bool				m_Focused;
+		EventCallback		m_Callback;
 	};
 
 	SND_INLINE WindowsWindow::WindowsWindow(const Props& props)
-		: m_Window(nullptr), m_Data()
+		: m_Window(nullptr), m_Width(0), m_Height(0), m_Vsync(true)
 	{
 		Init(props);
 	}
@@ -70,54 +65,58 @@ namespace snd
 		Shutdown();
 	}
 	
-	SND_INLINE void* WindowsWindow::GetHandle() const
+	SND_INLINE void* WindowsWindow::Handle() const
 	{
 		return m_Window;
 	}
 
-	SND_INLINE void* WindowsWindow::GetNativeHandle() const
+	SND_INLINE void* WindowsWindow::NativeHandle() const
 	{
 		return glfwGetWin32Window(m_Window);
 	}
 	
-	SND_INLINE u16 WindowsWindow::GetWidth() const
+	SND_INLINE u16 WindowsWindow::Width() const
 	{
-		return m_Data.Width;
+		return m_Width;
 	}
 
-	SND_INLINE u16 WindowsWindow::GetHeight() const
+	SND_INLINE u16 WindowsWindow::Height() const
 	{
-		return m_Data.Height;
+		return m_Height;
 	}
 
-	SND_INLINE const char* WindowsWindow::GetTitle() const
+	SND_INLINE const char* WindowsWindow::Title() const
 	{
-		return m_Data.Title.c_str();
+		return m_Title.c_str();
 	}
 
 	SND_INLINE void WindowsWindow::SetEventCallback(const EventCallback& callback)
 	{
-		m_Data.Callback = callback;
+		m_Callback = callback;
 	}
 
-	SND_INLINE bool WindowsWindow::IsVsync() const
+	SND_INLINE bool WindowsWindow::Vsync() const
 	{
-		return m_Data.Vsync;
+		return m_Vsync;
 	}
 
-	SND_INLINE void WindowsWindow::SetVsync(bool enable)
+	SND_INLINE bool WindowsWindow::Focused() const
 	{
-		m_Data.Vsync = enable;
+		return m_Focused;
 	}
 
 	SND_INLINE bool WindowsWindow::ShouldClose() const
 	{
 		return glfwWindowShouldClose(m_Window);
 	}
+	
+	SND_INLINE void WindowsWindow::SetVsync(bool enable)
+	{
+		m_Vsync = enable;
+	}
 
 	SND_INLINE void WindowsWindow::Update()
 	{
 		glfwPollEvents();
 	}
-
 }
