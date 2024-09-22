@@ -16,6 +16,7 @@ namespace snd
     
     namespace ecs
     {
+        // Global counter of unique components, do not modify directly.
         inline u16 g_ComponentTypeCounter = 0;
     }
     
@@ -30,7 +31,7 @@ namespace snd
     void GetComponentIds(u16* outIds)
     {
         u16 ids[] = { GetComponentId<TComponents>()... };
-        memcpy(outIds, ids, sizeof...(TComponents) * sizeof(u8));
+        memcpy(outIds, ids, sizeof...(TComponents) * sizeof(u16));
     }
     
     SND_INLINE EntityId GetEntityId(EntityIndex index, EntityVersion version)
