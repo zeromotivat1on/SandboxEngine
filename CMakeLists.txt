@@ -44,7 +44,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     # Setup platform
     $<$<PLATFORM_ID:Windows>:SND_PLATFORM_WINDOWS>
     # Setup configuration
-    $<$<CONFIG:Debug>:SND_DEBUG>
+    $<$<CONFIG:Debug>:SND_BUILD_DEBUG>
 )
 
 # Set custom binary output directory for different project configurations

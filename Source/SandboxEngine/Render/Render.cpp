@@ -85,11 +85,11 @@ void snd::render::Init(Window* window)
 
 	bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x443355FF, 1.0f, 0);
 
-#ifdef SND_DEBUG
+#ifdef SND_BUILD_DEBUG
 	bgfx::setDebug(BGFX_DEBUG_TEXT);
 #endif
 
-	SND_LOG_INFO("Using Renderer API \"{}\"", bgfx::getRendererName(bgfx::getRendererType()));
+	SND_INFO("Using Renderer API \"{}\"", bgfx::getRendererName(bgfx::getRendererType()));
 
 	s_Program = fs::LoadProgram("base.vs", "base.fs");
 

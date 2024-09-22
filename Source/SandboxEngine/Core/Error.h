@@ -2,7 +2,7 @@
 
 #include "SandboxEngine/Core/Log.h"
 
-#ifdef SND_DEBUG
+#ifdef SND_BUILD_DEBUG
 	#define SND_ENABLE_ASSERT
 	#ifdef SND_PLATFORM_WINDOWS
 		#define SND_DEBUG_BREAK()								__debugbreak()
@@ -16,7 +16,7 @@
 #ifdef SND_ENABLE_ASSERT
 	#define SND_ASSERT_EXPAND_MACRO(x)							x
 
-	#define SND_ASSERT_IMPL(check, msg, ...)					{ if(!(check)) { SND_LOG_ERROR(msg, __VA_ARGS__); SND_DEBUG_BREAK(); } }
+	#define SND_ASSERT_IMPL(check, msg, ...)					{ if(!(check)) { SND_ERROR(msg, __VA_ARGS__); SND_DEBUG_BREAK(); } }
 
 	#define SND_ASSERT_WITH_MSG(check, ...)						SND_ASSERT_IMPL(check, "Assertion failed: {0}", __VA_ARGS__)
 	#define SND_ASSERT_NO_MSG(check)							SND_ASSERT_IMPL(check, "Assertion '{0}' failed at {1}:{2}", SND_STRINGIFY_MACRO(check), __FILE__, __LINE__)

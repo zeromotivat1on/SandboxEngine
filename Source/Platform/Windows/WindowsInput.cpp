@@ -367,7 +367,7 @@ snd::KeyboardBit snd::input::ConvertKeyboardCode(i32 keycode)
 		case GLFW_KEY_RIGHT_CONTROL:	return KeyboardBit::RightControl;
 		case GLFW_KEY_RIGHT_ALT:		return KeyboardBit::RightAlt;
 		default:
-			SND_LOG_ERROR("Unknown keycode {}", keycode);
+			SND_ERROR("Unknown keycode {}", keycode);
 			return KeyboardBit::Count;
 	}
 
@@ -393,7 +393,7 @@ snd::GamepadBit snd::input::ConvertGamepadCode(i32 keycode)
 		case GLFW_GAMEPAD_BUTTON_DPAD_DOWN:		return GamepadBit::DpadDown;
 		case GLFW_GAMEPAD_BUTTON_DPAD_LEFT:		return GamepadBit::DpadLeft;
 		default:
-			SND_LOG_ERROR("Unknown keycode {}", keycode);
+			SND_ERROR("Unknown keycode {}", keycode);
 			return GamepadBit::Count;
 	}
 }
@@ -406,7 +406,7 @@ snd::MouseBit snd::input::ConvertMouseCode(i32 keycode)
 		case GLFW_MOUSE_BUTTON_RIGHT:	return MouseBit::Right;
 		case GLFW_MOUSE_BUTTON_MIDDLE:	return MouseBit::Middle;
 		default:
-			SND_LOG_ERROR("Unknown keycode {}", keycode);
+			SND_ERROR("Unknown keycode {}", keycode);
 			return MouseBit::Count;
 	}
 }
@@ -518,7 +518,7 @@ i32 snd::input::ConvertBit(KeyboardBit bit)
 		case KeyboardBit::RightControl:	return GLFW_KEY_RIGHT_CONTROL;
 		case KeyboardBit::RightAlt:		return GLFW_KEY_RIGHT_ALT;
 		default:
-			SND_LOG_ERROR("Unknown keyboard bit {}", static_cast<i32>(bit));
+			SND_ERROR("Unknown keyboard bit {}", static_cast<i32>(bit));
 			return INVALID_INDEX;
 	}
 }
@@ -543,7 +543,7 @@ i32 snd::input::ConvertBit(GamepadBit bit)
 		case GamepadBit::DpadDown:	 	return GLFW_GAMEPAD_BUTTON_DPAD_DOWN;
 		case GamepadBit::DpadLeft:	 	return GLFW_GAMEPAD_BUTTON_DPAD_LEFT;
 		default:
-			SND_LOG_ERROR("Unknown gamepad bit {}", static_cast<i32>(bit));
+			SND_ERROR("Unknown gamepad bit {}", static_cast<i32>(bit));
 			return INVALID_INDEX;
 	}
 }
@@ -556,7 +556,7 @@ i32 snd::input::ConvertBit(MouseBit bit)
 		case MouseBit::Right:	return GLFW_MOUSE_BUTTON_RIGHT;
 		case MouseBit::Middle:	return GLFW_MOUSE_BUTTON_MIDDLE;
 		default:
-			SND_LOG_ERROR("Unknown mouse bit {}", static_cast<i32>(bit));
+			SND_ERROR("Unknown mouse bit {}", static_cast<i32>(bit));
 			return INVALID_INDEX;
 	}
 }

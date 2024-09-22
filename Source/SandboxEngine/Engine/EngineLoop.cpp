@@ -20,7 +20,7 @@ void snd::EngineLoop::Run()
 		const i64 endCounter = HighPrecisionCounter();
 		dt = static_cast<float>(endCounter - beginCounter) / static_cast<float>(HighPrecisionFrequency());
 
-#ifdef SND_DEBUG
+#ifdef SND_BUILD_DEBUG
 		// If dt is too large, we must have resumed from a breakpoint, frame-lock to the target rate this frame.
 		if (dt > 1.0f)
 		{

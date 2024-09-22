@@ -20,7 +20,7 @@ static const bgfx::Memory* LoadMemory(bx::FileReaderI* reader, const bx::FilePat
 		return mem;
 	}
 
-	SND_LOG_ERROR("Failed to load \"{}\"", path.getCPtr());
+	SND_ERROR("Failed to load \"{}\"", path.getCPtr());
 	return nullptr;
 }
 

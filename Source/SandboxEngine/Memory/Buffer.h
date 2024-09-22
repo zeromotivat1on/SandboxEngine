@@ -107,7 +107,7 @@ namespace snd
         }
         else
         {
-            SND_LOG_CRITICAL("Realloc failed (data = {}, buffer = {})", static_cast<void*>(m_Data), static_cast<void*>(this));
+            SND_CRITICAL("Realloc failed (data = {}, buffer = {})", static_cast<void*>(m_Data), static_cast<void*>(this));
         }
     }
 

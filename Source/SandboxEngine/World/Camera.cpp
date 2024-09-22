@@ -100,7 +100,7 @@ glm::mat4 snd::Camera::ProjectionMatrix()
 			m_ProjectionMatrix = m_Proxy.PerpsectiveProjectionMatrix();
 			break;
 		default:
-			SND_LOG_ERROR("Unknown camera type {}", static_cast<i32>(m_Type));
+			SND_ERROR("Unknown camera type {}", static_cast<i32>(m_Type));
 		}
 
 		m_ProjectionMatrix.ClearDirty();
