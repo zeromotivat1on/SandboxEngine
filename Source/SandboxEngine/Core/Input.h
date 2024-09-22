@@ -52,7 +52,8 @@ namespace snd::input
 	const Mouse&	MouseState();
 
 	glm::vec2 MousePosition();
-
+	glm::vec2 MouseOffset();
+	
 	// Check if given button is currently pressed.
 	bool ButtonDown(KeyboardBit bit);
 	bool ButtonDown(GamepadBit bit);

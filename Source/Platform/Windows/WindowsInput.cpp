@@ -15,6 +15,9 @@ i32 g_ConvertedKeyboardBits[snd::KeyboardBit::Count];
 i32 g_ConvertedGamepadBits[snd::GamepadBit::Count];
 i32 g_ConvertedMouseBits[snd::MouseBit::Count];
 
+f32 g_MouseLastX;
+f32 g_MouseLastY;
+
 template<typename TInputBit>
 static void ConvertBits(i32* outConvertedBits)
 {
@@ -36,7 +39,7 @@ static void DetectButtonsUpDown(const T& thisFrameButtons, const T& prevFrameBut
 void snd::input::Init(Window* window)
 {
 	s_Window = static_cast<WindowsWindow*>(window);
-	s_GlfwWindow = static_cast<GLFWwindow*>(s_Window->GetHandle());
+	s_GlfwWindow = static_cast<GLFWwindow*>(s_Window->Handle());
 	SND_ASSERT(s_Window && s_GlfwWindow);
 
 	// Prepare converted input key bits from engine system to platform specific.
@@ -126,6 +129,9 @@ void snd::input::Update()
 		DetectButtonsUpDown(g_MouseState.Buttons, g_MouseState.PrevButtons, g_MouseState.ButtonsDown, g_MouseState.ButtonsUp);
 
 		// Update mouse position.
+		g_MouseLastX = g_MouseState.X;
+		g_MouseLastY = g_MouseState.Y;
+		
 		f64 mouseX = 0;
 		f64 mouseY = 0;
 		glfwGetCursorPos(s_GlfwWindow, &mouseX, &mouseY);
@@ -258,6 +264,12 @@ bool snd::input::ButtonJustWentUp(MouseBit bit)
 glm::vec2 snd::input::MousePosition()
 {
 	return glm::vec2(g_MouseState.X, g_MouseState.Y);
+}
+
+glm::vec2 snd::input::MouseOffset()
+{
+	// Y-coords is reversed since they go from top to bottom.
+	return glm::vec2(g_MouseState.X - g_MouseLastX, g_MouseLastY - g_MouseState.Y);
 }
 
 snd::KeyboardBit snd::input::ConvertKeyboardCode(i32 keycode)
