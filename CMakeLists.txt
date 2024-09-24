@@ -160,6 +160,8 @@ enable_testing()
 
 add_executable(sndtests "${SOURCE_DIR}/Tests/MemoryTests.cpp")
 target_include_directories(sndtests PRIVATE ${SOURCE_DIR})
+target_include_directories(sndtests PRIVATE ${VENDOR_DIR})
+target_include_directories(sndtests PRIVATE "${VENDOR_DIR}/spdlog/include")
 target_link_libraries(sndtests GTest::gtest_main)
 set_def_output_dirs(sndtests)
 
