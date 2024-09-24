@@ -31,8 +31,6 @@ namespace snd
         u32                 Capacity() const;       // amount of buffer elements it can hold
         u16                 ElementSize() const;    // buffer element size in bytes
 
-        void                Meminit(u8 val) const;
-        
     private:
         u8*                 m_Data;
         u32                 m_Capacity;
@@ -160,13 +158,5 @@ namespace snd
     SND_INLINE u16 Buffer::ElementSize() const
     {
         return m_ElementSize;
-    }
-
-    SND_INLINE void Buffer::Meminit(u8 val) const
-    {
-        if (m_Data)
-        {
-            memset(m_Data, val, static_cast<u64>(m_Capacity) * m_ElementSize);
-        }
     }
 }
