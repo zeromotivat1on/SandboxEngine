@@ -13,3 +13,6 @@
 [submodule "Source/Vendor/imgui"]
 	path = Source/Vendor/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "Source/Vendor/googletest"]
+	path = Source/Vendor/googletest
+	url = https://github.com/google/googletest

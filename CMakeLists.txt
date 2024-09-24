@@ -39,8 +39,6 @@ if(MSVC)
 endif()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    # Build engine as export dll
-    SND_BUILD_DLL    
     # Setup platform
     $<$<PLATFORM_ID:Windows>:SND_PLATFORM_WINDOWS>
     # Setup configuration
@@ -62,6 +60,10 @@ endfunction()
 set_def_output_dirs(${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OBJECT_OUTPUT_DIR "${CMAKE_BINARY_DIR}/Intermediates/${PROJECT_NAME}")
+
+# Add googletest 
+add_subdirectory("${VENDOR_DIR}/googletest")
+target_link_libraries(${PROJECT_NAME} PRIVATE gtest)
 
 # Add fastdelegate
 target_include_directories(${PROJECT_NAME} PRIVATE "${VENDOR_DIR}/fastdelegate/FastDelegate.h")
@@ -152,3 +154,14 @@ if(COMPILE_SHADERS)
 
     add_dependencies(${PROJECT_NAME} bgfx_shader_compilation)
 endif()
+
+# Build tests
+enable_testing()
+
+add_executable(sndtests "${SOURCE_DIR}/Tests/MemoryTests.cpp")
+target_include_directories(sndtests PRIVATE ${SOURCE_DIR})
+target_link_libraries(sndtests GTest::gtest_main)
+set_def_output_dirs(sndtests)
+
+include(GoogleTest)
+gtest_discover_tests(sndtests)

@@ -1,11 +1,5 @@
 #pragma once
 
-#ifdef SND_BUILD_DLL
-    #define SND_API __declspec(dllexport)
-#else
-    #define SND_API __declspec(dllimport)
-#endif
-
 // Core macros
 
 #define SND_EXPAND_MACRO(x)     x
