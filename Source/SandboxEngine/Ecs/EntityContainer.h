@@ -53,7 +53,8 @@ namespace snd
         {
             return g_EntityContainer.New();
         }
-        
+
+        // Assign component to given entity, return default constructed component.
         template <typename TComponent>
         TComponent* Assign(EntityId id)
         {
@@ -69,6 +70,22 @@ namespace snd
             return nullptr;
         }
 
+        // Assign given component to given entity, return constructed component from given one.
+        template <typename TComponent>
+        TComponent* Assign(EntityId id, const TComponent& component)
+        {
+            const u8  componentId   = GetComponentId<TComponent>();
+            const u16 componentSize = sizeof(TComponent);
+            
+            if (void* componentData = g_EntityContainer.Assign(id, componentId, componentSize))
+            {
+                TComponent* newComponent = new(componentData) TComponent(component);
+                return newComponent;
+            }
+
+            return nullptr;
+        }
+        
         template <typename TComponent>
         TComponent* Get(EntityId id)
         {
