@@ -32,7 +32,9 @@ namespace snd
         static constexpr u8 s_MaxComponentIdCount = 32;
 
     public:
-                                    EntityFilter() = default;
+                                    EntityFilter();
+                                    EntityFilter(EntityContainer* container);
+                                    EntityFilter(u16* componentIds, u8 idCount);
                                     EntityFilter(EntityContainer* container, u16* componentIds, u8 idCount);
                                     NOT_COPYABLE(EntityFilter);
                                     NOT_MOVABLE (EntityFilter);
@@ -54,6 +56,7 @@ namespace snd
         using Iterator      = EntityFilter::Iterator;
     
     public:
+                            EntityFilterTemplate();
                             EntityFilterTemplate(EntityContainer* container);
                             NOT_COPYABLE(EntityFilterTemplate);
                             NOT_MOVABLE (EntityFilterTemplate);
@@ -74,7 +77,23 @@ namespace snd
     }
     
     // EntityFilter
-    
+
+    SND_INLINE EntityFilter::EntityFilter()
+        : m_Container(nullptr), m_Ids(nullptr), m_IdCount(0)
+    {
+    }
+
+    SND_INLINE EntityFilter::EntityFilter(EntityContainer* container)
+        : m_Container(container), m_Ids(nullptr), m_IdCount(0)
+    {
+    }
+
+    SND_INLINE EntityFilter::EntityFilter(u16* componentIds, u8 idCount)
+        : m_Container(&g_EntityContainer), m_Ids(componentIds), m_IdCount(idCount)
+    {
+        SND_ASSERT(idCount <= s_MaxComponentIdCount);
+    }
+
     SND_INLINE EntityFilter::EntityFilter(EntityContainer* container, u16* componentIds, u8 idCount)
         : m_Container(container), m_Ids(componentIds), m_IdCount(idCount)
     {
@@ -133,6 +152,22 @@ namespace snd
     }
 
     // EntityFilterTemplate
+
+    template <typename ...TComponents>
+    EntityFilterTemplate<TComponents...>::EntityFilterTemplate()
+    {
+        constexpr u8 componentIdCount = sizeof...(TComponents);
+
+        if constexpr (componentIdCount > 0)
+        {
+            GetComponentIds<TComponents...>(m_Ids);
+            new (&m_View) EntityFilter(m_Ids, componentIdCount);
+        }
+        else
+        {
+            new (&m_View) EntityFilter();    
+        }
+    }
     
     template <typename ...TComponents>
     EntityFilterTemplate<TComponents...>::EntityFilterTemplate(EntityContainer* container)
@@ -146,7 +181,7 @@ namespace snd
         }
         else
         {
-            new (&m_View) EntityFilter(container, nullptr, 0);    
+            new (&m_View) EntityFilter(container);    
         }
     }
 
