@@ -7,9 +7,9 @@ namespace snd
 	class EngineLoop final
 	{
 	public:
-						EngineLoop();
-
+		void			Init();
 		void			Run();
+		void			Shutdown();
 
 	private:
 		Engine			m_Engine;

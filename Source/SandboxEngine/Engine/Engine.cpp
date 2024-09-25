@@ -6,20 +6,14 @@
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Render/Render.h"
 #include "SandboxEngine/UI/UI.h"
-#include "SandboxEngine/Ecs/EntityContainer.h"
+#include "SandboxEngine/Ecs/Ecs.h"
 #include "SandboxEngine/Components/CameraComponent.h"
 
 snd::EntityId g_PlayerEntity;
 
-snd::Engine::Engine(Window* window)
-	: m_Window(window), m_ExitRequested(false)
+snd::Engine::Engine()
+	: m_Window(nullptr), m_ExitRequested(false)
 {
-	Init();
-}
-
-snd::Engine::~Engine()
-{
-	Shutdown();
 }
 
 bool snd::Engine::Running() const
@@ -27,17 +21,21 @@ bool snd::Engine::Running() const
 	return !m_ExitRequested;
 }
 
-void snd::Engine::Init()
+void snd::Engine::Init(Window* window)
 {
 	SND_SCOPE_FUNCTION_TIMER();
-	SND_INFO("Initializing the engine");
 
+	SND_INFO("Initializing the engine");
+	SND_ASSERT(window);
+	
+	m_Window = window;
 	m_Window->SetEventCallback(SND_BIND_EVENT_FN(Engine::OnEvent));
 
+	ecs::Init();
 	input::Init(m_Window);
 	render::Init(m_Window);
 	ui::Init(m_Window);
-
+	
 	g_PlayerEntity = ecs::NewEntity();
 
 	auto* camera = ecs::Assign<CameraComponent>(g_PlayerEntity);
@@ -61,6 +59,7 @@ void snd::Engine::Shutdown()
 	input::Shutdown();
 	ui::Shutdown();
 	render::Shutdown();
+	ecs::Shutdown();
 }
 
 void snd::Engine::OnEvent(Event& event)

@@ -13,7 +13,7 @@ namespace snd
 
         EntityId*                       Data();
         const EntityId*                 Data() const;
-        size_t                          Count() const;
+        u16                             Count() const;
         
         void*                           Assign(EntityId id, u16 componentId, u16 componentSize);
         void*                           Get(EntityId id, u16 componentId) const;
@@ -27,6 +27,9 @@ namespace snd
         std::vector<SparseBuffer>       m_ComponentBuffers;
     };
 
+    // General-purpose global entity container.
+    inline EntityContainer* g_EntityContainer = nullptr;
+    
     SND_INLINE EntityId* EntityContainer::Data()
     {
         return m_Entities.data();
@@ -37,65 +40,8 @@ namespace snd
         return m_Entities.data();
     }
 
-    SND_INLINE size_t EntityContainer::Count() const
+    SND_INLINE u16 EntityContainer::Count() const
     {
-        return m_Entities.size();
-    }
-    
-    // General-purpose global entity container.
-    inline EntityContainer g_EntityContainer;
-
-    namespace ecs
-    {
-        // Convenient functions and templates to work with global entity container.
-
-        SND_INLINE EntityId NewEntity()
-        {
-            return g_EntityContainer.New();
-        }
-
-        // Assign component to given entity, return default constructed component.
-        template <typename TComponent>
-        TComponent* Assign(EntityId id)
-        {
-            const u8  componentId   = GetComponentId<TComponent>();
-            const u16 componentSize = sizeof(TComponent);
-            
-            if (void* componentData = g_EntityContainer.Assign(id, componentId, componentSize))
-            {
-                TComponent* component = new(componentData) TComponent();
-                return component;
-            }
-
-            return nullptr;
-        }
-
-        // Assign given component to given entity, return constructed component from given one.
-        template <typename TComponent>
-        TComponent* Assign(EntityId id, const TComponent& component)
-        {
-            const u8  componentId   = GetComponentId<TComponent>();
-            const u16 componentSize = sizeof(TComponent);
-            
-            if (void* componentData = g_EntityContainer.Assign(id, componentId, componentSize))
-            {
-                TComponent* newComponent = new(componentData) TComponent(component);
-                return newComponent;
-            }
-
-            return nullptr;
-        }
-        
-        template <typename TComponent>
-        TComponent* Get(EntityId id)
-        {
-            return static_cast<TComponent*>(g_EntityContainer.Get(id, GetComponentId<TComponent>()));
-        }
-
-        template <typename TComponent>
-        bool Remove(EntityId id)
-        {
-            return g_EntityContainer.Remove(id, GetComponentId<TComponent>());
-        }
+        return static_cast<u16>(m_Entities.size());
     }
 };

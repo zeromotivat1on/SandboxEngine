@@ -89,7 +89,7 @@ namespace snd
     }
 
     SND_INLINE EntityFilter::EntityFilter(u16* componentIds, u8 idCount)
-        : m_Container(&g_EntityContainer), m_Ids(componentIds), m_IdCount(idCount)
+        : m_Container(g_EntityContainer), m_Ids(componentIds), m_IdCount(idCount)
     {
         SND_ASSERT(idCount <= s_MaxComponentIdCount);
     }

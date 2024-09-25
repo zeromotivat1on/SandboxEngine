@@ -1,11 +1,15 @@
 #include "sndpch.h"
 #include "SandboxEngine/Engine/EngineLoop.h"
+#include "SandboxEngine/Core/Log.h"
 #include "SandboxEngine/Core/Window.h"
 #include "SandboxEngine/Core/Timer.h"
 
-snd::EngineLoop::EngineLoop()
-	: m_Engine(Window::Create({ "Sandbox Engine", 1280, 720 }))
+void snd::EngineLoop::Init()
 {
+	Log::Init();
+
+	Window* window = Window::Create({ "Sandbox Engine", 1280, 720 });
+	m_Engine.Init(window);
 }
 
 void snd::EngineLoop::Run()
@@ -30,4 +34,9 @@ void snd::EngineLoop::Run()
 
 		beginCounter = endCounter;
 	}
+}
+
+void snd::EngineLoop::Shutdown()
+{
+	m_Engine.Shutdown();
 }

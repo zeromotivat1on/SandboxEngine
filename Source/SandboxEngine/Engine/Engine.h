@@ -10,15 +10,15 @@ namespace snd
 	class Engine
 	{
 	public:
-						Engine(Window* window);
-						~Engine();
+						Engine();
+		
+		void			Init(Window* window);
+		void			Shutdown();
 		
 		void			Tick(f32 dt);
 		bool			Running() const;
 
 	private:
-		void			Init();
-		void			Shutdown();
 
 		void			OnEvent(Event& event);
 		bool			OnWindowClosed(WindowClosedEvent& event);

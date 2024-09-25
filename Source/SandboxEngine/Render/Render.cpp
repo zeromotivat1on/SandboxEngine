@@ -8,7 +8,7 @@
 #include "SandboxEngine/Components/CameraComponent.h"
 #include "SandboxEngine/Components/MeshComponent.h"
 #include "SandboxEngine/Components/TransformComponent.h"
-#include "SandboxEngine/Ecs/EntityContainer.h"
+#include "SandboxEngine/Ecs/Ecs.h"
 #include "SandboxEngine/Ecs/EntityFilter.h"
 #include <bgfx/bgfx.h>
 #include <glm/gtc/type_ptr.hpp>
