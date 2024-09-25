@@ -1,70 +1,21 @@
 #include "sndpch.h"
 #include "SandboxEngine/Render/Render.h"
+#include "SandboxEngine/Render/Vertex.h"
 #include "SandboxEngine/Core/Error.h"
 #include "SandboxEngine/Core/Timer.h"
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Core/FileSystem.h"
 #include "SandboxEngine/Components/CameraComponent.h"
+#include "SandboxEngine/Components/MeshComponent.h"
+#include "SandboxEngine/Components/TransformComponent.h"
+#include "SandboxEngine/Ecs/EntityContainer.h"
+#include "SandboxEngine/Ecs/EntityFilter.h"
 #include <bgfx/bgfx.h>
-#include <bx/math.h>
 #include <glm/gtc/type_ptr.hpp>
 
 // Current window we render on.
 static snd::Window*					s_Window = nullptr;
 static const snd::CameraComponent*	s_Camera = nullptr;
-
-struct PosColorVertex
-{
-	f32 m_x;
-	f32 m_y;
-	f32 m_z;
-	u32 m_abgr;
-
-	static void init()
-	{
-		ms_layout
-			.begin()
-			.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-			.add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
-			.end();
-	};
-
-	static bgfx::VertexLayout ms_layout;
-};
-
-bgfx::VertexLayout PosColorVertex::ms_layout;
-
-static PosColorVertex s_cubeVertices[] =
-{
-	{-1.0f,  1.0f,  1.0f, 0xff000000 },
-	{ 1.0f,  1.0f,  1.0f, 0xff0000ff },
-	{-1.0f, -1.0f,  1.0f, 0xff00ff00 },
-	{ 1.0f, -1.0f,  1.0f, 0xff00ffff },
-	{-1.0f,  1.0f, -1.0f, 0xffff0000 },
-	{ 1.0f,  1.0f, -1.0f, 0xffff00ff },
-	{-1.0f, -1.0f, -1.0f, 0xffffff00 },
-	{ 1.0f, -1.0f, -1.0f, 0xffffffff },
-};
-
-static const u16 s_cubeTriList[] =
-{
-	0, 1, 2, // 0
-	1, 3, 2,
-	4, 6, 5, // 2
-	5, 6, 7,
-	0, 2, 4, // 4
-	4, 2, 6,
-	1, 5, 3, // 6
-	5, 7, 3,
-	0, 4, 1, // 8
-	4, 5, 1,
-	2, 3, 6, // 10
-	6, 3, 7,
-};
-
-static bgfx::ProgramHandle s_Program;
-static bgfx::VertexBufferHandle s_vbh;
-static bgfx::IndexBufferHandle s_ibh;
 
 void snd::render::Init(Window* window)
 {
@@ -91,12 +42,14 @@ void snd::render::Init(Window* window)
 
 	SND_INFO("Using Renderer API \"{}\"", bgfx::getRendererName(bgfx::getRendererType()));
 
-	s_Program = fs::LoadProgram("base.vs", "base.fs");
+	Vertex::InitLayout();
 
-	PosColorVertex::init();
-
-	s_vbh = bgfx::createVertexBuffer(bgfx::makeRef(s_cubeVertices, sizeof(s_cubeVertices)), PosColorVertex::ms_layout);
-	s_ibh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeTriList, sizeof(s_cubeTriList)));
+	// Create debug test cubes. 
+	for (i32 i = 0; i < 10; ++i)
+	{
+		const EntityId cube = NewEntityDebugCube();
+		ecs::Get<TransformComponent>(cube)->Location.x += i * 10.0f;
+	}
 }
 
 void snd::render::Shutdown()
@@ -120,6 +73,53 @@ void snd::render::SetCamera(const CameraComponent* camera)
 {
 	SND_ASSERT(camera);
 	s_Camera = camera;
+}
+
+snd::EntityId snd::render::NewEntityDebugCube()
+{
+	static const Vertex s_CubeVertices[8] =
+	{
+		{ glm::vec3(-1.0f,  1.0f,  1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xff000000 },
+		{ glm::vec3( 1.0f,  1.0f,  1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xff0000ff },
+		{ glm::vec3(-1.0f, -1.0f,  1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xff00ff00 },
+		{ glm::vec3( 1.0f, -1.0f,  1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xff00ffff },
+		{ glm::vec3(-1.0f,  1.0f, -1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xffff0000 },
+		{ glm::vec3( 1.0f,  1.0f, -1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xffff00ff },
+		{ glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xffffff00 },
+		{ glm::vec3( 1.0f, -1.0f, -1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xffffffff },
+	};
+
+	static const u16 s_CubeIndices[36] =
+	{
+		0, 1, 2,
+		1, 3, 2,
+		4, 6, 5,
+		5, 6, 7,
+		0, 2, 4,
+		4, 2, 6,
+		1, 5, 3,
+		5, 7, 3,
+		0, 4, 1,
+		4, 5, 1,
+		2, 3, 6,
+		6, 3, 7,
+	};
+
+	static const auto s_CubeVbh = bgfx::createVertexBuffer(bgfx::makeRef(s_CubeVertices, 8 * sizeof(Vertex)), Vertex::Layout);
+	static const auto s_CubeIbh = bgfx::createIndexBuffer(bgfx::makeRef(s_CubeIndices, 36 * sizeof(u32)));
+	
+	const EntityId cube = ecs::NewEntity();
+
+	ecs::Assign<TransformComponent>(cube, DefaultTransform());
+	
+	if (auto* mesh = ecs::Assign<MeshComponent>(cube))
+	{
+		mesh->Vbh = s_CubeVbh;
+		mesh->Ibh = s_CubeIbh;
+		mesh->Rph = fs::LoadProgram("base.vs", "base.fs");
+	}
+
+	return cube;
 }
 
 std::string ToString(const glm::vec3& vec)
@@ -146,41 +146,27 @@ void snd::render::Tick(f32 dt)
 
 	bgfx::dbgTextClear();
 
-	const f32 time = StartupTime();
-
 	u8 dbgTextY = 1;
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Window size: %dx%d", s_Window->Width(), s_Window->Height());
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Run time: %.2fs", time);
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Run time: %.2fs", StartupTime());
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Delta time: %.2fms", (dt * 1000.0f));
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "FPS: %.2f", (1.0f / dt));
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Vsync: %s", s_Window->Vsync() ? "ON" : "OFF");
 
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Camera: location %s, target %s", ToString(s_Camera->Eye).c_str(), ToString(s_Camera->At).c_str());
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Mouse: position %s", ToString(input::MousePosition()).c_str());
-	
-	for (u8 yy = 0; yy < 11; ++yy)
+
+	for (EntityId entity : EntityFilterTemplate<TransformComponent, MeshComponent>())
 	{
-		for (u8 xx = 0; xx < 11; ++xx)
-		{
-			f32 mtx[16];
-			bx::mtxRotateXY(mtx, time + xx * 0.21f, time + yy * 0.37f);
-			mtx[12] = -15.0f + static_cast<f32>(xx) * 3.0f;
-			mtx[13] = -15.0f + static_cast<f32>(yy) * 3.0f;
-			mtx[14] = 0.0f;
-
-			// Set model matrix for rendering.
-			bgfx::setTransform(mtx);
-
-			// Set vertex and index buffer.
-			bgfx::setVertexBuffer(0, s_vbh);
-			bgfx::setIndexBuffer(s_ibh);
-
-			// Set render states.
-			bgfx::setState(BGFX_STATE_DEFAULT);
-
-			// Submit primitive for rendering to view 0.
-			bgfx::submit(0, s_Program);
-		}
+		bgfx::setState(BGFX_STATE_DEFAULT);
+	
+		const TransformComponent* transform = ecs::Get<TransformComponent>(entity);
+		bgfx::setTransform(glm::value_ptr(transform->Matrix()));
+	
+		const MeshComponent* mesh = ecs::Get<MeshComponent>(entity);
+		bgfx::setVertexBuffer(0, mesh->Vbh);
+		bgfx::setIndexBuffer(mesh->Ibh);
+		bgfx::submit(0, mesh->Rph);
 	}
 
 	bgfx::frame();

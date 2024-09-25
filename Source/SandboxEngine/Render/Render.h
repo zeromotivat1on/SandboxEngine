@@ -1,11 +1,13 @@
 #pragma once
 
 #include "SandboxEngine/Core/Window.h"
+#include "SandboxEngine/Ecs/Entity.h"
 
 namespace snd
 {
-	class Camera;
-	class CameraComponent;
+	class	Camera;
+	struct 	CameraComponent;
+	struct 	TransformComponent;
 }
 
 namespace snd::render
@@ -18,4 +20,7 @@ namespace snd::render
 	void OnWindowResized(u16 width, u16 height);
 
 	void SetCamera(const CameraComponent* camera);
+
+	// Create debug cube entity with default transform.
+	EntityId NewEntityDebugCube();
 }
