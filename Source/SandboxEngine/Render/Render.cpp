@@ -107,6 +107,7 @@ snd::Entity snd::render::NewEntityDebugCube()
 
 	static const auto s_CubeVbh = bgfx::createVertexBuffer(bgfx::makeRef(s_CubeVertices, 8 * sizeof(Vertex)), Vertex::Layout);
 	static const auto s_CubeIbh = bgfx::createIndexBuffer(bgfx::makeRef(s_CubeIndices, 36 * sizeof(u32)));
+	static const auto s_CubeRph = fs::LoadProgram("base.vs", "base.fs");
 	
 	const Entity cube = ecs::NewEntity();
 
@@ -116,7 +117,7 @@ snd::Entity snd::render::NewEntityDebugCube()
 	{
 		mesh->Vbh = s_CubeVbh;
 		mesh->Ibh = s_CubeIbh;
-		mesh->Rph = fs::LoadProgram("base.vs", "base.fs");
+		mesh->Rph = s_CubeRph;
 	}
 
 	return cube;
