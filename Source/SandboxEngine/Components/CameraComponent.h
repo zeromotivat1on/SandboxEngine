@@ -37,6 +37,8 @@ namespace snd
         void                OnMouseMove(const glm::vec2& offset, f32 sensitivity);
     };
 
+    static_assert(std::is_pod_v<CameraComponent>);
+
     // Convert spherical coordinates (yaw, pitch) to cartesian coordinates (forward vector).
     glm::vec3 ForwardVector(f32 yaw, f32 pitch);
 }

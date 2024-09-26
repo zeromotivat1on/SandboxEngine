@@ -9,4 +9,6 @@ namespace snd
         bgfx::TextureHandle     Texture;
         bgfx::UniformHandle     Uniform;
     };
+
+    static_assert(std::is_pod_v<MaterialComponent>);
 }

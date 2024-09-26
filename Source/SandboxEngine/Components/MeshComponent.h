@@ -10,4 +10,6 @@ namespace snd
         bgfx::IndexBufferHandle     Ibh;    // index buffer handle
         bgfx::ProgramHandle         Rph;    // render pipeline handle
     };
+
+    static_assert(std::is_pod_v<MeshComponent>);
 }
