@@ -15,7 +15,7 @@ namespace snd
         public:
                                     Iterator(EntityContainer* container, EntityIndex index, u16* ids, u8 idCount);
             
-            EntityId                operator*() const;
+            Entity                  operator*() const;
             bool                    operator==(const Iterator& other) const;
             bool                    operator!=(const Iterator& other) const;
             Iterator&               operator++();
@@ -125,7 +125,7 @@ namespace snd
     {
     }
 
-    SND_INLINE EntityId EntityFilter::Iterator::operator*() const
+    SND_INLINE Entity EntityFilter::Iterator::operator*() const
     {
         return m_Container->Data()[m_Index]; 
     }

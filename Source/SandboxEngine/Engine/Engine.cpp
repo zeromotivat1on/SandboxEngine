@@ -9,7 +9,7 @@
 #include "SandboxEngine/Ecs/Ecs.h"
 #include "SandboxEngine/Components/CameraComponent.h"
 
-snd::EntityId g_PlayerEntity;
+snd::Entity g_PlayerEntity;
 
 snd::Engine::Engine()
 	: m_Window(nullptr), m_ExitRequested(false)

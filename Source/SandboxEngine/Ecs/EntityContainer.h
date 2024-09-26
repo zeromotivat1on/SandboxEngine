@@ -8,21 +8,21 @@ namespace snd
     class EntityContainer
     {
     public:
-        EntityId                        New();
-        void                            Destroy(EntityId id);
+        Entity                          New();
+        void                            Destroy(Entity id);
 
-        EntityId*                       Data();
-        const EntityId*                 Data() const;
+        Entity*                         Data();
+        const Entity*                   Data() const;
         u16                             Count() const;
         
-        void*                           Assign(EntityId id, u16 componentId, u16 componentSize);
-        void*                           Get(EntityId id, u16 componentId) const;
-        bool                            Remove(EntityId id, u16 componentId);
-        bool                            Has(EntityId id, const u16* componentIds, u8 idCount) const;
+        void*                           Assign(Entity id, u16 componentId, u16 componentSize);
+        void*                           Get(Entity id, u16 componentId) const;
+        bool                            Remove(Entity id, u16 componentId);
+        bool                            Has(Entity id, const u16* componentIds, u8 idCount) const;
         bool                            Has(EntityIndex index, const u16* componentIds, u8 idCount) const;
 
     private:
-        std::vector<EntityId>           m_Entities;
+        std::vector<Entity>             m_Entities;
         std::vector<EntityIndex>        m_FreeEntityIndices;
         std::vector<SparseBuffer>       m_ComponentBuffers;
     };
@@ -30,12 +30,12 @@ namespace snd
     // General-purpose global entity container.
     inline EntityContainer* g_EntityContainer = nullptr;
     
-    SND_INLINE EntityId* EntityContainer::Data()
+    SND_INLINE Entity* EntityContainer::Data()
     {
         return m_Entities.data();
     }
 
-    SND_INLINE const EntityId* EntityContainer::Data() const
+    SND_INLINE const Entity* EntityContainer::Data() const
     {
         return m_Entities.data();
     }

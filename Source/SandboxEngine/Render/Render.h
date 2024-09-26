@@ -22,5 +22,5 @@ namespace snd::render
 	void SetCamera(const CameraComponent* camera);
 
 	// Create debug cube entity with default transform.
-	EntityId NewEntityDebugCube();
+	Entity NewEntityDebugCube();
 }
