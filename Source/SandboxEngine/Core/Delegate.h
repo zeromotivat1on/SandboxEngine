@@ -4,23 +4,23 @@
 #include "Vendor/fastdelegate/FastDelegate.h"
 
 // Declare delegate of type - void().
-#define DECLARE_DELEGATE(Name)                                  ::snd::Delegate<void> Name
+#define DECLARE_DELEGATE(Name)                                  using Name = ::snd::Delegate<void>
 
 // Declare delegate of type - ReturnType().
-#define DECLARE_DELEGATE_Return(Name, ReturnType)               ::snd::Delegate<ReturnType> Name
+#define DECLARE_DELEGATE_Return(Name, ReturnType)               using Name = ::snd::Delegate<ReturnType>
 
 // Declare delegate of type - void(params...)
-#define DECLARE_DELEGATE_Params(Name, ...)                      ::snd::Delegate<void, __VA_ARGS__> Name
+#define DECLARE_DELEGATE_Params(Name, ...)                      using Name = ::snd::Delegate<void, __VA_ARGS__>
 
 // Declare delegate of type - ReturnType(params...).
 // Note: max amount of params is 8.
-#define DECLARE_DELEGATE_Return_Params(Name, ReturnType, ...)   ::snd::Delegate<ReturnType, __VA_ARGS__> Name
+#define DECLARE_DELEGATE_Return_Params(Name, ReturnType, ...)   using Name = ::snd::Delegate<ReturnType, __VA_ARGS__>
 
 // Declare multicast delegate of type - void().
-#define DECLARE_DELEGATE_MULTICAST(Name)                        ::snd::DelegateMulticast<> Name
+#define DECLARE_DELEGATE_MULTICAST(Name)                        using Name = ::snd::DelegateMulticast<>
 
 // Declare multicast delegate of type - void(params...).
-#define DECLARE_DELEGATE_MULTICAST_Params(Name, ...)            ::snd::DelegateMulticast<__VA_ARGS__> Name
+#define DECLARE_DELEGATE_MULTICAST_Params(Name, ...)            using Name = ::snd::DelegateMulticast<__VA_ARGS__>
 
 namespace snd
 {
@@ -64,7 +64,7 @@ namespace snd
         using DelegateType =        Delegate<void, Params...>;
 
     public:
-        static constexpr u8    MaxBindings = 16;
+        static constexpr u8         MaxBindings = 16;
 
     public:
         void                        Add(const DelegateType& delegate);
@@ -90,7 +90,7 @@ namespace snd
     };
 
     using SimpleDelegate            = Delegate<void>;
-    using SimpleDelegateMulitcast   = DelegateMulticast<void>;
+    using SimpleDelegateMulticast   = DelegateMulticast<void>;
 
     // Delegate
 
