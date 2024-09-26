@@ -19,7 +19,6 @@ namespace snd
 		bool			Running() const;
 
 	private:
-
 		void			OnEvent(Event& event);
 		bool			OnWindowClosed(WindowClosedEvent& event);
 		bool			OnWindowResized(WindowResizedEvent& event);
