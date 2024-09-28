@@ -7,9 +7,69 @@
 #include "SandboxEngine/Render/Render.h"
 #include "SandboxEngine/UI/UI.h"
 #include "SandboxEngine/Ecs/Ecs.h"
+#include "SandboxEngine/Ecs/Systems/CameraSystem.h"
+#include "SandboxEngine/Ecs/Systems/MovementSystem.h"
 #include "SandboxEngine/Components/CameraComponent.h"
+#include "SandboxEngine/Components/MovementComponent.h"
+#include "SandboxEngine/Components/TransformComponent.h"
 
-snd::Entity g_PlayerEntity;
+namespace snd
+{
+	Entity	g_PlayerEntity;
+	f32		g_PlayerCameraInputScale = 1.0f;
+	
+	void TickPlayerInput()
+	{
+		auto* movement	= ecs::Get<MovementComponent>(g_PlayerEntity);
+		auto* camera	= ecs::Get<CameraComponent>(g_PlayerEntity);
+		SND_ASSERT(movement && camera);
+		
+		const glm::vec2 mouseOffset = input::MouseOffset();
+		const f32 mouseSensitivity  = 0.1f; // todo: mb make separate component for inputs
+		const f32 pitchLimit        = 89.0f;
+        
+		camera->Yaw   += mouseOffset.x * mouseSensitivity;
+		camera->Pitch += mouseOffset.y * mouseSensitivity;
+		camera->Pitch  = std::clamp(camera->Pitch, -pitchLimit, pitchLimit);
+		
+		glm::vec3 inputVelocity	= glm::vec3(0.0f);
+		
+		if (input::ButtonDown(KeyboardBit::W))
+		{
+			inputVelocity.x += 50.0f;
+		}
+
+		if (input::ButtonDown(KeyboardBit::S))
+		{
+			inputVelocity.x -= 50.0f;
+		}
+
+		if (input::ButtonDown(KeyboardBit::D))
+		{
+			inputVelocity.y += 50.0f;
+		}
+		
+		if (input::ButtonDown(KeyboardBit::A))
+		{
+			inputVelocity.y -= 50.0f;
+		}
+		
+		if (input::ButtonDown(KeyboardBit::E))
+		{
+			inputVelocity.z += 50.0f;
+		}
+
+		if (input::ButtonDown(KeyboardBit::Q))
+		{
+			inputVelocity.z -= 50.0f;
+		}
+
+		movement->Velocity =
+			g_PlayerCameraInputScale * inputVelocity.x * camera->ForwardVector() +
+			g_PlayerCameraInputScale * inputVelocity.y * camera->RightVector()	 +
+			g_PlayerCameraInputScale * inputVelocity.z * camera->Up;
+	}
+}
 
 snd::Engine::Engine()
 	: m_Window(nullptr), m_ExitRequested(false)
@@ -38,8 +98,11 @@ void snd::Engine::Init(Window* window)
 	
 	g_PlayerEntity = ecs::NewEntity();
 
+	auto* transform = ecs::Assign<TransformComponent>(g_PlayerEntity, DefaultTransform());
+	transform->Location = glm::vec3(0.0f, 0.0f, -50.0f);
+		
 	auto* camera = ecs::Assign<CameraComponent>(g_PlayerEntity);
-	camera->Eye  	= glm::vec3(0.0f, 0.0f, -35.0f);
+	camera->Eye  	= transform->Location;
 	camera->At	 	= glm::vec3(0.0f);
 	camera->Up		= glm::vec3(0.0f, 1.0f, 0.0f);
 	camera->Yaw		= 0.0f;
@@ -48,6 +111,9 @@ void snd::Engine::Init(Window* window)
 	camera->Aspect	= m_Window->GetAspectRatio();
 	camera->Near	= 0.1f;
 	camera->Far		= 1000.0f;
+
+	auto* movement = ecs::Assign<MovementComponent>(g_PlayerEntity);
+	movement->Velocity = glm::vec3(0.0f);
 	
 	render::SetCamera(camera);
 }
@@ -111,6 +177,9 @@ bool snd::Engine::OnMouseMoved(MouseMovedEvent& event)
 
 bool snd::Engine::OnMouseScrolled(MouseScrolledEvent& event)
 {
+	g_PlayerCameraInputScale += math::Sign(event.GetOffsetY()) * 0.2f;
+	g_PlayerCameraInputScale  = std::clamp(g_PlayerCameraInputScale, 0.1f, 10.0f);
+	
 	return true;
 }
 
@@ -141,45 +210,10 @@ void snd::Engine::Tick(f32 dt)
 		m_ExitRequested = true;
 	}
 
-	// Update camera controls
-	if (auto* camera = ecs::Get<CameraComponent>(g_PlayerEntity))
-	{
-		camera->OnMouseMove(input::MouseOffset(), 0.1f);
-
-		glm::vec3 moveDelta = glm::vec3(0.0f);
-
-		if (input::ButtonDown(KeyboardBit::W))
-		{
-			moveDelta.x += 1.0f;
-		}
-		
-		if (input::ButtonDown(KeyboardBit::S))
-		{
-			moveDelta.x -= 1.0f;
-		}
-
-		if (input::ButtonDown(KeyboardBit::D))
-		{
-			moveDelta.y += 1.0f;
-		}
-		
-		if (input::ButtonDown(KeyboardBit::A))
-		{
-			moveDelta.y -= 1.0f;
-		}
-
-		if (input::ButtonDown(KeyboardBit::E))
-		{
-			moveDelta.z += 1.0f;
-		}
-		
-		if (input::ButtonDown(KeyboardBit::Q))
-		{
-			moveDelta.z -= 1.0f;
-		}
-
-		camera->Move(moveDelta);
-	}
+	TickPlayerInput();
+	
+	ecs::TickMovementSystem(dt);
+	ecs::TickCameraSystem(dt);
 	
 	render::Tick(dt);
 

@@ -29,12 +29,6 @@ namespace snd
         glm::mat4			ViewMatrix() const;						// calculate view matrix
         glm::mat4			PerspectiveProjectionMatrix() const;	// calculate perspective projection matrix
         glm::mat4			OrthographicProjectionMatrix() const;	// calculate orthographic projection matrix
-
-        // Move camera by a given delta distance.
-        void                Move(const glm::vec3& delta);
-        
-        // Update camera rotation based on mouse move input offset.
-        void                OnMouseMove(const glm::vec2& offset, f32 sensitivity);
     };
 
     static_assert(std::is_pod_v<CameraComponent>);
