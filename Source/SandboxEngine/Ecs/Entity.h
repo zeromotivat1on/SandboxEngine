@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "SandboxEngine/Core/CoreMacros.h"
-
 #define INVALID_ENTITY_INDEX            static_cast<::snd::EntityIndex>(INVALID_INDEX)
 #define INVALID_ENTITY_ID               ::snd::GetEntityId(INVALID_ENTITY_INDEX, 0)
 

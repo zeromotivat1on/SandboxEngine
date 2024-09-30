@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "SandboxEngine/Core/CoreMacros.h"
-
 #define SID(str) ::snd::StringId(str)
 
 namespace snd

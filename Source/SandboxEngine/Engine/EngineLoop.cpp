@@ -1,6 +1,5 @@
 #include "sndpch.h"
 #include "SandboxEngine/Engine/EngineLoop.h"
-#include "SandboxEngine/Core/Log.h"
 #include "SandboxEngine/Core/Window.h"
 #include "SandboxEngine/Core/Timer.h"
 

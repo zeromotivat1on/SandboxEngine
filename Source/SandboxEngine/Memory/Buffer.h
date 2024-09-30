@@ -1,8 +1,5 @@
 ﻿#pragma once
 
-#include "SandboxEngine/Core/CoreMacros.h"
-#include "SandboxEngine/Core/Log.h"
-
 namespace snd
 {
     // General buffer with an ability to store elements of given size.
@@ -142,7 +139,7 @@ namespace snd
 
     SND_INLINE void* Buffer::Last() const
     {
-        return m_Data + (m_Capacity - 1);
+        return m_Data + (static_cast<u64>(m_Capacity) - 1) * m_ElementSize;
     }
 
     SND_INLINE u64 Buffer::Size() const

@@ -1,7 +1,6 @@
 #include "sndpch.h"
 #include "SandboxEngine/Render/Render.h"
 #include "SandboxEngine/Render/Vertex.h"
-#include "SandboxEngine/Core/Error.h"
 #include "SandboxEngine/Core/Timer.h"
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Core/FileSystem.h"
@@ -11,7 +10,6 @@
 #include "SandboxEngine/Ecs/Ecs.h"
 #include "SandboxEngine/Ecs/EntityFilter.h"
 #include <bgfx/bgfx.h>
-#include <glm/gtc/type_ptr.hpp>
 
 // Current window we render on.
 static snd::Window*					s_Window = nullptr;
@@ -79,14 +77,14 @@ snd::Entity snd::render::NewEntityDebugCube()
 {
 	static const Vertex s_CubeVertices[8] =
 	{
-		{ glm::vec3(-1.0f,  1.0f,  1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xff000000 },
-		{ glm::vec3( 1.0f,  1.0f,  1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xff0000ff },
-		{ glm::vec3(-1.0f, -1.0f,  1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xff00ff00 },
-		{ glm::vec3( 1.0f, -1.0f,  1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xff00ffff },
-		{ glm::vec3(-1.0f,  1.0f, -1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xffff0000 },
-		{ glm::vec3( 1.0f,  1.0f, -1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xffff00ff },
-		{ glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xffffff00 },
-		{ glm::vec3( 1.0f, -1.0f, -1.0f), glm::vec3(1.0f), glm::vec2(0.0f), 0xffffffff },
+		{ vec3(-1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff000000 },
+		{ vec3( 1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff0000ff },
+		{ vec3(-1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff00ff00 },
+		{ vec3( 1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff00ffff },
+		{ vec3(-1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffff0000 },
+		{ vec3( 1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffff00ff },
+		{ vec3(-1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffffff00 },
+		{ vec3( 1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffffffff },
 	};
 
 	static const u16 s_CubeIndices[36] =
@@ -111,7 +109,7 @@ snd::Entity snd::render::NewEntityDebugCube()
 	
 	const Entity cube = ecs::NewEntity();
 
-	ecs::Assign<TransformComponent>(cube, DefaultTransform());
+	ecs::Assign<TransformComponent>(cube, IdentityTransform());
 	
 	if (auto* mesh = ecs::Assign<MeshComponent>(cube))
 	{
@@ -123,23 +121,23 @@ snd::Entity snd::render::NewEntityDebugCube()
 	return cube;
 }
 
-std::string ToString(const glm::vec3& vec)
-{
-	std::ostringstream oss;
-	oss << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
-	return oss.str();
-}
-
-std::string ToString(const glm::vec2& vec)
+std::string ToString(const snd::vec2& vec)
 {
 	std::ostringstream oss;
 	oss << "(" << vec.x << ", " << vec.y << ")";
 	return oss.str();
 }
 
+std::string ToString(const snd::vec3& vec)
+{
+	std::ostringstream oss;
+	oss << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
+	return oss.str();
+}
+
 void snd::render::Tick(f32 dt)
 {
-	bgfx::setViewTransform(0, glm::value_ptr(s_Camera->ViewMatrix()), glm::value_ptr(s_Camera->PerspectiveProjectionMatrix()));
+	bgfx::setViewTransform(0, s_Camera->ViewMat4().Ptr(), s_Camera->PerspectiveMat4().Ptr());
 	bgfx::setViewRect(0, 0, 0, s_Window->Width(), s_Window->Height());
 
 	// This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.
@@ -162,7 +160,7 @@ void snd::render::Tick(f32 dt)
 		bgfx::setState(BGFX_STATE_DEFAULT);
 	
 		const TransformComponent* transform = ecs::Get<TransformComponent>(entity);
-		bgfx::setTransform(glm::value_ptr(transform->Matrix()));
+		bgfx::setTransform(transform->Mat4().Ptr());
 	
 		const MeshComponent* mesh = ecs::Get<MeshComponent>(entity);
 		bgfx::setVertexBuffer(0, mesh->Vbh);

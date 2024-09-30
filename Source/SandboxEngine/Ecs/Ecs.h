@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "SandboxEngine/Core/Error.h"
 #include "SandboxEngine/Ecs/Entity.h"
 #include "SandboxEngine/Ecs/EntityContainer.h"
 
@@ -28,7 +27,7 @@ namespace snd::ecs
     template <typename TComponent>
     TComponent* Assign(Entity id)
     {
-        const u8  componentId   = GetComponentId<TComponent>();
+        const u16 componentId   = GetComponentId<TComponent>();
         const u16 componentSize = sizeof(TComponent);
             
         if (void* componentData = g_EntityContainer->Assign(id, componentId, componentSize))
@@ -44,7 +43,7 @@ namespace snd::ecs
     template <typename TComponent>
     TComponent* Assign(Entity id, const TComponent& component)
     {
-        const u8  componentId   = GetComponentId<TComponent>();
+        const u16 componentId   = GetComponentId<TComponent>();
         const u16 componentSize = sizeof(TComponent);
             
         if (void* componentData = g_EntityContainer->Assign(id, componentId, componentSize))

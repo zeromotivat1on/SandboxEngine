@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "SandboxEngine/Core/CoreMacros.h"
 #include "SandboxEngine/Memory/Buffer.h"
 
 namespace snd
@@ -46,7 +45,7 @@ namespace snd
           m_SparseIndices(new u32[sparseCapacity]),
           m_DenseData(0, denseElementSize)
     {
-        memset(m_SparseIndices, INVALID_SIZE_INDEX, m_SparseCapacity * sizeof(u32));
+        memset(m_SparseIndices, INVALID_INDEX, m_SparseCapacity * sizeof(u32));
     }
 
     SND_INLINE SparseBuffer::SparseBuffer(SparseBuffer&& other) noexcept
@@ -70,7 +69,7 @@ namespace snd
         if (this != &other)
         {
             // Free the current resources.
-            delete[] m_SparseIndices;
+            Free();
 
             // Transfer ownership.
             m_SparseCapacity = other.m_SparseCapacity;
@@ -96,8 +95,8 @@ namespace snd
 
         u32* sparseIndices = new u32[sparseCapacity];
 
-        memset(sparseIndices + m_SparseCapacity, INVALID_SIZE_INDEX, (sparseCapacity - m_SparseCapacity) * sizeof(size_t));
-        memcpy(sparseIndices, m_SparseIndices, m_SparseCapacity * sizeof(size_t));
+        memset(sparseIndices + m_SparseCapacity, INVALID_INDEX, (sparseCapacity - m_SparseCapacity) * sizeof(u32));
+        memcpy(sparseIndices, m_SparseIndices, m_SparseCapacity * sizeof(u32));
 
         delete[] m_SparseIndices;
 
@@ -135,7 +134,7 @@ namespace snd
 
     SND_INLINE void* SparseBuffer::Allocate(u32 index)
     {
-        if (index >= m_SparseCapacity)
+        if (index >= m_SparseCapacity || m_SparseIndices[index] != INVALID_UINDEX)
         {
             return nullptr;
         }
@@ -172,7 +171,7 @@ namespace snd
         const u32 denseIndex     = m_SparseIndices[index];
         const u32 lastDenseIndex = m_DenseCount - 1;
         
-        m_SparseIndices[index] = INVALID_SIZE_INDEX;
+        m_SparseIndices[index] = INVALID_UINDEX;
 
         if (denseIndex == lastDenseIndex)
         {

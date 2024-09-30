@@ -1,7 +1,5 @@
 #include "sndpch.h"
 #include "SandboxEngine/Engine/Engine.h"
-#include "SandboxEngine/Core/CoreMacros.h"
-#include "SandboxEngine/Core/Error.h"
 #include "SandboxEngine/Core/Profile.h"
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Render/Render.h"
@@ -17,14 +15,15 @@ namespace snd
 {
 	Entity	g_PlayerEntity;
 	f32		g_PlayerCameraInputScale = 1.0f;
-	
+
+	// TODO: current test player tick works for perspective camera, for orthographic it's not fully applicable.  
 	void TickPlayerInput()
 	{
 		auto* movement	= ecs::Get<MovementComponent>(g_PlayerEntity);
 		auto* camera	= ecs::Get<CameraComponent>(g_PlayerEntity);
 		SND_ASSERT(movement && camera);
 		
-		const glm::vec2 mouseOffset = input::MouseOffset();
+		const vec2 mouseOffset		= input::MouseOffset();
 		const f32 mouseSensitivity  = 0.1f; // todo: mb make separate component for inputs
 		const f32 pitchLimit        = 89.0f;
         
@@ -32,7 +31,7 @@ namespace snd
 		camera->Pitch += mouseOffset.y * mouseSensitivity;
 		camera->Pitch  = std::clamp(camera->Pitch, -pitchLimit, pitchLimit);
 		
-		glm::vec3 inputVelocity	= glm::vec3(0.0f);
+		vec3 inputVelocity;
 		
 		if (input::ButtonDown(KeyboardBit::W))
 		{
@@ -94,26 +93,31 @@ void snd::Engine::Init(Window* window)
 	ecs::Init();
 	input::Init(m_Window);
 	render::Init(m_Window);
-	ui::Init(m_Window);
+	//ui::Init(m_Window);
 	
 	g_PlayerEntity = ecs::NewEntity();
 
-	auto* transform = ecs::Assign<TransformComponent>(g_PlayerEntity, DefaultTransform());
-	transform->Location = glm::vec3(0.0f, 0.0f, -50.0f);
-		
+	auto* transform = ecs::Assign<TransformComponent>(g_PlayerEntity, IdentityTransform());
+	transform->Location = vec3(0.0f, 0.0f, -50.0f);
+
+	const vec4 ortho = m_Window->OrthoDataCentered();
 	auto* camera = ecs::Assign<CameraComponent>(g_PlayerEntity);
 	camera->Eye  	= transform->Location;
-	camera->At	 	= glm::vec3(0.0f);
-	camera->Up		= glm::vec3(0.0f, 1.0f, 0.0f);
+	camera->At	 	= vec3(0.0f);
+	camera->Up		= vec3(0.0f, 1.0f, 0.0f);
 	camera->Yaw		= 0.0f;
 	camera->Pitch	= 0.0f;
 	camera->Fov		= 60.0f;
-	camera->Aspect	= m_Window->GetAspectRatio();
+	camera->Aspect	= m_Window->AspectRatio();
 	camera->Near	= 0.1f;
 	camera->Far		= 1000.0f;
+	camera->Left	= ortho[0] * 0.1f;
+	camera->Right	= ortho[1] * 0.1f;
+	camera->Bottom	= ortho[2] * 0.1f;
+	camera->Top		= ortho[3] * 0.1f;
 
 	auto* movement = ecs::Assign<MovementComponent>(g_PlayerEntity);
-	movement->Velocity = glm::vec3(0.0f);
+	movement->Velocity = vec3(0.0f);
 	
 	render::SetCamera(camera);
 }
@@ -123,7 +127,7 @@ void snd::Engine::Shutdown()
 	SND_INFO("Shutting down the engine");
 
 	input::Shutdown();
-	ui::Shutdown();
+	//ui::Shutdown();
 	render::Shutdown();
 	ecs::Shutdown();
 }
@@ -151,6 +155,15 @@ bool snd::Engine::OnWindowClosed(WindowClosedEvent& event)
 
 bool snd::Engine::OnWindowResized(WindowResizedEvent& event)
 {
+	if (auto* camera = ecs::Get<CameraComponent>(g_PlayerEntity))
+	{
+		const vec4 ortho = m_Window->OrthoDataCentered();
+		camera->Left	 = ortho[0] * 0.1f;
+		camera->Right	 = ortho[1] * 0.1f;
+		camera->Bottom	 = ortho[2] * 0.1f;
+		camera->Top		 = ortho[3] * 0.1f;
+	}
+	
 	render::OnWindowResized(event.GetWidth(), event.GetHeight());
 	return true;
 }
@@ -217,5 +230,5 @@ void snd::Engine::Tick(f32 dt)
 	
 	render::Tick(dt);
 
-	ui::Tick(dt);
+	//ui::Tick(dt);
 }

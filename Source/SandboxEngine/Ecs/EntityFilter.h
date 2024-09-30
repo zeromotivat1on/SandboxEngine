@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "SandboxEngine/Core/Error.h"
 #include "SandboxEngine/Ecs/Entity.h"
 #include "SandboxEngine/Ecs/EntityContainer.h"
 

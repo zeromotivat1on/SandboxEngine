@@ -4,7 +4,6 @@
 #include "SandboxEngine/Ecs/EntityFilter.h"
 #include "SandboxEngine/Components/MovementComponent.h"
 #include "SandboxEngine/Components/TransformComponent.h"
-#include <glm/gtx/norm.hpp>
 
 void snd::ecs::TickMovementSystem(f32 dt)
 {

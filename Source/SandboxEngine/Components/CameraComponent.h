@@ -1,15 +1,12 @@
 ﻿#pragma once
 
-#include <glm/fwd.hpp>
-#include <glm/vec3.hpp>
-
 namespace snd
 {
     struct CameraComponent
     {
-        glm::vec3 			At;		                                // point in space the camera is looking at (target position)
-        glm::vec3 			Up;		                                // up vector defining the camera's vertical direction
-        glm::vec3 			Eye;	                                // position of the camera in the world space
+        vec3 			    At;		                                // point in space the camera is looking at (target position)
+        vec3 			    Up;		                                // up vector defining the camera's vertical direction
+        vec3 			    Eye;	                                // position of the camera in the world space
         
         f32                 Yaw;                                    // horizontal rotation around Y axis
         f32                 Pitch;                                  // vertical rotation around X axis
@@ -24,15 +21,13 @@ namespace snd
         f32 				Bottom;	                                // bottom clipping plane
         f32 				Top;	                                // top clipping plane
 		
-        glm::vec3			ForwardVector() const;					// calculate forward vector
-        glm::vec3			RightVector() const;					// calculate right vector
-        glm::mat4			ViewMatrix() const;						// calculate view matrix
-        glm::mat4			PerspectiveProjectionMatrix() const;	// calculate perspective projection matrix
-        glm::mat4			OrthographicProjectionMatrix() const;	// calculate orthographic projection matrix
+        vec3			    ForwardVector() const;					// calculate forward vector
+        vec3			    RightVector() const;					// calculate right vector
+        mat4			    ViewMat4() const;						// calculate view matrix
+        mat4			    PerspectiveMat4() const;	// calculate perspective projection matrix
+        mat4			    OrthographicMat4() const;	// calculate orthographic projection matrix
     };
 
-    static_assert(std::is_pod_v<CameraComponent>);
-
     // Convert spherical coordinates (yaw, pitch) to cartesian coordinates (forward vector).
-    glm::vec3 ForwardVector(f32 yaw, f32 pitch);
+    vec3 ForwardVector(f32 yaw, f32 pitch);
 }

@@ -1,34 +1,30 @@
 #pragma once
 
-#include "SandboxEngine/Core/CoreMacros.h"
-#include <glm/fwd.hpp>
-#include <glm/gtc/quaternion.hpp>
-
 namespace snd
 {
     struct TransformComponent
     {
-        glm::vec3                   Location;
-        glm::quat                   Rotation;
-        glm::vec3                   Scale;
+        vec3        Location;
+        quat        Rotation;
+        vec3        Scale;
         
-        glm::mat4                   Matrix() const;
+        mat4        Mat4() const;
     };
 
-    static_assert(std::is_pod_v<TransformComponent>);
-
-    SND_INLINE glm::mat4 TransformComponent::Matrix() const
+    // Create transform matrix in row-major order.
+    SND_INLINE mat4 TransformComponent::Mat4() const
     {
-        return glm::translate(glm::mat4(1.0f), Location) * glm::mat4_cast(Rotation) * glm::scale(glm::mat4(1.0f), Scale);
+        return IdentityMat4().Scale(Scale) * Rotation.Mat4() * IdentityMat4().Translate(Location);
     }
 
-    SND_INLINE TransformComponent DefaultTransform()
+    // Transform with no translation and rotation, but with identity scale.
+    SND_INLINE TransformComponent IdentityTransform()
     {
         return
         {
-            glm::vec3(),        // translation
-            glm::quat(),        // rotation
-            glm::vec3(1.0f)     // scale
+            vec3(0.0f),     // translation
+            quat(0.0f),     // rotation
+            vec3(1.0f)      // scale
         };
     }
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SandboxEngine/Core/CoreMacros.h"
 #include <spdlog/spdlog.h>
 
 #define SND_TRACE(...)		SPDLOG_LOGGER_TRACE(::snd::Log::CoreLogger(), __VA_ARGS__)

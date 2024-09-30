@@ -1,8 +1,6 @@
 #pragma once
 
-#include "SandboxEngine/Core/CoreMacros.h"
 #include "SandboxEngine/Events/Event.h"
-#include <glm/glm.hpp>
 
 namespace snd
 {
@@ -39,21 +37,21 @@ namespace snd
 		virtual void				Update() = 0;
 
 	public:
-		f32							GetAspectRatio() const;
+		f32							AspectRatio() const;
 
 		// Get [left, right, bottom, top] orthographic data with origin at window center.
-		glm::vec4					GetOrthoDataCentered() const;
+		vec4						OrthoDataCentered() const;
 
 		// Get [left, right, bottom, top] orthographic data with direct origin at window top-left.
-		glm::vec4					GetOrthoDataDirect() const;
+		vec4						OrthoDataDirect() const;
 	};
 
-	SND_INLINE f32 Window::GetAspectRatio() const
+	SND_INLINE f32 Window::AspectRatio() const
 	{ 
 		return static_cast<f32>(Width()) / static_cast<f32>(Height());
 	}
 
-	SND_INLINE glm::vec4 Window::GetOrthoDataCentered() const
+	SND_INLINE vec4 Window::OrthoDataCentered() const
 	{ 
 		const f32 halfWidth  = static_cast<f32>(Width())  * 0.5f;
 		const f32 halfHeight = static_cast<f32>(Height()) * 0.5f;
@@ -63,16 +61,16 @@ namespace snd
 		const f32 bottom	 = -halfHeight;
 		const f32 top		 = halfHeight;
 
-		return glm::vec4(left, right, bottom, top); 
+		return vec4(left, right, bottom, top); 
 	}
 
-	SND_INLINE glm::vec4 Window::GetOrthoDataDirect() const
+	SND_INLINE vec4 Window::OrthoDataDirect() const
 	{
 		const f32 left   = 0.0f;
 		const f32 right  = Width();
 		const f32 bottom = Height();
 		const f32 top    = 0.0f;
 
-		return glm::vec4(left, right, bottom, top);
+		return vec4(left, right, bottom, top);
 	}
 }

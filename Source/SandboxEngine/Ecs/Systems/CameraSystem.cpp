@@ -1,6 +1,5 @@
 ﻿#include "sndpch.h"
 #include "SandBoxEngine/Ecs/Systems/CameraSystem.h"
-#include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Ecs/Ecs.h"
 #include "SandboxEngine/Ecs/EntityFilter.h"
 #include "SandboxEngine/Components/CameraComponent.h"

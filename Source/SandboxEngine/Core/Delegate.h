@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "SandboxEngine/Core/Error.h"
 #include "Vendor/fastdelegate/FastDelegate.h"
 
 // Declare delegate of type - void().

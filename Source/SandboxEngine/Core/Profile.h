@@ -1,8 +1,6 @@
 #pragma once
 
-#include "SandboxEngine/Core/Log.h"
 #include "SandboxEngine/Core/Timer.h"
-#include "SandboxEngine/Core/CoreMacros.h"
 
 #ifdef SND_BUILD_DEBUG
 	#define SND_DEBUG_PROFILE

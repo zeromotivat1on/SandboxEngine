@@ -1,6 +1,5 @@
 #include "sndpch.h"
 #include "SandboxEngine/UI/UI.h"
-#include "SandboxEngine/Core/Error.h"
 #include "SandboxEngine/bgfx-imgui/imgui_impl_bgfx.h"
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
@@ -13,8 +12,13 @@ void snd::ui::Init(Window* window)
 	SND_ASSERT(s_Window);
 	
 	IMGUI_CHECKVERSION();
-	SND_ASSERT(ImGui::CreateContext());
-	SND_ASSERT(ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(window->Handle()), true));
+
+	ImGuiContext* ctx = ImGui::CreateContext();
+	SND_ASSERT(ctx);
+
+	const bool res = ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(window->Handle()), true);
+	SND_ASSERT(res);
+	
 	ImGui_Implbgfx_Init(0);
 }
 

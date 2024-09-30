@@ -1,6 +1,5 @@
 #include "sndpch.h"
 #include "SandboxEngine/Core/Input.h"
-#include "SandboxEngine/Core/Error.h"
 #include "Platform/Windows/WindowsWindow.h"
 #include <GLFW/glfw3.h>
 
@@ -265,15 +264,15 @@ bool snd::input::ButtonJustWentUp(MouseBit bit)
 	return CHECK_BIT(g_MouseState.ButtonsUp, pos);
 }
 
-glm::vec2 snd::input::MousePosition()
+snd::vec2 snd::input::MousePosition()
 {
-	return glm::vec2(g_MouseState.X, g_MouseState.Y);
+	return vec2(g_MouseState.X, g_MouseState.Y);
 }
 
-glm::vec2 snd::input::MouseOffset()
+snd::vec2 snd::input::MouseOffset()
 {
 	// Y-coords is reversed since they go from top to bottom.
-	return glm::vec2(g_MouseState.X - g_MouseLastX, g_MouseLastY - g_MouseState.Y);
+	return vec2(g_MouseState.X - g_MouseLastX, g_MouseLastY - g_MouseState.Y);
 }
 
 snd::KeyboardBit snd::input::ConvertKeyboardCode(i32 keycode)
