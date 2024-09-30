@@ -18,8 +18,8 @@ set(SHADER_COMPILER "${VENDOR_DIR}/bgfx/cmake/bgfx/Debug/shaderc.exe")
 
 # Specify project source files
 file(GLOB_RECURSE PROJECT_PRECOMPILED_HEADERS CONFIGURE_DEPENDS 
-    "${SOURCE_DIR}/*pch.h"
-    "${SOURCE_DIR}/*pch.cpp"
+    "${PROJECT_ENGINE_DIR}/*pch.h"
+    "${PROJECT_ENGINE_DIR}/*pch.cpp"
 )
 
 file(GLOB_RECURSE PROJECT_SOURCE CONFIGURE_DEPENDS 
@@ -29,9 +29,10 @@ file(GLOB_RECURSE PROJECT_SOURCE CONFIGURE_DEPENDS
     "${PLATFORM_DIR}/${CMAKE_SYSTEM_NAME}/*.cpp"
 )
 
-add_executable(${PROJECT_NAME} "${SOURCE_DIR}/Main.cpp" ${PROJECT_SOURCE} ${PROJECT_PRECOMPILED_HEADERS})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCE} ${PROJECT_PRECOMPILED_HEADERS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${VENDOR_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ENGINE_DIR})
 target_precompile_headers(${PROJECT_NAME} PUBLIC "${PROJECT_PRECOMPILED_HEADERS}")
 
 if(MSVC)
