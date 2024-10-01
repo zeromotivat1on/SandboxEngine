@@ -248,6 +248,7 @@ namespace snd
 
     SND_INLINE const char* vec2::String(i8 precision) const
     {
+        return FloatArrayToString(Ptr(), Dimension(), precision);
     }
 
     SND_INLINE vec2& vec2::Clamp(const vec2& min, const vec2& max)
@@ -334,7 +335,7 @@ namespace snd
         
         f32*			Ptr();
         const f32*	    Ptr() const;
-        const char*	    String(i32 precision = 2) const;
+        const char*	    String(i8 precision = 2) const;
 
         vec3&			Clamp(const vec3& min, const vec3& max);
         vec3&			Snap();                 // snap to closest integer value
@@ -567,8 +568,9 @@ namespace snd
         return &x;
     }
 
-    SND_INLINE const char* vec3::String(i32 precision) const
+    SND_INLINE const char* vec3::String(i8 precision) const
     {
+        return FloatArrayToString(Ptr(), Dimension(), precision);
     }
 
     SND_INLINE vec3& vec3::Clamp(const vec3& min, const vec3& max)
@@ -655,7 +657,7 @@ namespace snd
         
         f32*			Ptr();
         const f32*	    Ptr() const;
-        const char*	    String(i32 precision = 2) const;
+        const char*	    String(i8 precision = 2) const;
 
         vec4&			Lerp(const vec4& v1, const vec4& v2, f32 alpha);
     };
@@ -868,8 +870,9 @@ namespace snd
         return &x;
     }
 
-    SND_INLINE const char* vec4::String(i32 precision) const
+    SND_INLINE const char* vec4::String(i8 precision) const
     {
+        return FloatArrayToString(Ptr(), Dimension(), precision);
     }
 
     SND_INLINE vec4& vec4::Lerp(const vec4& v1, const vec4& v2, f32 alpha)

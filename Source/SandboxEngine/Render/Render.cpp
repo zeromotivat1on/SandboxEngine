@@ -143,6 +143,7 @@ void snd::render::Tick(f32 dt)
 	// This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.
 	bgfx::touch(0);
 
+#ifdef SND_BUILD_DEBUG
 	bgfx::dbgTextClear();
 
 	u8 dbgTextY = 1;
@@ -152,9 +153,10 @@ void snd::render::Tick(f32 dt)
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "FPS: %.2f", (1.0f / dt));
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Vsync: %s", s_Window->Vsync() ? "ON" : "OFF");
 
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Camera: location %s, target %s", ToString(s_Camera->Eye).c_str(), ToString(s_Camera->At).c_str());
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Mouse: position %s", ToString(input::MousePosition()).c_str());
-
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Camera: location %s, target %s", s_Camera->Eye.String(), s_Camera->At.String());
+	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Mouse: position %s", input::MousePosition().String());
+#endif
+	
 	for (Entity entity : EntityFilterTemplate<TransformComponent, MeshComponent>())
 	{
 		bgfx::setState(BGFX_STATE_DEFAULT);

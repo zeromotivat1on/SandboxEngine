@@ -21,6 +21,7 @@
 #include "SandboxEngine/Core/CoreMacros.h"
 #include "SandboxEngine/Core/Log.h"
 #include "SandboxEngine/Core/Error.h"
+#include "SandboxEngine/Core/String.h"
 #include "SandboxEngine/Core/StringId.h"
 #include "SandboxEngine/Core/Delegate.h"
 

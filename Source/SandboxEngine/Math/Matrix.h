@@ -72,7 +72,7 @@ namespace snd
 
 		const f32*		Ptr() const;
 		f32*			Ptr();
-		const char*		String(i32 precision = 2) const;
+		const char*		String(i8 precision = 2) const;
     };
 
 	SND_INLINE mat2 IdentityMat2()
@@ -328,8 +328,9 @@ namespace snd
 		return mat[0].Ptr();
 	}
 
-	SND_INLINE const char* mat2::String(i32 precision) const
+	SND_INLINE const char* mat2::String(i8 precision) const
 	{
+		return FloatArrayToString(Ptr(), Dimension(), precision);
 	}
 
 	// Row-major matrix 3x3.
@@ -385,7 +386,7 @@ namespace snd
 
 		const f32*		Ptr() const;
 		f32*			Ptr();
-		const char*		String(i32 precision = 2) const;
+		const char*		String(i8 precision = 2) const;
 	};
 
 	SND_INLINE mat3 IdentityMat3()
@@ -666,8 +667,9 @@ namespace snd
 		return mat[0].Ptr();
 	}
 
-	SND_INLINE const char* mat3::String(i32 precision) const
+	SND_INLINE const char* mat3::String(i8 precision) const
 	{
+		return FloatArrayToString(Ptr(), Dimension(), precision);
 	}
 
 	// Row-major matrix 4x4.
@@ -731,7 +733,7 @@ namespace snd
 
 		const f32*		Ptr() const;
 		f32*			Ptr();
-		const char*		String(i32 precision = 2) const;
+		const char*		String(i8 precision = 2) const;
 	};
 
 	SND_INLINE mat4 mat3::Mat4() const
@@ -1125,7 +1127,8 @@ namespace snd
 		return mat[0].Ptr();
 	}
 
-	SND_INLINE const char* mat4::String(i32 precision) const
+	SND_INLINE const char* mat4::String(i8 precision) const
 	{
+		return FloatArrayToString(Ptr(), Dimension(), precision);
 	}
 }
