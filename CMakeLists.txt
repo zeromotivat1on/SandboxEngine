@@ -96,6 +96,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:
 target_compile_definitions(${PROJECT_NAME} PRIVATE SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE) # set all log levels as active
 
 # Add BGFX
+set(BGFX_BUILD_EXAMPLES OFF CACHE BOOL "Disable building bgfx examples")
 add_subdirectory("${VENDOR_DIR}/bgfx")
 target_link_libraries(${PROJECT_NAME} PRIVATE bgfx bx bimg)
 
@@ -158,13 +159,13 @@ if(COMPILE_SHADERS)
             message(FATAL_ERROR "Unsupported shader naming convention for ${SHADER}")
         endif()
     endforeach()
-
+    
     add_custom_target(
         bgfx_shader_compilation ALL
         DEPENDS ${SHADER_BINARIES}
     )
-
-    add_dependencies(${PROJECT_NAME} bgfx_shader_compilation)
+        
+    add_dependencies(bgfx_shader_compilation bgfx shaderc)
 endif()
 
 # Build tests
