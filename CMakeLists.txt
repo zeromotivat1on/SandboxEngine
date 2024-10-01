@@ -1,4 +1,18 @@
 cmake_minimum_required(VERSION 3.16)
+find_package(Git REQUIRED)
+
+option(GIT_SUBMODULE "Check submodules during build" ON)
+option(COMPILE_SHADERS "Compile shaders during build" ON)
+
+if(GIT_SUBMODULE)
+    message(STATUS "Submodule update")
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    RESULT_VARIABLE GIT_SUBMOD_RESULT)
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+        message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+    endif()
+endif()
 
 project(SandboxEngine VERSION 0.1)
 
@@ -11,10 +25,6 @@ set(SOURCE_DIR "${PROJECT_SOURCE_DIR}/Source")
 set(VENDOR_DIR "${SOURCE_DIR}/Vendor")
 set(PLATFORM_DIR "${SOURCE_DIR}/Platform")
 set(PROJECT_ENGINE_DIR "${SOURCE_DIR}/SandboxEngine")
-
-# Determine whether to compile shaders during build or not
-set(COMPILE_SHADERS TRUE)
-set(SHADER_COMPILER "${VENDOR_DIR}/bgfx/cmake/bgfx/Debug/shaderc.exe")
 
 # Specify project source files
 file(GLOB_RECURSE PROJECT_PRECOMPILED_HEADERS CONFIGURE_DEPENDS 
@@ -59,8 +69,6 @@ function(set_def_output_dirs target_name)
 endfunction()
 
 set_def_output_dirs(${PROJECT_NAME})
-
-set_target_properties(${PROJECT_NAME} PROPERTIES OBJECT_OUTPUT_DIR "${CMAKE_BINARY_DIR}/Intermediates/${PROJECT_NAME}")
 
 # Add googletest 
 add_subdirectory("${VENDOR_DIR}/googletest")
@@ -112,6 +120,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
 
 # Compile shaders
 if(COMPILE_SHADERS)
+    # temp shader compiler path
+    set(SHADER_COMPILER "${PROJECT_SOURCE_DIR}/Build/Source/Vendor/bgfx/cmake/bgfx/Debug/shaderc.exe")
+
     function(compile_shader shader_name shader_type)
         set(input_file "${SHADER_DIR}/${shader_name}.sc")
         set(output_file "${SHADER_DIR}/Bin/${shader_name}.bin")
@@ -120,7 +131,7 @@ if(COMPILE_SHADERS)
             OUTPUT ${output_file}
             COMMAND ${SHADER_COMPILER} -f ${input_file} -o ${output_file} --type ${shader_type} --platform ${CMAKE_SYSTEM_NAME} --varying ${SHADER_DIR}/varying.def.sc --profile 150
             DEPENDS ${input_file}
-            COMMENT "Compiling shader ${shader_name}.sc to ${shader_name}.bin"
+            COMMENT "Compiling shader ${input_file} to ${output_file}"
         )
 
         list(APPEND SHADER_BINARIES ${output_file})
@@ -129,7 +140,7 @@ if(COMPILE_SHADERS)
 
     # List and compile all shaders
     file(GLOB SHADERS "${SHADER_DIR}/*.sc")
-    message(STATUS "Compiling shaders from ${SHADER_DIR}")
+    message(STATUS "Compiling shaders from ${SHADER_DIR} using ${SHADER_COMPILER}")
 
     foreach(SHADER ${SHADERS})
         get_filename_component(shader_name ${SHADER} NAME_WE)

@@ -1,4 +1,4 @@
-﻿#include "sndpch.h"
+﻿#include "SandboxEngine/sndpch.h"
 #include "SandboxEngine/Memory/Buffer.h"
 #include "SandboxEngine/Memory/SparseBuffer.h"
 #include <gtest/gtest.h>

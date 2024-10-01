@@ -25,7 +25,7 @@ static const bgfx::Memory* LoadMemory(bx::FileReaderI* reader, const bx::FilePat
 
 static bgfx::ShaderHandle LoadShader(bx::FileReaderI* reader, const char* name)
 {
-	bx::FilePath filePath("Shaders/Bin/");
+	bx::FilePath filePath("../Shaders/Bin/");
 
 	//switch (bgfx::getRendererType())
 	//{
