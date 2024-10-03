@@ -8,24 +8,24 @@ snd::mat4 snd::math::LookAt(const vec3& eye, const vec3& at, const vec3& up)
 	const vec3 f = (at - eye).Normalize();
 	const vec3 r = f.Cross(up).Normalize();
 	const vec3 u = r.Cross(f);
-    
+
 	mat4 result;
 
 	result[0][0] = r.x;
 	result[1][0] = r.y;
 	result[2][0] = r.z;
 	result[3][0] = -r.Dot(eye);
-	
+
 	result[0][1] = u.x;
 	result[1][1] = u.y;
 	result[2][1] = u.z;
 	result[3][1] = -u.Dot(eye);
-	
+
 	result[0][2] = -f.x;
 	result[1][2] = -f.y;
 	result[2][2] = -f.z;
 	result[3][2] = f.Dot(eye);
-	
+
 	result[0][3] = 0.0f;
 	result[1][3] = 0.0f;
 	result[2][3] = 0.0f;
@@ -163,4 +163,16 @@ bool snd::mat4::InverseSelf()
 	mat[3][3] = +det3_201_012 * invDet;
 
 	return true;
+}
+
+snd::mat4& snd::mat4::Rotate(const mat4& rotation)
+{
+	*this = *this * rotation;
+	return *this;
+}
+
+snd::mat4& snd::mat4::Rotate(const quat& rotation)
+{
+    *this = *this * rotation.Mat4();
+    return *this;
 }

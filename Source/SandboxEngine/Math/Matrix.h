@@ -1,4 +1,5 @@
 #pragma once
+#include "Quat.h"
 
 // All matrices follow *row-major* convention.
 // All matrix operations follow *right-handed* convention.
@@ -6,6 +7,7 @@
 namespace snd
 {
 	struct mat4;
+	struct quat;
 
 	namespace math
 	{
@@ -47,7 +49,7 @@ namespace snd
 
     	bool			operator==(const mat2& a) const;
     	bool			operator!=(const mat2& a) const;
-    	
+
 		friend vec2		operator*(const vec2& vec, const mat2& mat);
     	friend mat2		operator*(f32 a, const mat2& mat);
 		friend vec2&	operator*=(vec2& vec, const mat2& mat);
@@ -79,7 +81,7 @@ namespace snd
 	{
 		return mat2(vec2(1.0f, 0.0f), vec2(0.0f, 1.0f));
 	}
-	
+
 	SND_INLINE mat2::mat2()
 	{
 	}
@@ -119,16 +121,16 @@ namespace snd
 			-mat[1][0], -mat[1][1]
 		);
 	}
-	
+
 	SND_INLINE mat2 mat2::operator+(const mat2& a) const
 	{
 		return mat2
 		(
-			mat[0][0] + a[0][0], mat[0][1] + a[0][1], 
+			mat[0][0] + a[0][0], mat[0][1] + a[0][1],
 			mat[1][0] + a[1][0], mat[1][1] + a[1][1]
 		);
 	}
-	    
+
 	SND_INLINE mat2 mat2::operator-(const mat2& a) const
 	{
 		return mat2
@@ -137,7 +139,7 @@ namespace snd
 			mat[1][0] - a[1][0], mat[1][1] - a[1][1]
 		);
 	}
-	
+
 	SND_INLINE mat2 mat2::operator*(const mat2& a) const
 	{
 		return mat2
@@ -157,7 +159,7 @@ namespace snd
 			mat[1][0] * vec[0] + mat[1][1] * vec[1]
 		);
 	}
-	
+
 	SND_INLINE mat2 mat2::operator*(f32 a) const
 	{
 		return mat2
@@ -180,7 +182,7 @@ namespace snd
 		mat[1][0] -= a[1][0]; mat[1][1] -= a[1][1];
 		return *this;
 	}
-	
+
 	SND_INLINE mat2& mat2::operator*=(const mat2& a) {
 		mat[0][0] = mat[0][0] * a[0][0] + mat[0][1] * a[1][0];
 		mat[0][1] = mat[0][0] * a[0][1] + mat[0][1] * a[1][1];
@@ -205,7 +207,7 @@ namespace snd
 	{
 		return !(*this == a);
 	}
-	
+
 	SND_INLINE vec2 operator*(const vec2& vec, const mat2& mat)
 	{
 		return mat * vec;
@@ -224,7 +226,7 @@ namespace snd
 
 	SND_INLINE bool mat2::Equal(const mat2& a) const
 	{
-		return mat[0].Equal(a[0]) && mat[1].Equal(a[1]); 
+		return mat[0].Equal(a[0]) && mat[1].Equal(a[1]);
 	}
 
 	SND_INLINE bool mat2::Equal(const mat2& a, f32 epsilon) const
@@ -304,7 +306,7 @@ namespace snd
 
 		f32 invDet = 1.0f / det;
 		f32 xx = mat[0][0];
-		
+
 		mat[0][0] =   mat[1][1] * invDet;
 		mat[0][1] = - mat[0][1] * invDet;
 		mat[1][0] = - mat[1][0] * invDet;
@@ -312,7 +314,7 @@ namespace snd
 
 		return true;
 	}
-	
+
 	SND_INLINE i32 mat2::Dimension() const
 	{
 		return 4;
@@ -358,21 +360,21 @@ namespace snd
 
 		bool			operator==(const mat3& a) const;
 		bool			operator!=(const mat3& a) const;
-		
+
 		friend mat3		operator*(f32 a, const mat3& mat);
 		friend vec3		operator*(const vec3& vec, const mat3& mat);
 		friend vec3& 	operator*=(vec3& vec, const mat3& mat);
 
 		bool			Equal(const mat3& a) const;
 		bool			Equal(const mat3& a, f32 epsilon) const;
-		
+
 		mat3&			Zero();
 		mat3&			Identity();
 		bool			Identity(f32 epsilon = math::g_MatrixEpsilon) const;
 		bool			Symmetric(f32 epsilon = math::g_MatrixEpsilon) const;
 		bool			Diagonal(f32 epsilon = math::g_MatrixEpsilon) const;
 		bool			Rotated() const;
-		
+
 		f32				Trace() const;
 		f32				Determinant() const;
 		mat3			Transpose() const;
@@ -446,7 +448,7 @@ namespace snd
 			mat[2][0] + a[2][0], mat[2][1] + a[2][1], mat[2][2] + a[2][2]
 		);
 	}
-	    
+
 	SND_INLINE mat3 mat3::operator-(const mat3& a) const
 	{
 		return mat3
@@ -463,7 +465,7 @@ namespace snd
 		f32* dstPtr		= reinterpret_cast<f32*>(&dst);
 		const f32* ptr	= reinterpret_cast<const f32*>(this);
 		const f32* aptr = reinterpret_cast<const f32*>(&a);
-		
+
 		for (i32 i = 0; i < 3; ++i)
 		{
 			for (i32 j = 0; j < 3; ++j)
@@ -475,10 +477,10 @@ namespace snd
 			}
 			ptr += 3;
 		}
-		
+
 		return dst;
 	}
-	
+
 	SND_INLINE vec3 mat3::operator*(const vec3& vec) const
 	{
 		return vec3
@@ -514,7 +516,7 @@ namespace snd
 		mat[2][0] -= a[2][0]; mat[2][1] -= a[2][1]; mat[2][2] -= a[2][2];
 		return *this;
 	}
-	
+
 	SND_INLINE mat3& mat3::operator*=(const mat3& a)
 	{
 		*this = *this * a;
@@ -524,11 +526,11 @@ namespace snd
 	SND_INLINE mat3& mat3::operator*=(f32 a)
 	{
 		mat[0][0] *= a; mat[0][1] *= a; mat[0][2] *= a;
-		mat[1][0] *= a; mat[1][1] *= a; mat[1][2] *= a; 
+		mat[1][0] *= a; mat[1][1] *= a; mat[1][2] *= a;
 		mat[2][0] *= a; mat[2][1] *= a; mat[2][2] *= a;
 		return *this;
 	}
-	
+
 	SND_INLINE bool mat3::operator==(const mat3& a) const
 	{
 		return Equal(a);
@@ -538,7 +540,7 @@ namespace snd
 	{
 		return !(*this == a);
 	}
-	
+
 	SND_INLINE vec3 operator*(const vec3& vec, const mat3& mat)
 	{
 		return mat * vec;
@@ -609,7 +611,7 @@ namespace snd
 		   	   mat[1][0] != 0.0f || mat[1][2] != 0.0f ||
 		   	   mat[2][0] != 0.0f || mat[2][1] != 0.0f;
 	}
-	
+
 	SND_INLINE f32 mat3::Trace() const
 	{
 		return mat[0][0] + mat[1][1] + mat[2][2];
@@ -618,7 +620,7 @@ namespace snd
 	SND_INLINE f32 mat3::Determinant() const
 	{
 		// determinant_size_rows_cols
-		
+
 		const f32 det2_12_01 = mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0];
 		const f32 det2_12_02 = mat[1][0] * mat[2][2] - mat[1][2] * mat[2][0];
 		const f32 det2_12_12 = mat[1][1] * mat[2][2] - mat[1][2] * mat[2][1];
@@ -656,7 +658,7 @@ namespace snd
 	{
 		return 9;
 	}
-	
+
 	SND_INLINE const f32* mat3::Ptr() const
 	{
 		return mat[0].Ptr();
@@ -702,7 +704,7 @@ namespace snd
 
 		bool			operator==(const mat4& a) const;
 		bool			operator!=(const mat4& a) const;
-		
+
 		friend vec4		operator*(const vec4& vec, const mat4& mat);
 		friend vec3		operator*(const vec3& vec, const mat4& mat);
 		friend mat4		operator*(f32 a, const mat4& mat);
@@ -727,6 +729,8 @@ namespace snd
 		bool			InverseSelf();
 
 		mat4&			Translate(const vec3& translation);
+		mat4&			Rotate(const mat4& rotation);
+		mat4&			Rotate(const quat& rotation);
 		mat4&			Scale(const vec3& scale);
 
 		i32				Dimension() const;
@@ -746,12 +750,12 @@ namespace snd
 			0.0f,		0.0f,		0.0f,		1.0f
 		);
 	}
-	
+
 	SND_INLINE mat4 IdentityMat4()
 	{
 		return mat4(vec4(1, 0, 0, 0), vec4(0, 1, 0, 0), vec4(0, 0, 1, 0), vec4(0, 0, 0, 1));
 	}
-	
+
 	SND_INLINE mat4::mat4()
 	{
 	}
@@ -828,7 +832,7 @@ namespace snd
 			mat[3][0] + a[3][0], mat[3][1] + a[3][1], mat[3][2] + a[3][2], mat[3][3] + a[3][3]
 		);
 	}
-	    
+
 	SND_INLINE mat4 mat4::operator-(const mat4& a) const
 	{
 		return mat4
@@ -839,7 +843,7 @@ namespace snd
 			mat[3][0] - a[3][0], mat[3][1] - a[3][1], mat[3][2] - a[3][2], mat[3][3] - a[3][3]
 		);
 	}
-	
+
 	SND_INLINE mat4 mat4::operator*(const mat4& a) const
 	{
 		mat4 dst;
@@ -859,10 +863,10 @@ namespace snd
 			}
 			ptr += 4;
 		}
-		
+
 		return dst;
 	}
-	
+
 	SND_INLINE vec4 mat4::operator*(const vec4& vec) const
 	{
 		return vec4
@@ -882,7 +886,7 @@ namespace snd
 		{
 			return vec3(0.0f, 0.0f, 0.0f);
 		}
-		
+
 		if (scalar == 1.0f)
 		{
 			return vec3
@@ -892,7 +896,7 @@ namespace snd
 				mat[2][0] * vec[0] + mat[2][1] * vec[1] + mat[2][2] * vec[2] + mat[2][3]
 			);
 		}
-		
+
 		const f32 invScalar = 1.0f / scalar;
 		return vec3
 		(
@@ -912,7 +916,7 @@ namespace snd
 			mat[3][0] * a, mat[3][1] * a, mat[3][2] * a, mat[3][3] * a
 		);
 	}
-	
+
 	SND_INLINE mat4& mat4::operator+=(const mat4& a)
 	{
 		mat[0][0] += a[0][0]; mat[0][1] += a[0][1]; mat[0][2] += a[0][2]; mat[0][3] += a[0][3];
@@ -930,13 +934,13 @@ namespace snd
 		mat[3][0] -= a[3][0]; mat[3][1] -= a[3][1]; mat[3][2] -= a[3][2]; mat[3][3] -= a[3][3];
 		return *this;
 	}
-	
+
 	SND_INLINE mat4& mat4::operator*=(const mat4& a)
 	{
 		*this = *this * a;
 		return *this;
 	}
-	
+
 	SND_INLINE mat4& mat4::operator*=(f32 a)
 	{
 		mat[0][0] *= a; mat[0][1] *= a; mat[0][2] *= a; mat[0][3] *= a;
@@ -955,7 +959,7 @@ namespace snd
 	{
 		return !(*this == a);
 	}
-	
+
 	SND_INLINE vec4 operator*(const vec4& vec, const mat4& mat)
 	{
 		return mat * vec;
@@ -965,7 +969,7 @@ namespace snd
 	{
 		return mat * vec;
 	}
-	
+
 	SND_INLINE mat4 operator*(f32 a, const mat4& mat)
 	{
 		return mat * a;
@@ -982,7 +986,7 @@ namespace snd
 		vec = mat * vec;
 		return vec;
 	}
-	
+
 	SND_INLINE bool mat4::Equal(const mat4& a) const
 	{
 		return mat[0].Equal(a[0]) &&
@@ -1028,7 +1032,7 @@ namespace snd
 				}
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -1044,7 +1048,7 @@ namespace snd
 				}
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -1063,7 +1067,7 @@ namespace snd
 	SND_INLINE mat4 mat4::Transpose() const
 	{
 		mat4 transpose;
-   
+
 		for(i32 i = 0; i < 4; ++i)
 		{
 			for(i32 j = 0; j < 4; ++j)
@@ -1071,7 +1075,7 @@ namespace snd
 				transpose[i][j] = mat[j][i];
 			}
 		}
-		
+
 		return transpose;
 	}
 
@@ -1084,8 +1088,8 @@ namespace snd
 				std::swap(mat[i][j], mat[j][i]);
 			}
 		}
-		
-		return *this;	
+
+		return *this;
 	}
 
 	SND_INLINE mat4 mat4::Inverse() const
@@ -1095,7 +1099,7 @@ namespace snd
 		SND_ASSERT(res);
 		return invMat;
 	}
-	
+
 	SND_INLINE mat4& mat4::Translate(const vec3& translation)
 	{
 		mat[3][0] = translation.x;
