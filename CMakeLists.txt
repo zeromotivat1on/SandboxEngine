@@ -27,12 +27,12 @@ set(PLATFORM_DIR "${SOURCE_DIR}/Platform")
 set(PROJECT_ENGINE_DIR "${SOURCE_DIR}/SandboxEngine")
 
 # Specify project source files
-file(GLOB_RECURSE PROJECT_PRECOMPILED_HEADERS CONFIGURE_DEPENDS 
+file(GLOB_RECURSE PROJECT_PRECOMPILED_HEADERS CONFIGURE_DEPENDS
     "${PROJECT_ENGINE_DIR}/*pch.h"
     "${PROJECT_ENGINE_DIR}/*pch.cpp"
 )
 
-file(GLOB_RECURSE PROJECT_SOURCE CONFIGURE_DEPENDS 
+file(GLOB_RECURSE PROJECT_SOURCE CONFIGURE_DEPENDS
     "${PROJECT_ENGINE_DIR}/*.h"
     "${PROJECT_ENGINE_DIR}/*.cpp"
     "${PLATFORM_DIR}/${CMAKE_SYSTEM_NAME}/*.h"
@@ -54,13 +54,18 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     $<$<PLATFORM_ID:Windows>:SND_PLATFORM_WINDOWS>
     # Setup configuration
     $<$<CONFIG:Debug>:SND_BUILD_DEBUG>
+    $<$<CONFIG:Release>:SND_BUILD_RELEASE>
+    # Paths
+    PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
+    SHADER_DIR="${SHADER_DIR}"
+    SHADER_BINARY_DIR="${SHADER_BINARY_DIR}"
 )
 
 # Set custom binary output directory for different project configurations
 function(set_def_output_dirs target_name)
     foreach(CONFIG_TYPE ${CMAKE_CONFIGURATION_TYPES})
         string(TOUPPER ${CONFIG_TYPE} CONFIG_TYPE_UPPER)
-        set_target_properties(${target_name} PROPERTIES 
+        set_target_properties(${target_name} PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY_${CONFIG_TYPE_UPPER} "${CMAKE_BINARY_DIR}/Binaries/${CMAKE_SYSTEM_NAME}/${CONFIG_TYPE}"
             LIBRARY_OUTPUT_DIRECTORY_${CONFIG_TYPE_UPPER} "${CMAKE_BINARY_DIR}/Binaries/${CMAKE_SYSTEM_NAME}/${CONFIG_TYPE}"
             RUNTIME_OUTPUT_DIRECTORY_${CONFIG_TYPE_UPPER} "${CMAKE_BINARY_DIR}/Binaries/${CMAKE_SYSTEM_NAME}/${CONFIG_TYPE}"
@@ -70,7 +75,7 @@ endfunction()
 
 set_def_output_dirs(${PROJECT_NAME})
 
-# Add googletest 
+# Add googletest
 add_subdirectory("${VENDOR_DIR}/googletest")
 target_link_libraries(${PROJECT_NAME} PRIVATE gtest)
 
@@ -101,7 +106,7 @@ add_subdirectory("${VENDOR_DIR}/bgfx")
 target_link_libraries(${PROJECT_NAME} PRIVATE bgfx bx bimg)
 
 # Add imgui
-file(GLOB IMGUI_CORE_SOURCE CONFIGURE_DEPENDS 
+file(GLOB IMGUI_CORE_SOURCE CONFIGURE_DEPENDS
     "${VENDOR_DIR}/imgui/*.h"
     "${VENDOR_DIR}/imgui/*.cpp"
 )
@@ -127,7 +132,7 @@ if(COMPILE_SHADERS)
     function(compile_shader shader_name shader_type)
         set(input_file "${SHADER_DIR}/${shader_name}.sc")
         set(output_file "${SHADER_DIR}/Bin/${shader_name}.bin")
-    
+
         add_custom_command(
             OUTPUT ${output_file}
             COMMAND ${SHADER_COMPILER} -f ${input_file} -o ${output_file} --type ${shader_type} --platform ${CMAKE_SYSTEM_NAME} --varying ${SHADER_DIR}/varying.def.sc --profile 150
@@ -159,12 +164,12 @@ if(COMPILE_SHADERS)
             message(FATAL_ERROR "Unsupported shader naming convention for ${SHADER}")
         endif()
     endforeach()
-    
+
     add_custom_target(
         bgfx_shader_compilation ALL
         DEPENDS ${SHADER_BINARIES}
     )
-        
+
     add_dependencies(bgfx_shader_compilation bgfx shaderc)
 endif()
 

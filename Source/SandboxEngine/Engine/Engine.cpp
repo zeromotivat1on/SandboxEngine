@@ -2,6 +2,7 @@
 #include "SandboxEngine/Engine/Engine.h"
 #include "SandboxEngine/Core/Profile.h"
 #include "SandboxEngine/Core/Input.h"
+#include "SandboxEngine/Filesystem/Filesystem.h"
 #include "SandboxEngine/Render/Render.h"
 #include "SandboxEngine/UI/UI.h"
 #include "SandboxEngine/Ecs/Ecs.h"
@@ -16,26 +17,26 @@ namespace snd
 	Entity	g_PlayerEntity;
 	f32		g_CameraMoveInputScale = 1.0f;
 
-	// TODO: current test player tick works for perspective camera, for orthographic it's not fully applicable.  
+	// TODO: current test player tick works for perspective camera, for orthographic it's not fully applicable.
 	void TickPlayerInput()
 	{
 		g_CameraMoveInputScale += math::Sign(input::MouseScroll().y) * 0.2f;
 		g_CameraMoveInputScale  = std::clamp(g_CameraMoveInputScale, 0.1f, 10.0f);
-		
+
 		auto* movement	= ecs::Get<MovementComponent>(g_PlayerEntity);
 		auto* camera	= ecs::Get<CameraComponent>(g_PlayerEntity);
 		SND_ASSERT(movement && camera);
-		
+
 		const vec2 mouseOffset		= input::MouseOffset();
 		const f32 mouseSensitivity  = 0.1f; // todo: mb make separate component for inputs
 		const f32 pitchLimit        = 89.0f;
-        
+
 		camera->Yaw   += mouseOffset.x * mouseSensitivity;
 		camera->Pitch += mouseOffset.y * mouseSensitivity;
 		camera->Pitch  = std::clamp(camera->Pitch, -pitchLimit, pitchLimit);
-		
+
 		vec3 inputVelocity;
-		
+
 		if (input::ButtonDown(KeyboardBit::W))
 		{
 			inputVelocity.x += 50.0f;
@@ -50,12 +51,12 @@ namespace snd
 		{
 			inputVelocity.y += 50.0f;
 		}
-		
+
 		if (input::ButtonDown(KeyboardBit::A))
 		{
 			inputVelocity.y -= 50.0f;
 		}
-		
+
 		if (input::ButtonDown(KeyboardBit::E))
 		{
 			inputVelocity.z += 50.0f;
@@ -89,15 +90,16 @@ void snd::Engine::Init(Window* window)
 
 	SND_INFO("Initializing the engine");
 	SND_ASSERT(window);
-	
+
 	m_Window = window;
 	m_Window->SetEventCallback(SND_BIND_EVENT_FN(Engine::OnEvent));
 
+    filesystem::Init();
 	ecs::Init();
 	input::Init(m_Window);
 	render::Init(m_Window);
 	ui::Init(m_Window);
-	
+
 	g_PlayerEntity = ecs::NewEntity();
 
 	auto* transform = ecs::Assign<TransformComponent>(g_PlayerEntity, IdentityTransform());
@@ -121,7 +123,7 @@ void snd::Engine::Init(Window* window)
 
 	auto* movement = ecs::Assign<MovementComponent>(g_PlayerEntity);
 	movement->Velocity = vec3(0.0f);
-	
+
 	render::SetCamera(camera);
 }
 
@@ -133,6 +135,7 @@ void snd::Engine::Shutdown()
 	ui::Shutdown();
 	render::Shutdown();
 	ecs::Shutdown();
+	filesystem::Shutdown();
 }
 
 void snd::Engine::OnEvent(Event& event)
@@ -166,7 +169,7 @@ bool snd::Engine::OnWindowResized(WindowResizedEvent& event)
 		camera->Bottom	 = ortho[2] * 0.1f;
 		camera->Top		 = ortho[3] * 0.1f;
 	}
-	
+
 	render::OnWindowResized(event.GetWidth(), event.GetHeight());
 	return true;
 }
@@ -211,13 +214,8 @@ void snd::Engine::Tick(f32 dt)
 {
 	m_Window->Update();
 
-	if (!m_Window->Focused())
-	{
-		return;
-	}
-	
 	input::Update();
-	
+
 	if (input::ButtonJustWentUp(KeyboardBit::Escape))
 	{
 		SND_TRACE("Manual shutdown was requested", m_Window->Title());
@@ -225,10 +223,10 @@ void snd::Engine::Tick(f32 dt)
 	}
 
 	TickPlayerInput();
-	
+
 	ecs::TickMovementSystem(dt);
 	ecs::TickCameraSystem(dt);
-	
+
 	ui::Tick(dt);
 	render::Tick(dt);
 }

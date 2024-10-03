@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "SandboxEngine/Memory/Buffer.h"
-
 namespace snd
 {
     // Buffer that allocates memory only for actual elements to store.
@@ -17,7 +15,7 @@ namespace snd
 
         SparseBuffer&       operator=(const SparseBuffer&) = delete;
         SparseBuffer&       operator=(SparseBuffer&& other) noexcept;
-        
+
         void                Realloc(u32 sparseCapacity);
         void                Free();
         void*               Get(u32 index) const;
@@ -82,7 +80,7 @@ namespace snd
             other.m_SparseCapacity = 0;
             other.m_DenseCount = 0;
         }
-        
+
         return *this;
     }
 
@@ -121,7 +119,7 @@ namespace snd
         {
             return nullptr;
         }
-        
+
         const u32 denseIndex = m_SparseIndices[index];
 
         if (denseIndex >= m_DenseCount)
@@ -144,10 +142,10 @@ namespace snd
 
         if (denseIndex >= m_DenseData.Capacity())
         {
-            const u32 newCapacity = m_DenseData.Capacity() * 2 + 1; 
+            const u32 newCapacity = m_DenseData.Capacity() * 2 + 1;
             m_DenseData.Realloc(newCapacity);
         }
-        
+
         return m_DenseData.Get(denseIndex);
     }
 
@@ -170,7 +168,7 @@ namespace snd
 
         const u32 denseIndex     = m_SparseIndices[index];
         const u32 lastDenseIndex = m_DenseCount - 1;
-        
+
         m_SparseIndices[index] = INVALID_UINDEX;
 
         if (denseIndex == lastDenseIndex)
@@ -178,7 +176,7 @@ namespace snd
             m_DenseCount--;
             return true;
         }
-        
+
         void* lastElement   = m_DenseData.Get(lastDenseIndex);
         void* targetElement = m_DenseData.Get(denseIndex);
 
@@ -192,7 +190,7 @@ namespace snd
                 break;
             }
         }
-        
+
         m_DenseCount--;
         return true;
     }

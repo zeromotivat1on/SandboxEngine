@@ -3,6 +3,7 @@
 // STD
 #include <chrono>
 #include <algorithm>
+#include <filesystem>
 
 // STL
 #include <string>
@@ -15,6 +16,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <stdarg.h>
 
 // Core
 #include "SandboxEngine/Core/FundamentalTypes.h"
@@ -24,6 +26,11 @@
 #include "SandboxEngine/Core/String.h"
 #include "SandboxEngine/Core/StringId.h"
 #include "SandboxEngine/Core/Delegate.h"
+
+// Memory
+#include "SandboxEngine/Memory/Memory.h"
+#include "SandboxEngine/Memory/Buffer.h"
+#include "SandboxEngine/Memory/SparseBuffer.h"
 
 // Math
 #include "SandboxEngine/Math/Math.h"

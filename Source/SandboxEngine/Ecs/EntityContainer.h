@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "SandboxEngine/Ecs/Entity.h"
-#include "SandboxEngine/Memory/SparseBuffer.h"
 
 namespace snd
 {
@@ -14,7 +13,7 @@ namespace snd
         Entity*                         Data();
         const Entity*                   Data() const;
         u16                             Count() const;
-        
+
         void*                           Assign(Entity id, u16 componentId, u16 componentSize);
         void*                           Get(Entity id, u16 componentId) const;
         bool                            Remove(Entity id, u16 componentId);
@@ -29,7 +28,7 @@ namespace snd
 
     // General-purpose global entity container.
     inline EntityContainer* g_EntityContainer = nullptr;
-    
+
     SND_INLINE Entity* EntityContainer::Data()
     {
         return m_Entities.data();

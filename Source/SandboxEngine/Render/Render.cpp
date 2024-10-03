@@ -3,7 +3,7 @@
 #include "SandboxEngine/Render/Vertex.h"
 #include "SandboxEngine/Core/Timer.h"
 #include "SandboxEngine/Core/Input.h"
-#include "SandboxEngine/Core/FileSystem.h"
+#include "SandboxEngine/Filesystem/Filesystem.h"
 #include "SandboxEngine/Components/CameraComponent.h"
 #include "SandboxEngine/Components/MeshComponent.h"
 #include "SandboxEngine/Components/TransformComponent.h"
@@ -105,7 +105,7 @@ snd::Entity snd::render::NewEntityDebugCube()
 
 	static const auto s_CubeVbh = bgfx::createVertexBuffer(bgfx::makeRef(s_CubeVertices, 8 * sizeof(Vertex)), Vertex::Layout);
 	static const auto s_CubeIbh = bgfx::createIndexBuffer(bgfx::makeRef(s_CubeIndices, 36 * sizeof(u32)));
-	static const auto s_CubeRph = fs::LoadProgram("base.vs", "base.fs");
+	static const auto s_CubeRph = filesystem::ReadProgram("base.vs.bin", "base.fs.bin");
 
 	const Entity cube = ecs::NewEntity();
 
