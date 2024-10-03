@@ -26,6 +26,7 @@ namespace snd
         void*               Last() const;           // pointer to last buffer element
         u64                 Size() const;           // buffer size in bytes
         u32                 Capacity() const;       // amount of buffer elements it can hold
+        u64                 Capacity64() const;     // capacity as uint64
         u16                 ElementSize() const;    // buffer element size in bytes
 
     private:
@@ -97,6 +98,12 @@ namespace snd
         if (void* newData = realloc(m_Data, static_cast<u64>(capacity) * elementSize))
         {
             m_Data = static_cast<u8*>(newData);
+
+            if (capacity > m_Capacity)
+            {
+                memset(m_Data + Capacity64() * elementSize, 0, static_cast<u64>(capacity - m_Capacity) * elementSize);
+            }
+            
             m_Capacity = capacity;
             m_ElementSize = elementSize;
         }
@@ -139,15 +146,20 @@ namespace snd
 
     SND_INLINE void* Buffer::Last() const
     {
-        return m_Data + (static_cast<u64>(m_Capacity) - 1) * m_ElementSize;
+        return m_Data + (Capacity64() - 1) * m_ElementSize;
     }
 
     SND_INLINE u64 Buffer::Size() const
     {
-        return static_cast<u64>(m_Capacity) * m_ElementSize;
+        return Capacity64() * m_ElementSize;
     }
 
     SND_INLINE u32 Buffer::Capacity() const
+    {
+        return m_Capacity;
+    }
+
+    SND_INLINE u64 Buffer::Capacity64() const
     {
         return m_Capacity;
     }
