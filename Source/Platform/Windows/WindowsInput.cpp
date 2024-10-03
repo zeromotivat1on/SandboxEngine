@@ -275,6 +275,17 @@ snd::vec2 snd::input::MouseOffset()
 	return vec2(g_MouseState.X - g_MouseLastX, g_MouseLastY - g_MouseState.Y);
 }
 
+snd::vec2 snd::input::MouseScroll()
+{
+	return vec2(g_MouseState.ScrollX, g_MouseState.ScrollY);
+}
+
+void snd::input::OnMouseScroll(f32 x, f32 y)
+{
+	g_MouseState.ScrollX = x;
+	g_MouseState.ScrollY = y;
+}
+
 snd::KeyboardBit snd::input::ConvertKeyboardCode(i32 keycode)
 {
 	switch (keycode)

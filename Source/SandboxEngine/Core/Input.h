@@ -20,6 +20,9 @@ namespace snd::input
 		f32 X;
 		f32 Y;
 		
+		f32 ScrollX;
+		f32 ScrollY;
+		
 		u8 Buttons;
 		u8 PrevButtons;
 		u8 ButtonsDown;
@@ -53,6 +56,9 @@ namespace snd::input
 
 	vec2 MousePosition();
 	vec2 MouseOffset();
+	vec2 MouseScroll();
+
+	void OnMouseScroll(f32 x, f32 y);
 	
 	// Check if given button is currently pressed.
 	bool ButtonDown(KeyboardBit bit);
