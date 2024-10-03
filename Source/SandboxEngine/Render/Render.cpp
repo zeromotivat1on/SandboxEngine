@@ -42,7 +42,7 @@ void snd::render::Init(Window* window)
 
 	Vertex::InitLayout();
 
-	// Create debug test cubes. 
+	// Create debug test cubes.
 	for (i32 i = 0; i < 10; ++i)
 	{
 		const Entity cube = NewEntityDebugCube();
@@ -106,11 +106,11 @@ snd::Entity snd::render::NewEntityDebugCube()
 	static const auto s_CubeVbh = bgfx::createVertexBuffer(bgfx::makeRef(s_CubeVertices, 8 * sizeof(Vertex)), Vertex::Layout);
 	static const auto s_CubeIbh = bgfx::createIndexBuffer(bgfx::makeRef(s_CubeIndices, 36 * sizeof(u32)));
 	static const auto s_CubeRph = fs::LoadProgram("base.vs", "base.fs");
-	
+
 	const Entity cube = ecs::NewEntity();
 
 	ecs::Assign<TransformComponent>(cube, IdentityTransform());
-	
+
 	if (auto* mesh = ecs::Assign<MeshComponent>(cube))
 	{
 		mesh->Vbh = s_CubeVbh;
@@ -156,14 +156,14 @@ void snd::render::Tick(f32 dt)
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Camera: location %s, target %s", s_Camera->Eye.String(), s_Camera->At.String());
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Mouse: position %s", input::MousePosition().String());
 #endif
-	
+
 	for (Entity entity : EntityFilterTemplate<TransformComponent, MeshComponent>())
 	{
 		bgfx::setState(BGFX_STATE_DEFAULT);
-	
+
 		const TransformComponent* transform = ecs::Get<TransformComponent>(entity);
 		bgfx::setTransform(transform->Mat4().Ptr());
-	
+
 		const MeshComponent* mesh = ecs::Get<MeshComponent>(entity);
 		bgfx::setVertexBuffer(0, mesh->Vbh);
 		bgfx::setIndexBuffer(mesh->Ibh);

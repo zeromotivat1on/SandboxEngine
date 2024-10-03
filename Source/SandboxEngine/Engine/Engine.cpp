@@ -14,11 +14,14 @@
 namespace snd
 {
 	Entity	g_PlayerEntity;
-	f32		g_PlayerCameraInputScale = 1.0f;
+	f32		g_CameraMoveInputScale = 1.0f;
 
 	// TODO: current test player tick works for perspective camera, for orthographic it's not fully applicable.  
 	void TickPlayerInput()
 	{
+		g_CameraMoveInputScale += math::Sign(input::MouseScroll().y) * 0.2f;
+		g_CameraMoveInputScale  = std::clamp(g_CameraMoveInputScale, 0.1f, 10.0f);
+		
 		auto* movement	= ecs::Get<MovementComponent>(g_PlayerEntity);
 		auto* camera	= ecs::Get<CameraComponent>(g_PlayerEntity);
 		SND_ASSERT(movement && camera);
@@ -64,9 +67,9 @@ namespace snd
 		}
 
 		movement->Velocity =
-			g_PlayerCameraInputScale * inputVelocity.x * camera->ForwardVector() +
-			g_PlayerCameraInputScale * inputVelocity.y * camera->RightVector()	 +
-			g_PlayerCameraInputScale * inputVelocity.z * camera->Up;
+			g_CameraMoveInputScale * inputVelocity.x * camera->ForwardVector()	+
+			g_CameraMoveInputScale * inputVelocity.y * camera->RightVector()	+
+			g_CameraMoveInputScale * inputVelocity.z * camera->Up;
 	}
 }
 
@@ -93,7 +96,7 @@ void snd::Engine::Init(Window* window)
 	ecs::Init();
 	input::Init(m_Window);
 	render::Init(m_Window);
-	//ui::Init(m_Window);
+	ui::Init(m_Window);
 	
 	g_PlayerEntity = ecs::NewEntity();
 
@@ -127,7 +130,7 @@ void snd::Engine::Shutdown()
 	SND_INFO("Shutting down the engine");
 
 	input::Shutdown();
-	//ui::Shutdown();
+	ui::Shutdown();
 	render::Shutdown();
 	ecs::Shutdown();
 }
@@ -190,9 +193,7 @@ bool snd::Engine::OnMouseMoved(MouseMovedEvent& event)
 
 bool snd::Engine::OnMouseScrolled(MouseScrolledEvent& event)
 {
-	g_PlayerCameraInputScale += math::Sign(event.GetOffsetY()) * 0.2f;
-	g_PlayerCameraInputScale  = std::clamp(g_PlayerCameraInputScale, 0.1f, 10.0f);
-	
+	input::OnMouseScroll(event.GetOffsetX(), event.GetOffsetY());
 	return true;
 }
 
@@ -228,7 +229,6 @@ void snd::Engine::Tick(f32 dt)
 	ecs::TickMovementSystem(dt);
 	ecs::TickCameraSystem(dt);
 	
+	ui::Tick(dt);
 	render::Tick(dt);
-
-	//ui::Tick(dt);
 }

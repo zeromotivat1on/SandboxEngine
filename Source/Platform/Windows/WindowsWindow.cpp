@@ -35,7 +35,7 @@ void snd::WindowsWindow::Init(const Window::Props& props)
 	glfwMakeContextCurrent(m_Window);
 	glfwSetWindowUserPointer(m_Window, this);
 	glfwSetInputMode(m_Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-	glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	SetVsync(true);
 

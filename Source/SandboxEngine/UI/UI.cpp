@@ -1,44 +1,43 @@
 #include "sndpch.h"
 #include "SandboxEngine/UI/UI.h"
-#include "SandboxEngine/bgfx-imgui/imgui_impl_bgfx.h"
+#include "SandboxEngine/UI/ImguiBgfx.h"
+#include "SandboxEngine/Core/Input.h"
 #include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
 
 static snd::Window* s_Window = nullptr;
 
 void snd::ui::Init(Window* window)
 {
+	SND_ASSERT(window);
+
 	s_Window = window;
-	SND_ASSERT(s_Window);
-	
-	IMGUI_CHECKVERSION();
-
-	ImGuiContext* ctx = ImGui::CreateContext();
-	SND_ASSERT(ctx);
-
-	const bool res = ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(window->Handle()), true);
-	SND_ASSERT(res);
-	
-	ImGui_Implbgfx_Init(0);
+	ImguiBgfxCreate();
 }
 
 void snd::ui::Shutdown()
 {
 	s_Window = nullptr;
-	
-	ImGui_ImplGlfw_Shutdown();
-	ImGui_Implbgfx_Shutdown();
-	ImGui::DestroyContext();
+	ImguiBgfxDestroy();
 }
 
 void snd::ui::Tick(f32 dt)
 {
-	ImGui_Implbgfx_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
+	const u8 imguiMouseButtons =
+		(input::ButtonDown(MouseBit::Left)	 ? IMGUI_MBUT_LEFT   : 0)	|
+		(input::ButtonDown(MouseBit::Right)  ? IMGUI_MBUT_RIGHT  : 0)	|
+		(input::ButtonDown(MouseBit::Middle) ? IMGUI_MBUT_MIDDLE : 0);
+
+	ImguiBgfxBeginFrame(
+		input::MousePosition(),
+		imguiMouseButtons,
+		input::MouseScroll(),
+		s_Window->Width(), s_Window->Height());
 
 	ImGui::ShowDemoWindow();
-	
-	ImGui::Render();
-	ImGui_Implbgfx_RenderDrawData(ImGui::GetDrawData());
+
+	ImguiBgfxEndFrame();
+
+	// TODO: looks like hack, need to think about ways to make it clearer.
+	// UI consumed possible scroll input, clear it.
+	input::OnMouseScroll(0.0f, 0.0f);
 }
