@@ -8,6 +8,8 @@ namespace snd::filesystem
     inline const char* g_ShaderPath         = SHADER_DIR;
     inline const char* g_ShaderBinaryPath   = SHADER_BINARY_DIR;
 
+    inline class AssetRegistry* g_AssetRegistry = nullptr;
+
     void Init();
     void Shutdown();
 

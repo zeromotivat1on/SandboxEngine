@@ -88,7 +88,7 @@ snd::Memory snd::filesystem::Read(const char* filepath)
 
 bool snd::filesystem::Read(const char* filepath, Memory& mem)
 {
-    if (!Valid(mem))
+    if (!mem.Valid())
     {
         SND_ERROR("Given memory is not valid");
         return false;
@@ -120,7 +120,7 @@ bgfx::ShaderHandle snd::filesystem::ReadShader(const char* name)
     char shaderPath[512];
     MakePath(shaderPath, 2, g_ShaderBinaryPath, name);
 
-    if (const Memory& mem = Read(shaderPath); Valid(mem))
+    if (const Memory& mem = Read(shaderPath); mem.Valid())
     {
     	const bgfx::Memory* shaderMem   = bgfx::makeRef(mem.Data, mem.Size, MemoryRelease);
         const bgfx::ShaderHandle handle = bgfx::createShader(shaderMem);
