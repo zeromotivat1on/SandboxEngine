@@ -121,20 +121,6 @@ snd::Entity snd::render::NewEntityDebugCube()
 	return cube;
 }
 
-std::string ToString(const snd::vec2& vec)
-{
-	std::ostringstream oss;
-	oss << "(" << vec.x << ", " << vec.y << ")";
-	return oss.str();
-}
-
-std::string ToString(const snd::vec3& vec)
-{
-	std::ostringstream oss;
-	oss << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
-	return oss.str();
-}
-
 void snd::render::Tick(f32 dt)
 {
 	bgfx::setViewTransform(0, s_Camera->ViewMat4().Ptr(), s_Camera->PerspectiveMat4().Ptr());
