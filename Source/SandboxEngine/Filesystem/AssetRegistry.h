@@ -13,9 +13,10 @@ namespace snd::filesystem
 
         // Load and save given file in registry.
         AssetHandle     Store(const char* filepath, AssetType type);
+        AssetHandle     StoreShader(const char* filepath);
 
         // Obtain asset from registry.
-        Asset*          Request(AssetHandle handle, AssetType type);
+        Asset*          Request(AssetHandle handle);
 
     private:
         // Get asset buffer of given type.

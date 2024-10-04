@@ -16,27 +16,29 @@ namespace snd::filesystem
     {
         switch (type)
         {
-            case AssetType::Shader:
-            {
-                const AssetHandle handle = ReadShader(filepath).idx;
-                new (AssetBuffer(type).Get(handle)) Asset(filepath, type);
-                return handle;
-            }
-
-            default: return INVALID_ASSET_HANDLE;
+            case AssetType::Shader: return StoreShader(filepath);
+            default:                return INVALID_ASSET_HANDLE;
         }
     }
 
-    Asset* AssetRegistry::Request(AssetHandle handle, AssetType type)
+    AssetHandle AssetRegistry::StoreShader(const char* filepath)
     {
-        if (void* data = AssetBuffer(type).Get(handle))
+        const AssetType shaderType = AssetType::Shader;
+        const AssetHandle handle = AssetHandle(ReadShader(filepath).idx, shaderType);
+        new (AssetBuffer(shaderType).Get(handle.Index)) Asset(filepath, shaderType);
+        return handle;
+    }
+
+    Asset* AssetRegistry::Request(AssetHandle handle)
+    {
+        if (void* data = AssetBuffer(handle.Type).Get(handle.Index))
         {
             return static_cast<Asset*>(data);
         }
 
         return nullptr;
     }
-    
+
     Buffer& AssetRegistry::AssetBuffer(AssetType type)
     {
         return m_Registry[static_cast<u8>(type)];
