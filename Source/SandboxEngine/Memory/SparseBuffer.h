@@ -43,7 +43,7 @@ namespace snd
           m_SparseIndices(new u32[sparseCapacity]),
           m_DenseData(0, denseElementSize)
     {
-        memset(m_SparseIndices, INVALID_INDEX, m_SparseCapacity * sizeof(u32));
+        memset(m_SparseIndices, INVALID_UINDEX, m_SparseCapacity * sizeof(u32));
     }
 
     SND_INLINE SparseBuffer::SparseBuffer(SparseBuffer&& other) noexcept
@@ -93,7 +93,7 @@ namespace snd
 
         u32* sparseIndices = new u32[sparseCapacity];
 
-        memset(sparseIndices + m_SparseCapacity, INVALID_INDEX, (sparseCapacity - m_SparseCapacity) * sizeof(u32));
+        memset(sparseIndices + m_SparseCapacity, INVALID_UINDEX, (sparseCapacity - m_SparseCapacity) * sizeof(u32));
         memcpy(sparseIndices, m_SparseIndices, m_SparseCapacity * sizeof(u32));
 
         delete[] m_SparseIndices;
