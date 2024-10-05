@@ -23,9 +23,11 @@
 #include "SandboxEngine/Core/CoreMacros.h"
 #include "SandboxEngine/Core/Log.h"
 #include "SandboxEngine/Core/Error.h"
+#include "SandboxEngine/Core/Timer.h"
 #include "SandboxEngine/Core/String.h"
-#include "SandboxEngine/Core/StringId.h"
 #include "SandboxEngine/Core/Delegate.h"
+#include "SandboxEngine/Core/SID.h"
+#include "SandboxEngine/Core/UID.h"
 
 // Memory
 #include "SandboxEngine/Memory/Memory.h"

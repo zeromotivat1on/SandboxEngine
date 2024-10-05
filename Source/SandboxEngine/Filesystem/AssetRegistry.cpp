@@ -6,10 +6,7 @@ namespace snd::filesystem
 {
     AssetRegistry::AssetRegistry()
     {
-        for (u8 i = 0; i < static_cast<u8>(AssetType::Count); ++i)
-        {
-            m_Registry[i] = Buffer(1024, sizeof(Asset));
-        }
+        m_Registry.reserve(1024);
     }
 
     AssetHandle AssetRegistry::Store(const char* filepath, AssetType type)
@@ -23,24 +20,19 @@ namespace snd::filesystem
 
     AssetHandle AssetRegistry::StoreShader(const char* filepath)
     {
-        const AssetType shaderType = AssetType::Shader;
-        const AssetHandle handle = AssetHandle(ReadShader(filepath).idx, shaderType);
-        new (AssetBuffer(shaderType).Get(handle.Index)) Asset(filepath, shaderType);
+        const AssetHandle handle = UID(ReadShader(filepath).idx);
+        const Asset asset = Asset(filepath, AssetType::Shader);
+        m_Registry.try_emplace(handle, asset);
         return handle;
     }
 
     Asset* AssetRegistry::Request(AssetHandle handle)
     {
-        if (void* data = AssetBuffer(handle.Type).Get(handle.Index))
+        if (auto it = m_Registry.find(handle); it != m_Registry.end())
         {
-            return static_cast<Asset*>(data);
+            return &it->second;
         }
 
         return nullptr;
-    }
-
-    Buffer& AssetRegistry::AssetBuffer(AssetType type)
-    {
-        return m_Registry[static_cast<u8>(type)];
     }
 }

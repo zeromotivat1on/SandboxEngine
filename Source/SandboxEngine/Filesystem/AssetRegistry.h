@@ -4,8 +4,9 @@
 
 namespace snd::filesystem
 {
+    using AssetTable = std::unordered_map<AssetHandle, Asset>;
+
     // General purpose class for managing different types of assets.
-    // Stores buffers for each asset type.
     class AssetRegistry
     {
     public:
@@ -19,10 +20,6 @@ namespace snd::filesystem
         Asset*          Request(AssetHandle handle);
 
     private:
-        // Get asset buffer of given type.
-        Buffer&         AssetBuffer(AssetType type);
-
-    private:
-        Buffer          m_Registry[static_cast<u8>(AssetType::Count)];  // asset buffers per type
+        AssetTable      m_Registry;
     };
 }

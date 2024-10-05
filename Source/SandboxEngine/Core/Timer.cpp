@@ -1,4 +1,4 @@
-﻿#include "sndpch.h"
+#include "sndpch.h"
 #include "SandboxEngine/Core/Timer.h"
 #include <bx/timer.h>
 
