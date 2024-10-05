@@ -21,8 +21,7 @@ namespace snd::filesystem
     AssetHandle AssetRegistry::StoreShader(const char* filepath)
     {
         const AssetHandle handle = UID(ReadShader(filepath).idx);
-        const Asset asset = Asset(filepath, AssetType::Shader);
-        m_Registry.try_emplace(handle, asset);
+        m_Registry.try_emplace(handle, filepath, AssetType::Shader);
         return handle;
     }
 
