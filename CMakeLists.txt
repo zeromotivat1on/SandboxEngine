@@ -176,9 +176,15 @@ endif()
 # Build tests
 enable_testing()
 
-add_executable(sndtests "${SOURCE_DIR}/Tests/MemoryTests.cpp")
+file(GLOB_RECURSE TESTS_SOURCE CONFIGURE_DEPENDS
+    "${SOURCE_DIR}/Tests/*.h"
+    "${SOURCE_DIR}/Tests/*.cpp"
+)
+
+add_executable(sndtests "${TESTS_SOURCE}" "${PROJECT_ENGINE_DIR}/Core/Log.cpp")
 target_include_directories(sndtests PRIVATE ${SOURCE_DIR})
 target_include_directories(sndtests PRIVATE ${VENDOR_DIR})
+target_include_directories(sndtests PRIVATE ${PROJECT_ENGINE_DIR})
 target_include_directories(sndtests PRIVATE "${VENDOR_DIR}/spdlog/include")
 target_link_libraries(sndtests GTest::gtest_main)
 set_def_output_dirs(sndtests)
