@@ -7,32 +7,32 @@ namespace snd
     struct Buffer
     {
     public:
-                            Buffer();
-                            Buffer(u32 capacity, u16 elementSize);
-                            Buffer(const Buffer&) = delete;
-                            Buffer(Buffer&& other) noexcept;
-                            ~Buffer();
-        
-        Buffer&             operator=(const Buffer&) = delete;
-        Buffer&             operator=(Buffer&& other) noexcept;
-        
-        void                Realloc(u32 capacity);
-        void                Realloc(u32 capacity, u16 elementSize);
-        void                Free();
-        void*               Get(u32 index) const;
-        
-        bool                Valid() const;          // is buffer initialized
-        void*               Data() const;           // internal data pointer
-        void*               Last() const;           // pointer to last buffer element
-        u64                 Size() const;           // buffer size in bytes
-        u32                 Capacity() const;       // amount of buffer elements it can hold
-        u64                 Capacity64() const;     // capacity as uint64
-        u16                 ElementSize() const;    // buffer element size in bytes
+                        Buffer();
+                        Buffer(u32 capacity, u16 elementSize);
+                        Buffer(const Buffer&) = delete;
+                        Buffer(Buffer&& other) noexcept;
+                        ~Buffer();
+
+        Buffer&         operator=(const Buffer&) = delete;
+        Buffer&         operator=(Buffer&& other) noexcept;
+
+        void            Realloc(u32 capacity);
+        void            Realloc(u32 capacity, u16 elementSize);
+        void            Free();
+        void*           Get(u32 index) const;
+
+        bool            Valid() const;          // is buffer initialized
+        void*           Data() const;           // internal data pointer
+        void*           Last() const;           // pointer to last buffer element
+        u64             Size() const;           // buffer size in bytes
+        u32             Capacity() const;       // amount of buffer elements it can hold
+        u64             Capacity64() const;     // capacity as uint64
+        u16             ElementSize() const;    // buffer element size in bytes
 
     private:
-        u8*                 m_Data;
-        u32                 m_Capacity;
-        u16                 m_ElementSize;
+        u8*             m_Data;
+        u32             m_Capacity;
+        u16             m_ElementSize;
     };
 
     SND_INLINE Buffer::Buffer()
@@ -78,7 +78,7 @@ namespace snd
             other.m_Capacity = 0;
             other.m_ElementSize = 0;
         }
-        
+
         return *this;
     }
 
@@ -94,7 +94,7 @@ namespace snd
             Free();
             return;
         }
-        
+
         if (void* newData = realloc(m_Data, static_cast<u64>(capacity) * elementSize))
         {
             m_Data = static_cast<u8*>(newData);
@@ -103,7 +103,7 @@ namespace snd
             {
                 memset(m_Data + Capacity64() * elementSize, 0, static_cast<u64>(capacity - m_Capacity) * elementSize);
             }
-            
+
             m_Capacity = capacity;
             m_ElementSize = elementSize;
         }
@@ -128,9 +128,9 @@ namespace snd
     {
         if (index >= m_Capacity)
         {
-            return nullptr;            
+            return nullptr;
         }
-        
+
         return m_Data + static_cast<u64>(index) * m_ElementSize;
     }
 
