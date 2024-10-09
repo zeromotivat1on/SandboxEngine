@@ -20,6 +20,8 @@ TEST(ArenaTest, Push)
     data = g_Arena.Push(g_ArenaLastPushCount);
 
     EXPECT_NE(data, nullptr);
+    EXPECT_NE(g_Arena.Ptr(), data);
+    EXPECT_EQ((u8*)g_Arena.Ptr() - g_ArenaLastPushCount, data);
     EXPECT_EQ(g_Arena.Pos(), g_ArenaLastPushCount);
     EXPECT_EQ(g_Arena.Size(), g_ArenaSize);
 

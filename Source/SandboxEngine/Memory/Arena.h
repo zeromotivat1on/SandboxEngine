@@ -12,6 +12,7 @@ namespace snd
                     NOT_MOVABLE(Arena);
                     ~Arena();
 
+        void*       Ptr();              // current pointer
         void*       Push(u64 size);     // push bytes
         void*       PushZero(u64 size); // push zero bytes
         void        Pop(u64 count);     // pop bytes
@@ -40,11 +41,18 @@ namespace snd
         Free();
     }
 
+    SND_INLINE void* Arena::Ptr()
+    {
+        SND_ASSERT(m_Pos <= m_Size);
+        return m_Data + m_Pos;
+    }
+
     SND_INLINE void* Arena::Push(u64 count)
     {
         SND_ASSERT(m_Pos + count <= m_Size);
+        void* p = Ptr();
         m_Pos += count;
-        return m_Data + m_Pos;
+        return p;
     }
 
     SND_INLINE void* Arena::PushZero(u64 count)
