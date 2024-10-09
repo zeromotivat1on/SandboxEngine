@@ -17,7 +17,7 @@
 #define TOGGLE_BIT(value, pos)  ((value) ^= (1U << (pos)))		    // toggle a bit at a specific position
 #define CHECK_BIT(value, pos)   (((value) & (1U << (pos))) != 0)    // check if a bit is set at a specific position
 
-// Miscellaneous 
+// Miscellaneous
 
 #define INVALID_INDEX           (-1)
 #define INVALID_UINDEX          (-1u)
@@ -25,6 +25,12 @@
 #define SND_INLINE              __forceinline
 
 #define SND_BIND_EVENT_FN(fn)   [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+
+// Memory
+
+#define KB(n)   n * 1000
+#define MB(n)   n * 1000 * 1000
+#define GB(n)   n * 1000 * 1000 * 1000
 
 // Constructors and operators
 

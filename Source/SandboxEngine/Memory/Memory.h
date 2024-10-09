@@ -6,7 +6,7 @@ namespace snd
     {
                 Memory();
                 Memory(u8* data, u32 size);
-        
+
         u8*     Data;
         u32     Size;
 
