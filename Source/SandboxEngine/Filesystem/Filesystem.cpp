@@ -5,13 +5,13 @@
 void snd::filesystem::Init()
 {
     SND_ASSERT(!g_AssetRegistry);
-    g_AssetRegistry = new AssetRegistry();
+    void* data = g_Arena.Push(sizeof(AssetRegistry));
+    g_AssetRegistry = new (data) AssetRegistry();
 }
 
 void snd::filesystem::Shutdown()
 {
     SND_ASSERT(g_AssetRegistry);
-    delete g_AssetRegistry;
     g_AssetRegistry = nullptr;
 }
 

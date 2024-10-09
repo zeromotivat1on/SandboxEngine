@@ -8,16 +8,16 @@ namespace snd::ecs
     SND_INLINE void Init()
     {
         SND_ASSERT(!g_EntityContainer);
-        g_EntityContainer = new EntityContainer();
+        void* data = g_Arena.Push(sizeof(EntityContainer));
+        g_EntityContainer = new (data) EntityContainer();
     }
 
     SND_INLINE void Shutdown()
     {
         SND_ASSERT(g_EntityContainer);
-        delete g_EntityContainer;
         g_EntityContainer = nullptr;
     }
-    
+
     SND_INLINE Entity NewEntity()
     {
         return g_EntityContainer->New();
@@ -29,7 +29,7 @@ namespace snd::ecs
     {
         const u16 componentId   = GetComponentId<TComponent>();
         const u16 componentSize = sizeof(TComponent);
-            
+
         if (void* componentData = g_EntityContainer->Assign(id, componentId, componentSize))
         {
             TComponent* component = new(componentData) TComponent();
@@ -45,7 +45,7 @@ namespace snd::ecs
     {
         const u16 componentId   = GetComponentId<TComponent>();
         const u16 componentSize = sizeof(TComponent);
-            
+
         if (void* componentData = g_EntityContainer->Assign(id, componentId, componentSize))
         {
             TComponent* newComponent = new(componentData) TComponent(component);
@@ -54,7 +54,7 @@ namespace snd::ecs
 
         return nullptr;
     }
-        
+
     template <typename TComponent>
     TComponent* Get(Entity id)
     {
