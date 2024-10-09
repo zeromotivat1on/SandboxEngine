@@ -1,27 +1,27 @@
 #pragma once
 
-typedef std::int8_t				int8;
-typedef std::int16_t			int16;
-typedef std::int32_t			int32;
-typedef std::int64_t			int64;
+using int8      = std::int8_t;
+using int16     = std::int16_t;
+using int32     = std::int32_t;
+using int64     = std::int64_t;
 
-typedef std::uint8_t			uint8;
-typedef std::uint16_t			uint16;
-typedef std::uint32_t			uint32;
-typedef std::uint64_t			uint64;
+using uint8     = std::uint8_t;
+using uint16    = std::uint16_t;
+using uint32    = std::uint32_t;
+using uint64    = std::uint64_t;
 
-typedef int8					s8;
-typedef int16					s16;
-typedef int32					s32;
-typedef int64					s64;
+using s8        = int8;
+using s16       = int16;
+using s32       = int32;
+using s64       = int64;
 
-typedef uint8					u8;
-typedef uint16					u16;
-typedef uint32					u32;
-typedef uint64					u64;
+using u8        =  uint8;
+using u16       =  uint16;
+using u32       =  uint32;
+using u64       =  uint64;
 
-typedef float					f32;
-typedef float					float32;
+using f32       = float;
+using float32   = float;
 
-typedef double					f64;
-typedef double					float64;
+using f64       = double;
+using float64   = double;
