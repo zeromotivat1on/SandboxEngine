@@ -43,7 +43,7 @@ void snd::render::Init(Window* window)
 	Vertex::InitLayout();
 
 	// Create debug test cubes.
-	for (i32 i = 0; i < 10; ++i)
+	for (s32 i = 0; i < 10; ++i)
 	{
 		const Entity cube = NewEntityDebugCube();
 		ecs::Get<TransformComponent>(cube)->Location.x += i * 10.0f;

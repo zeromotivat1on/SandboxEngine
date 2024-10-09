@@ -1,4 +1,4 @@
-﻿#include "sndpch.h"
+#include "sndpch.h"
 #include "SandboxEngine/Ecs/EntityContainer.h"
 
 snd::Entity snd::EntityContainer::New()
@@ -10,13 +10,13 @@ snd::Entity snd::EntityContainer::New()
 
         const Entity newID = GetEntity(newIndex, GetEntityVersion(m_Entities[newIndex]));
         m_Entities[newIndex] = newID;
-        
+
         return m_Entities[newIndex];
     }
 
     const Entity newId = GetEntity(static_cast<EntityIndex>(m_Entities.size()), 0);
     m_Entities.emplace_back(newId);
-    
+
     return m_Entities.back();
 }
 
@@ -26,7 +26,7 @@ void snd::EntityContainer::Destroy(Entity id)
     const Entity invalidId = GetEntity(INVALID_ENTITY_INDEX, GetEntityVersion(id) + 1);
 
     m_Entities[GetEntityIndex(id)] = invalidId;
-    
+
     m_FreeEntityIndices.push_back(GetEntityIndex(id));
 }
 
@@ -37,12 +37,12 @@ void* snd::EntityContainer::Assign(Entity id, u16 componentId, u16 componentSize
     {
         return nullptr;
     }
-        
+
     if (m_ComponentBuffers.size() <= componentId)
     {
         m_ComponentBuffers.resize(componentId + 1);
     }
-        
+
     if (!m_ComponentBuffers[componentId].Valid())
     {
         m_ComponentBuffers[componentId] = SparseBuffer(g_MaxEntities, componentSize);
@@ -69,7 +69,7 @@ bool snd::EntityContainer::Remove(Entity id, u16 componentId)
     {
         return false;
     }
-        
+
     if (m_ComponentBuffers.size() <= componentId)
     {
         return false;
@@ -86,14 +86,14 @@ bool snd::EntityContainer::Has(Entity id, const u16* componentIds, u8 idCount) c
     {
         return false;
     }
-    
+
     return Has(index, componentIds, idCount);
 }
 
 bool snd::EntityContainer::Has(EntityIndex index, const u16* componentIds, u8 idCount) const
 {
     const Entity entityId = m_Entities[index];
-    
+
     for (size_t i = 0; i < idCount; ++i)
     {
         if (!Get(entityId, componentIds[i]))

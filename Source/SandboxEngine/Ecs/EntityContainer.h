@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "SandboxEngine/Ecs/Entity.h"
 

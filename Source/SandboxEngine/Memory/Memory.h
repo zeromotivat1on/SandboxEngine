@@ -1,7 +1,13 @@
 #pragma once
 
+#define FRAME_ARENA_SIZE    MB(16)
+#define GLOBAL_ARENA_SIZE   MB(256)
+
 namespace snd
 {
+    inline Arena g_Arena        = Arena(GLOBAL_ARENA_SIZE);
+    inline Arena g_FrameArena   = Arena(FRAME_ARENA_SIZE);
+
     struct Memory
     {
                 Memory();

@@ -5,9 +5,9 @@ namespace snd
 	f32	CurrentTime(); // get current time in seconds
 	f32	StartupTime(); // get time in seconds since engine startup
     
-	i64 HighPrecisionCounter();
-	i64 HighPrecisionFrequency();
-	f32	ElapsedSeconds(i64 counter); // get passed seconds since given high precision counter
+	s64 HighPrecisionCounter();
+	s64 HighPrecisionFrequency();
+	f32	ElapsedSeconds(s64 counter); // get passed seconds since given high precision counter
 	
 	// Encapsulates basic usage of chrono, providing a means to calculate f32 durations between time points via function calls.
 	class Timer

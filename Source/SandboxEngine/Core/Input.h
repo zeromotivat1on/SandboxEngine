@@ -81,12 +81,12 @@ namespace snd::input
 	bool ButtonJustWentUp(MouseBit bit);
 	
 	// Convert platform keycode to engine system key.
-	KeyboardBit ConvertKeyboardCode(i32 keycode);
-	GamepadBit	ConvertGamepadCode(i32 keycode);
-	MouseBit	ConvertMouseCode(i32 keycode);
+	KeyboardBit ConvertKeyboardCode(s32 keycode);
+	GamepadBit	ConvertGamepadCode(s32 keycode);
+	MouseBit	ConvertMouseCode(s32 keycode);
 
 	// Convert engine system key to platform keycode.
-	i32 ConvertBit(KeyboardBit bit);
-	i32 ConvertBit(GamepadBit bit);
-	i32 ConvertBit(MouseBit bit);
+	s32 ConvertBit(KeyboardBit bit);
+	s32 ConvertBit(GamepadBit bit);
+	s32 ConvertBit(MouseBit bit);
 }

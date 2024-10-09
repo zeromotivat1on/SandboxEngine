@@ -14,8 +14,8 @@ namespace snd
         explicit        vec2(f32 a);
         explicit        vec2(f32 a, f32 b);
 
-        f32			    operator[](i32 index) const;
-        f32&			operator[](i32 index);
+        f32			    operator[](s32 index) const;
+        f32&			operator[](s32 index);
         vec2			operator-() const;
         vec2			operator+(const vec2& a) const;
         vec2			operator-(const vec2& a) const;
@@ -45,11 +45,11 @@ namespace snd
         vec2&           Normalize();            // normalize vector
         vec2&		    Truncate(f32 length);   // cap vector length
         
-        i32				Dimension() const;
+        s32				Dimension() const;
 
         f32*			Ptr();
         const f32*	    Ptr() const;
-        const char*	    String(i8 precision = 2) const;
+        const char*	    String(s8 precision = 2) const;
 
         vec2&			Clamp(const vec2& min, const vec2& max);
         vec2&			Snap();                 // snap to closest integer value
@@ -71,12 +71,12 @@ namespace snd
     {
     }
 
-    SND_INLINE f32 vec2::operator[](i32 index) const
+    SND_INLINE f32 vec2::operator[](s32 index) const
     {
         return (&x)[index];
     }
 
-    SND_INLINE f32& vec2::operator[](i32 index)
+    SND_INLINE f32& vec2::operator[](s32 index)
     {
         return (&x)[index];
     }
@@ -231,7 +231,7 @@ namespace snd
         return *this;
     }
 
-    SND_INLINE i32 vec2::Dimension() const
+    SND_INLINE s32 vec2::Dimension() const
     {
         return 2;
     }
@@ -246,7 +246,7 @@ namespace snd
         return &x;
     }
 
-    SND_INLINE const char* vec2::String(i8 precision) const
+    SND_INLINE const char* vec2::String(s8 precision) const
     {
         return FloatArrayToString(Ptr(), Dimension(), precision);
     }
@@ -260,8 +260,8 @@ namespace snd
 
     SND_INLINE vec2& vec2::Snap()
     {
-        x = static_cast<f32>(static_cast<i32>(x));
-        y = static_cast<f32>(static_cast<i32>(y));
+        x = static_cast<f32>(static_cast<s32>(x));
+        y = static_cast<f32>(static_cast<s32>(y));
         return *this;
     }
 
@@ -293,8 +293,8 @@ namespace snd
         explicit        vec3(f32 a);
         explicit        vec3(f32 a, f32 b, f32 c);
 
-        f32			    operator[](i32 index) const;
-        f32&			operator[](i32 index);
+        f32			    operator[](s32 index) const;
+        f32&			operator[](s32 index);
         vec3			operator-() const;
         vec3			operator+(const vec3& a) const;
         vec3			operator-(const vec3& a) const;
@@ -325,7 +325,7 @@ namespace snd
         vec3&           Normalize();            // normalize vector
         vec3&		    Truncate(f32 length);   // cap vector length
         
-        i32				Dimension() const;
+        s32				Dimension() const;
 
         f32			    Yaw() const;
         f32			    Pitch() const;
@@ -335,7 +335,7 @@ namespace snd
         
         f32*			Ptr();
         const f32*	    Ptr() const;
-        const char*	    String(i8 precision = 2) const;
+        const char*	    String(s8 precision = 2) const;
 
         vec3&			Clamp(const vec3& min, const vec3& max);
         vec3&			Snap();                 // snap to closest integer value
@@ -357,12 +357,12 @@ namespace snd
     {
     }
 
-    SND_INLINE f32 vec3::operator[](i32 index) const
+    SND_INLINE f32 vec3::operator[](s32 index) const
     {
         return (&x)[index];
     }
 
-    SND_INLINE f32& vec3::operator[](i32 index)
+    SND_INLINE f32& vec3::operator[](s32 index)
     {
         return (&x)[index];
     }
@@ -531,7 +531,7 @@ namespace snd
         return *this;
     }
 
-    SND_INLINE i32 vec3::Dimension() const
+    SND_INLINE s32 vec3::Dimension() const
     {
         return 3;
     }
@@ -568,7 +568,7 @@ namespace snd
         return &x;
     }
 
-    SND_INLINE const char* vec3::String(i8 precision) const
+    SND_INLINE const char* vec3::String(s8 precision) const
     {
         return FloatArrayToString(Ptr(), Dimension(), precision);
     }
@@ -583,9 +583,9 @@ namespace snd
 
     SND_INLINE vec3& vec3::Snap()
     {
-        x = static_cast<f32>(static_cast<i32>(x));
-        y = static_cast<f32>(static_cast<i32>(y));
-        z = static_cast<f32>(static_cast<i32>(z));
+        x = static_cast<f32>(static_cast<s32>(x));
+        y = static_cast<f32>(static_cast<s32>(y));
+        z = static_cast<f32>(static_cast<s32>(z));
         return *this;
     }
 
@@ -618,8 +618,8 @@ namespace snd
         explicit        vec4(f32 a);
         explicit        vec4(f32 a, f32 b, f32 c, f32 d);
 
-        f32			    operator[](i32 index) const;
-        f32&			operator[](i32 index);
+        f32			    operator[](s32 index) const;
+        f32&			operator[](s32 index);
         vec4			operator-() const;
         vec4			operator+(const vec4& a) const;
         vec4			operator-(const vec4& a) const;
@@ -648,7 +648,7 @@ namespace snd
         f32             Dot(const vec4& a) const;
         vec4&           Normalize();            // normalize vector
         
-        i32				Dimension() const;
+        s32				Dimension() const;
 
         const vec2&	    Vec2() const;
         vec2&		    Vec2();
@@ -657,7 +657,7 @@ namespace snd
         
         f32*			Ptr();
         const f32*	    Ptr() const;
-        const char*	    String(i8 precision = 2) const;
+        const char*	    String(s8 precision = 2) const;
 
         vec4&			Lerp(const vec4& v1, const vec4& v2, f32 alpha);
     };
@@ -678,12 +678,12 @@ namespace snd
     {
     }
 
-    SND_INLINE f32 vec4::operator[](i32 index) const
+    SND_INLINE f32 vec4::operator[](s32 index) const
     {
         return (&x)[index];
     }
 
-    SND_INLINE f32& vec4::operator[](i32 index)
+    SND_INLINE f32& vec4::operator[](s32 index)
     {
         return (&x)[index];
     }
@@ -835,7 +835,7 @@ namespace snd
         return *this;
     }
 
-    SND_INLINE i32 vec4::Dimension() const
+    SND_INLINE s32 vec4::Dimension() const
     {
         return 4;
     }
@@ -870,7 +870,7 @@ namespace snd
         return &x;
     }
 
-    SND_INLINE const char* vec4::String(i8 precision) const
+    SND_INLINE const char* vec4::String(s8 precision) const
     {
         return FloatArrayToString(Ptr(), Dimension(), precision);
     }

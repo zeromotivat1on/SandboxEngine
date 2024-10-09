@@ -10,10 +10,10 @@ typedef std::uint16_t			uint16;
 typedef std::uint32_t			uint32;
 typedef std::uint64_t			uint64;
 
-typedef int8					i8;
-typedef int16					i16;
-typedef int32					i32;
-typedef int64					i64;
+typedef int8					s8;
+typedef int16					s16;
+typedef int32					s32;
+typedef int64					s64;
 
 typedef uint8					u8;
 typedef uint16					u16;

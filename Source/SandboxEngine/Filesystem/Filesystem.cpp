@@ -22,7 +22,7 @@ void snd::filesystem::MakePath(char* outPath, u8 partCount, ...)
 
     outPath[0] = '\0';
 
-    for (i32 i = 0; i < partCount - 1; ++i)
+    for (s32 i = 0; i < partCount - 1; ++i)
     {
         const char* part = va_arg(args, const char*);
         strcat(outPath, part);
@@ -37,7 +37,7 @@ void snd::filesystem::MakePath(char* outPath, u8 partCount, ...)
 
 snd::Memory snd::filesystem::Read(const char* filepath)
 {
-    Memory mem   = { nullptr, 0 };
+    Memory mem;
     FILE* handle = fopen(filepath, "rb");
 
     if (!handle)
@@ -75,7 +75,7 @@ snd::Memory snd::filesystem::Read(const char* filepath)
     }
 
     const u64 numRead = fread(mem.Data, 1, mem.Size, handle);
-    const i32 err     = ferror(handle);
+    const s32 err     = ferror(handle);
     fclose(handle);
 
     if (err != 0)
@@ -103,7 +103,7 @@ bool snd::filesystem::Read(const char* filepath, Memory& mem)
     }
 
     const u64 numRead = fread(mem.Data, 1, mem.Size, handle);
-    const i32 err     = ferror(handle);
+    const s32 err     = ferror(handle);
     fclose(handle);
 
     if (err == 0)

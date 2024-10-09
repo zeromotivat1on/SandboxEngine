@@ -17,8 +17,8 @@ namespace snd
 		explicit		quat(f32 a);
 		explicit		quat(f32 a, f32 b, f32 c, f32 d);
 		
-		f32				operator[](i32 index) const;
-		f32& 			operator[](i32 index);
+		f32				operator[](s32 index) const;
+		f32& 			operator[](s32 index);
 		quat			operator-() const;
 		quat			operator+(const quat& a) const;
 		quat			operator-(const quat& a) const;
@@ -50,11 +50,11 @@ namespace snd
 		mat3			Mat3() const;
 		mat4			Mat4() const;
 
-		i32				Dimension() const;
+		s32				Dimension() const;
 
 		const f32*		Ptr() const;
 		f32*			Ptr();
-		const char*		String(i32 precision = 2) const;
+		const char*		String(s32 precision = 2) const;
 	};
 
 	SND_INLINE quat::quat()
@@ -72,12 +72,12 @@ namespace snd
 	{
 	}
 	
-	SND_INLINE f32 quat::operator[](i32 index) const
+	SND_INLINE f32 quat::operator[](s32 index) const
 	{
 		return (&x)[index];
 	}
 
-	SND_INLINE f32& quat::operator[](i32 index)
+	SND_INLINE f32& quat::operator[](s32 index)
 	{
 		return (&x)[index];
 	}
@@ -236,7 +236,7 @@ namespace snd
 		return math::Sqrt(math::Absf(1.0f - (x * x + y * y + z * z)));
 	}
 
-	SND_INLINE i32 quat::Dimension() const
+	SND_INLINE s32 quat::Dimension() const
 	{
 		return 4;
 	}
@@ -251,7 +251,7 @@ namespace snd
 		return &x;
 	}
 
-	SND_INLINE const char* quat::String(i32 precision) const
+	SND_INLINE const char* quat::String(s32 precision) const
 	{
 	}
 }

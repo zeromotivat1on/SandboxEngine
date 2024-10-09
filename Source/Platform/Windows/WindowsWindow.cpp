@@ -13,19 +13,20 @@ static void GLFWErrorCallback(int error, const char* description)
 
 snd::Window* snd::Window::Create(const Props& props)
 {
-	return new WindowsWindow(props);
+    void* data = g_Arena.Push(sizeof(WindowsWindow));
+	return new (data) WindowsWindow(props);
 }
 
 void snd::WindowsWindow::Init(const Window::Props& props)
 {
 	if (g_GlfwWindowCount == 0)
 	{
-		const i32 success = glfwInit();
+		const s32 success = glfwInit();
 		SND_ASSERT(success, "Failed to initialize GLFW");
 		glfwSetErrorCallback(GLFWErrorCallback);
 	}
 
-	SND_INFO("Creating window \"{}\" {}x{}", props.Title, props.Width, props.Height);
+	SND_INFO("Creating window '{}' {}x{}", props.Title, props.Width, props.Height);
 
 	m_Title = props.Title;
 	m_Width = props.Width;

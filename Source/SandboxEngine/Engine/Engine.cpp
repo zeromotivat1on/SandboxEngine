@@ -212,6 +212,8 @@ bool snd::Engine::OnMouseKeyReleased(MouseKeyReleasedEvent& event)
 
 void snd::Engine::Tick(f32 dt)
 {
+    g_FrameArena.Clear();
+
 	m_Window->Update();
 
 	input::Update();

@@ -10,15 +10,15 @@ snd::input::Keyboard 		g_KeyboardState;
 snd::input::Gamepad  		g_GamepadState;
 snd::input::Mouse	 		g_MouseState;
 
-i32 						g_ConvertedKeyboardBits [snd::KeyboardBit::Count];
-i32 						g_ConvertedGamepadBits	[snd::GamepadBit::Count];
-i32 						g_ConvertedMouseBits	[snd::MouseBit::Count];
+s32 						g_ConvertedKeyboardBits [snd::KeyboardBit::Count];
+s32 						g_ConvertedGamepadBits	[snd::GamepadBit::Count];
+s32 						g_ConvertedMouseBits	[snd::MouseBit::Count];
 
 f32 						g_MouseLastX;
 f32 						g_MouseLastY;
 
 template<typename TInputBit>
-static void ConvertBits(i32* outConvertedBits)
+static void ConvertBits(s32* outConvertedBits)
 {
 	constexpr u8 count = static_cast<u8>(TInputBit::Count);
 	for (u8 i = 0; i < count; ++i)
@@ -65,7 +65,7 @@ void snd::input::Update()
 		constexpr u8 count = static_cast<u8>(KeyboardBit::Count);
 		for (u8 i = 0; i < count; ++i)
 		{
-			const i32 keyState = glfwGetKey(s_GlfwWindow, g_ConvertedKeyboardBits[i]);
+			const s32 keyState = glfwGetKey(s_GlfwWindow, g_ConvertedKeyboardBits[i]);
 			g_KeyboardState.Buttons.set(i, keyState == GLFW_PRESS || keyState == GLFW_REPEAT);
 		}
 
@@ -116,7 +116,7 @@ void snd::input::Update()
 		constexpr u8 count = static_cast<u8>(MouseBit::Count);
 		for (u8 i = 0; i < count; ++i)
 		{
-			const i32 keyState = glfwGetMouseButton(s_GlfwWindow, g_ConvertedMouseBits[i]);
+			const s32 keyState = glfwGetMouseButton(s_GlfwWindow, g_ConvertedMouseBits[i]);
 
 			if (keyState == GLFW_PRESS)
 			{
@@ -286,7 +286,7 @@ void snd::input::OnMouseScroll(f32 x, f32 y)
 	g_MouseState.ScrollY = y;
 }
 
-snd::KeyboardBit snd::input::ConvertKeyboardCode(i32 keycode)
+snd::KeyboardBit snd::input::ConvertKeyboardCode(s32 keycode)
 {
 	switch (keycode)
 	{
@@ -399,7 +399,7 @@ snd::KeyboardBit snd::input::ConvertKeyboardCode(i32 keycode)
 
 }
 
-snd::GamepadBit snd::input::ConvertGamepadCode(i32 keycode)
+snd::GamepadBit snd::input::ConvertGamepadCode(s32 keycode)
 {
 	switch (keycode)
 	{
@@ -424,7 +424,7 @@ snd::GamepadBit snd::input::ConvertGamepadCode(i32 keycode)
 	}
 }
 
-snd::MouseBit snd::input::ConvertMouseCode(i32 keycode)
+snd::MouseBit snd::input::ConvertMouseCode(s32 keycode)
 {
 	switch (keycode)
 	{
@@ -437,7 +437,7 @@ snd::MouseBit snd::input::ConvertMouseCode(i32 keycode)
 	}
 }
 
-i32 snd::input::ConvertBit(KeyboardBit bit)
+s32 snd::input::ConvertBit(KeyboardBit bit)
 {
 	switch (bit)
 	{
@@ -544,12 +544,12 @@ i32 snd::input::ConvertBit(KeyboardBit bit)
 		case KeyboardBit::RightControl:	return GLFW_KEY_RIGHT_CONTROL;
 		case KeyboardBit::RightAlt:		return GLFW_KEY_RIGHT_ALT;
 		default:
-			SND_ERROR("Unknown keyboard bit {}", static_cast<i32>(bit));
+			SND_ERROR("Unknown keyboard bit {}", static_cast<s32>(bit));
 			return INVALID_INDEX;
 	}
 }
 
-i32 snd::input::ConvertBit(GamepadBit bit)
+s32 snd::input::ConvertBit(GamepadBit bit)
 {
 	switch (bit)
 	{
@@ -569,12 +569,12 @@ i32 snd::input::ConvertBit(GamepadBit bit)
 		case GamepadBit::DpadDown:	 	return GLFW_GAMEPAD_BUTTON_DPAD_DOWN;
 		case GamepadBit::DpadLeft:	 	return GLFW_GAMEPAD_BUTTON_DPAD_LEFT;
 		default:
-			SND_ERROR("Unknown gamepad bit {}", static_cast<i32>(bit));
+			SND_ERROR("Unknown gamepad bit {}", static_cast<s32>(bit));
 			return INVALID_INDEX;
 	}
 }
 
-i32 snd::input::ConvertBit(MouseBit bit)
+s32 snd::input::ConvertBit(MouseBit bit)
 {
 	switch (bit)
 	{
@@ -582,7 +582,7 @@ i32 snd::input::ConvertBit(MouseBit bit)
 		case MouseBit::Right:	return GLFW_MOUSE_BUTTON_RIGHT;
 		case MouseBit::Middle:	return GLFW_MOUSE_BUTTON_MIDDLE;
 		default:
-			SND_ERROR("Unknown mouse bit {}", static_cast<i32>(bit));
+			SND_ERROR("Unknown mouse bit {}", static_cast<s32>(bit));
 			return INVALID_INDEX;
 	}
 }

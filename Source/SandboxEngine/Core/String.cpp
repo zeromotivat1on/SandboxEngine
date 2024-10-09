@@ -1,9 +1,9 @@
 ﻿#include "sndpch.h"
 #include "SandboxEngine/Core/String.h"
 
-const char* snd::FloatArrayToString(const f32* arr, u16 size, i8 precision)
+const char* snd::FloatArrayToString(const f32* arr, u16 size, s8 precision)
 {
-    static i32 s_Index = 0;
+    static s32 s_Index = 0;
     static char s_Buffer[4][16384];	// in case called by nested functions
 
     char  format[16];
@@ -12,7 +12,7 @@ const char* snd::FloatArrayToString(const f32* arr, u16 size, i8 precision)
 
     // First formatted element.
     sprintf_s(format, sizeof(format), "(%%.%df,", precision);
-    i32 n = sprintf_s(string, sizeof(s_Buffer[0]), format, arr[0]);
+    s32 n = sprintf_s(string, sizeof(s_Buffer[0]), format, arr[0]);
     if (precision > 0)
     {
         while(n > 0 && string[n - 1] == '0') string[--n] = '\0';
@@ -21,7 +21,7 @@ const char* snd::FloatArrayToString(const f32* arr, u16 size, i8 precision)
 
     // Intermediate formatted elements.
     sprintf_s(format, sizeof(format), " %%.%df,", precision);
-    for (i32 i = 1; i < size - 1; i++)
+    for (s32 i = 1; i < size - 1; i++)
     {
         n += sprintf_s(string + n, sizeof(s_Buffer[0]) - n, format, arr[i]);
         if (precision > 0)

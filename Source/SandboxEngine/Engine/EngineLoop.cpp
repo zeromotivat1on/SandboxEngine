@@ -14,13 +14,13 @@ void snd::EngineLoop::Init()
 void snd::EngineLoop::Run()
 {
 	f32 dt = GetTargetFramerate();
-	i64 beginCounter = HighPrecisionCounter();
+	s64 beginCounter = HighPrecisionCounter();
 
 	while (m_Engine.Running())
 	{
 		m_Engine.Tick(dt);
 
-		const i64 endCounter = HighPrecisionCounter();
+		const s64 endCounter = HighPrecisionCounter();
 		dt = static_cast<float>(endCounter - beginCounter) / static_cast<float>(HighPrecisionFrequency());
 
 #ifdef SND_BUILD_DEBUG

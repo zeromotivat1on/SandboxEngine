@@ -12,7 +12,7 @@ namespace snd
 	void ImguiBgfxCreate(f32 fontSize = 18.0f, bx::AllocatorI* allocator = nullptr);
 	void ImguiBgfxDestroy();
 
-	void ImguiBgfxBeginFrame(const vec2& mousePos, u8 mouseButtons, const vec2& mouseScroll, u16 windowWidth, u16 windowHeight, i32 inputChar = -1, bgfx::ViewId view = 255);
+	void ImguiBgfxBeginFrame(const vec2& mousePos, u8 mouseButtons, const vec2& mouseScroll, u16 windowWidth, u16 windowHeight, s32 inputChar = -1, bgfx::ViewId view = 255);
 	void ImguiBgfxEndFrame();
 }
 

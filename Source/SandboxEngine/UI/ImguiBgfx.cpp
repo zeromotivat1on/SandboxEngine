@@ -86,7 +86,7 @@ struct OcornutImguiContext
 		const ImVec2 clipScale = drawData->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
 
 		// Render command lists
-		for (i32 i = 0, num = drawData->CmdListsCount; i < num; ++i)
+		for (s32 i = 0, num = drawData->CmdListsCount; i < num; ++i)
 		{
 			bgfx::TransientVertexBuffer tvb;
 			bgfx::TransientIndexBuffer  tib;
@@ -235,8 +235,8 @@ struct OcornutImguiContext
 		TextureUniform = bgfx::createUniform("TextureUniform", bgfx::UniformType::Sampler);
 
 		u8* data	= nullptr;
-		i32 width	= 0;
-		i32 height	= 0;
+		s32 width	= 0;
+		s32 height	= 0;
 
 		{
 			ImFontConfig config;
@@ -254,7 +254,7 @@ struct OcornutImguiContext
 			{
 				io.Fonts->AddFontFromMemoryTTF(
 					const_cast<void*>(Data),
-					static_cast<i32>(Size),
+					static_cast<s32>(Size),
 					fontSize - 3.0f,
 					&config,
 					Ranges
@@ -302,7 +302,7 @@ struct OcornutImguiContext
 		style.WindowBorderSize = 0.0f;
 	}
 
-	void BeginFrame(const snd::vec2& mousePos, u8 mouseButtons, const snd::vec2& mouseScroll, u16 windowWidth, u16 windowHeight, i32 inputChar, bgfx::ViewId viewId)
+	void BeginFrame(const snd::vec2& mousePos, u8 mouseButtons, const snd::vec2& mouseScroll, u16 windowWidth, u16 windowHeight, s32 inputChar, bgfx::ViewId viewId)
 	{
 		ViewId = viewId;
 
@@ -314,8 +314,8 @@ struct OcornutImguiContext
 
 		io.DisplaySize = ImVec2(windowWidth, windowHeight);
 
-		const i64 now = bx::getHPCounter();
-		const i64 frameTime = now - LastTime;
+		const s64 now = bx::getHPCounter();
+		const s64 frameTime = now - LastTime;
 		LastTime = now;
 
 		const f32 freq = static_cast<f32>(bx::getHPFrequency() );
@@ -346,7 +346,7 @@ struct OcornutImguiContext
 	bgfx::UniformHandle 	TextureUniform;
 	bgfx::UniformHandle 	ImageLodEnabledUniform;
 	ImFont* 				Font[ImGui::Font::Count];
-	i64 					LastTime;
+	s64 					LastTime;
 	snd::vec2				LastScroll;
 	bgfx::ViewId			ViewId;
 };
@@ -373,7 +373,7 @@ void snd::ImguiBgfxDestroy()
 	s_Ctx.Destroy();
 }
 
-void snd::ImguiBgfxBeginFrame(const vec2& mousePos, u8 mouseButtons, const vec2& mouseScroll, u16 windowWidth, u16 windowHeight, i32 inputChar, bgfx::ViewId view)
+void snd::ImguiBgfxBeginFrame(const vec2& mousePos, u8 mouseButtons, const vec2& mouseScroll, u16 windowWidth, u16 windowHeight, s32 inputChar, bgfx::ViewId view)
 {
 	s_Ctx.BeginFrame(mousePos, mouseButtons, mouseScroll, windowWidth, windowHeight, inputChar, view);
 }

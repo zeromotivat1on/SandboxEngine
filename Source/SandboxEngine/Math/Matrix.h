@@ -34,8 +34,8 @@ namespace snd
 		explicit 		mat2(f32 xx, f32 xy, f32 yx, f32 yy);
 		explicit 		mat2(const f32 src[2][2]);
 
-		const vec2&		operator[](i32 index) const;
-		vec2&			operator[](i32 index);
+		const vec2&		operator[](s32 index) const;
+		vec2&			operator[](s32 index);
 		mat2			operator-() const;
     	mat2			operator+(const mat2& a) const;
     	mat2			operator-(const mat2& a) const;
@@ -70,11 +70,11 @@ namespace snd
 		mat2			Inverse() const;
 		bool			InverseSelf();
 
-		i32				Dimension() const;
+		s32				Dimension() const;
 
 		const f32*		Ptr() const;
 		f32*			Ptr();
-		const char*		String(i8 precision = 2) const;
+		const char*		String(s8 precision = 2) const;
     };
 
 	SND_INLINE mat2 IdentityMat2()
@@ -103,12 +103,12 @@ namespace snd
 		memcpy(mat, src, 2 * 2 * sizeof(f32));
 	}
 
-	SND_INLINE const vec2& mat2::operator[](i32 index) const
+	SND_INLINE const vec2& mat2::operator[](s32 index) const
 	{
 		return mat[index];
 	}
 
-	SND_INLINE vec2& mat2::operator[](i32 index)
+	SND_INLINE vec2& mat2::operator[](s32 index)
 	{
 		return mat[index];
 	}
@@ -315,7 +315,7 @@ namespace snd
 		return true;
 	}
 
-	SND_INLINE i32 mat2::Dimension() const
+	SND_INLINE s32 mat2::Dimension() const
 	{
 		return 4;
 	}
@@ -330,7 +330,7 @@ namespace snd
 		return mat[0].Ptr();
 	}
 
-	SND_INLINE const char* mat2::String(i8 precision) const
+	SND_INLINE const char* mat2::String(s8 precision) const
 	{
 		return FloatArrayToString(Ptr(), Dimension(), precision);
 	}
@@ -345,8 +345,8 @@ namespace snd
 		explicit		mat3(f32 xx, f32 xy, f32 xz, f32 yx, f32 yy, f32 yz, f32 zx, f32 zy, f32 zz);
 		explicit		mat3(const f32 src[3][3]);
 
-		const vec3& 	operator[](i32 index) const;
-		vec3& 			operator[](i32 index);
+		const vec3& 	operator[](s32 index) const;
+		vec3& 			operator[](s32 index);
 		mat3			operator-() const;
 		mat3			operator+(const mat3& a) const;
 		mat3			operator-(const mat3& a) const;
@@ -382,13 +382,13 @@ namespace snd
 		mat3			Inverse() const;
 		bool			InverseSelf();
 
-		i32				Dimension() const;
+		s32				Dimension() const;
 
 		mat4			Mat4() const;
 
 		const f32*		Ptr() const;
 		f32*			Ptr();
-		const char*		String(i8 precision = 2) const;
+		const char*		String(s8 precision = 2) const;
 	};
 
 	SND_INLINE mat3 IdentityMat3()
@@ -419,12 +419,12 @@ namespace snd
 		memcpy(mat, src, 3 * 3 * sizeof(f32));
 	}
 
-	SND_INLINE const vec3& mat3::operator[](i32 index) const
+	SND_INLINE const vec3& mat3::operator[](s32 index) const
 	{
 		return mat[index];
 	}
 
-	SND_INLINE vec3& mat3::operator[](i32 index)
+	SND_INLINE vec3& mat3::operator[](s32 index)
 	{
 		return mat[index];
 	}
@@ -466,9 +466,9 @@ namespace snd
 		const f32* ptr	= reinterpret_cast<const f32*>(this);
 		const f32* aptr = reinterpret_cast<const f32*>(&a);
 
-		for (i32 i = 0; i < 3; ++i)
+		for (s32 i = 0; i < 3; ++i)
 		{
-			for (i32 j = 0; j < 3; ++j)
+			for (s32 j = 0; j < 3; ++j)
 			{
 				*dstPtr = ptr[0] * aptr[0 * 3 + j] +
 						  ptr[1] * aptr[1 * 3 + j] +
@@ -654,7 +654,7 @@ namespace snd
 		return invMat;
 	}
 
-	SND_INLINE i32 mat3::Dimension() const
+	SND_INLINE s32 mat3::Dimension() const
 	{
 		return 9;
 	}
@@ -669,7 +669,7 @@ namespace snd
 		return mat[0].Ptr();
 	}
 
-	SND_INLINE const char* mat3::String(i8 precision) const
+	SND_INLINE const char* mat3::String(s8 precision) const
 	{
 		return FloatArrayToString(Ptr(), Dimension(), precision);
 	}
@@ -689,8 +689,8 @@ namespace snd
 		explicit		mat4(const f32 src[4][4]);
 		explicit		mat4(const f32* src);
 
-		const vec4& 	operator[](i32 index) const;
-		vec4& 			operator[](i32 index);
+		const vec4& 	operator[](s32 index) const;
+		vec4& 			operator[](s32 index);
 		mat4			operator+(const mat4& a) const;
 		mat4			operator-(const mat4& a) const;
 		mat4			operator*(const mat4& a) const;
@@ -733,11 +733,11 @@ namespace snd
 		mat4&			Rotate(const quat& rotation);
 		mat4&			Scale(const vec3& scale);
 
-		i32				Dimension() const;
+		s32				Dimension() const;
 
 		const f32*		Ptr() const;
 		f32*			Ptr();
-		const char*		String(i8 precision = 2) const;
+		const char*		String(s8 precision = 2) const;
 	};
 
 	SND_INLINE mat4 mat3::Mat4() const
@@ -812,12 +812,12 @@ namespace snd
 		memcpy(mat, src, 4 * 4 * sizeof(f32));
 	}
 
-	SND_INLINE const vec4& mat4::operator[](i32 index) const
+	SND_INLINE const vec4& mat4::operator[](s32 index) const
 	{
 		return mat[index];
 	}
 
-	SND_INLINE vec4& mat4::operator[](i32 index)
+	SND_INLINE vec4& mat4::operator[](s32 index)
 	{
 		return mat[index];
 	}
@@ -851,9 +851,9 @@ namespace snd
 		const f32* ptr	= reinterpret_cast<const f32*>(this);
 		const f32* aptr = reinterpret_cast<const f32*>(&a);
 
-		for (i32 i = 0; i < 4; ++i)
+		for (s32 i = 0; i < 4; ++i)
 		{
-			for (i32 j = 0; j < 4; ++j)
+			for (s32 j = 0; j < 4; ++j)
 			{
 				*dstPtr = ptr[0] * aptr[0 * 4 + j] +
 						  ptr[1] * aptr[1 * 4 + j] +
@@ -1022,9 +1022,9 @@ namespace snd
 
 	SND_INLINE bool mat4::Symmetric(f32 epsilon) const
 	{
-		for (i32 i = 1; i < 4; ++i)
+		for (s32 i = 1; i < 4; ++i)
 		{
-			for (i32 j = 0; j < i; ++j)
+			for (s32 j = 0; j < i; ++j)
 			{
 				if (math::Absf(mat[i][j] - mat[j][i]) > epsilon)
 				{
@@ -1038,9 +1038,9 @@ namespace snd
 
 	SND_INLINE bool mat4::Diagonal(f32 epsilon) const
 	{
-		for (i32 i = 0; i < 4; ++i)
+		for (s32 i = 0; i < 4; ++i)
 		{
-			for (i32 j = 0; j < 4; ++j)
+			for (s32 j = 0; j < 4; ++j)
 			{
 				if (i != j && math::Absf(mat[i][j]) > epsilon)
 				{
@@ -1068,9 +1068,9 @@ namespace snd
 	{
 		mat4 transpose;
 
-		for(i32 i = 0; i < 4; ++i)
+		for(s32 i = 0; i < 4; ++i)
 		{
-			for(i32 j = 0; j < 4; ++j)
+			for(s32 j = 0; j < 4; ++j)
 			{
 				transpose[i][j] = mat[j][i];
 			}
@@ -1081,9 +1081,9 @@ namespace snd
 
 	SND_INLINE mat4& mat4::TransposeSelf()
 	{
-		for(i32 i = 0; i < 4; ++i)
+		for(s32 i = 0; i < 4; ++i)
 		{
-			for(i32 j = i + 1; j < 4; ++j)
+			for(s32 j = i + 1; j < 4; ++j)
 			{
 				std::swap(mat[i][j], mat[j][i]);
 			}
@@ -1116,7 +1116,7 @@ namespace snd
 		return *this;
 	}
 
-	SND_INLINE i32 mat4::Dimension() const
+	SND_INLINE s32 mat4::Dimension() const
 	{
 		return 16;
 	}
@@ -1131,7 +1131,7 @@ namespace snd
 		return mat[0].Ptr();
 	}
 
-	SND_INLINE const char* mat4::String(i8 precision) const
+	SND_INLINE const char* mat4::String(s8 precision) const
 	{
 		return FloatArrayToString(Ptr(), Dimension(), precision);
 	}

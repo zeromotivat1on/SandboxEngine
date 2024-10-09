@@ -11,10 +11,10 @@ namespace snd
 	{
 	public:
 						Engine();
-		
+
 		void			Init(Window* window);
 		void			Shutdown();
-		
+
 		void			Tick(f32 dt);
 		bool			Running() const;
 
