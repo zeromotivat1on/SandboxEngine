@@ -51,4 +51,11 @@ namespace snd::thread
     {
         WaitSemaphore(m_Semaphore, ms);
     }
+
+    void WorkQueue::Reset() const
+    {
+        m_EntryCount = 0;
+        m_NextEntry = 0;
+        m_DoneEntryCount = 0;
+    }
 }

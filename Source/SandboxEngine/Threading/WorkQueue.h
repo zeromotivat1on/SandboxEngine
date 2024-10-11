@@ -27,6 +27,7 @@ namespace snd::thread
 
         // Wait for the semaphore to be signaled.
         void                Wait(u32 ms) const;
+        void                Reset();
 
     private:
         SemaphoreHandle     m_Semaphore;
