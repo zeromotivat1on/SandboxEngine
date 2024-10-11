@@ -11,7 +11,7 @@ namespace snd::thread
 
         struct Entry
         {
-            OnEntryProcess    Delegate;
+            OnEntryProcess      Delegate;
             void*               Data;
         };
 
