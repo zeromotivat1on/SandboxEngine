@@ -4,10 +4,10 @@
 
 int snd::EntryPoint(int argc, const char** argv)
 {
-	EngineLoop engineLoop;
-	engineLoop.Init();
-	engineLoop.Run();
-	engineLoop.Shutdown();
-	
+    EngineLoop engineLoop;
+    engineLoop.Init();
+    engineLoop.Run();
+    engineLoop.Shutdown();
+
 	return EXIT_SUCCESS;
 }

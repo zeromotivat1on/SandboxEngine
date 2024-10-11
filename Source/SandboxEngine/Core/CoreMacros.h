@@ -19,6 +19,7 @@
 
 // Miscellaneous
 
+#define INFINITE                0xFFFFFFFF
 #define INVALID_INDEX           (-1)
 #define INVALID_UINDEX          (-1u)
 
