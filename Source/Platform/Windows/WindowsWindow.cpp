@@ -8,7 +8,7 @@ u8 g_GlfwWindowCount = 0;
 
 static void GLFWErrorCallback(int error, const char* description)
 {
-	SND_ERROR("GLFW Error {}: {}", error, description);
+	SND_CORE_ERROR("GLFW Error {}: {}", error, description);
 }
 
 snd::Window* snd::Window::Create(const Props& props)
@@ -26,7 +26,7 @@ void snd::WindowsWindow::Init(const Window::Props& props)
 		glfwSetErrorCallback(GLFWErrorCallback);
 	}
 
-	SND_INFO("Creating window '{}' {}x{}", props.Title, props.Width, props.Height);
+	SND_CORE_INFO("Creating window '{}' {}x{}", props.Title, props.Width, props.Height);
 
 	m_Title = props.Title;
 	m_Width = props.Width;
@@ -105,7 +105,7 @@ void snd::WindowsWindow::OnKey(GLFWwindow* window, int key, int scancode, int ac
 		win.m_Callback(event);
 		break;
 	}
-	default: SND_ERROR("Unknown key action \'{}\'", action);
+	default: SND_CORE_ERROR("Unknown key action \'{}\'", action);
 	}
 }
 
@@ -150,7 +150,7 @@ void snd::WindowsWindow::OnMouseKey(GLFWwindow* window, int key, int action, int
 		win.m_Callback(event);
 		break;
 	}
-	default: SND_ERROR("Unknown mouse key action \'{}\'", action);
+	default: SND_CORE_ERROR("Unknown mouse key action \'{}\'", action);
 	}
 }
 

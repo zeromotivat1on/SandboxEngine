@@ -36,7 +36,7 @@ namespace snd
 
 	SND_INLINE ScopeTimer::~ScopeTimer()
 	{
-		SND_DEBUG("[{}]: {:.2f}ms", m_Name, m_Timer.Stop<Timer::Milliseconds>());
+		SND_CORE_DEBUG("[{}]: {:.2f}ms", m_Name, m_Timer.Stop<Timer::Milliseconds>());
 	}
 }
 #endif

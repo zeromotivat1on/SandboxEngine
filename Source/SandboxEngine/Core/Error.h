@@ -12,7 +12,7 @@
 #endif
 
 #ifdef SND_ENABLE_ASSERT
-	#define SND_ASSERT_IMPL(check, msg, ...)					{ if(!(check)) { SND_ERROR(msg, __VA_ARGS__); SND_DEBUG_BREAK(); } }
+	#define SND_ASSERT_IMPL(check, msg, ...)					{ if(!(check)) { SND_CORE_ERROR(msg, __VA_ARGS__); SND_DEBUG_BREAK(); } }
 
 	#define SND_ASSERT_WITH_MSG(check, ...)						SND_ASSERT_IMPL(check, "Assertion failed: {0}", __VA_ARGS__)
 	#define SND_ASSERT_NO_MSG(check)							SND_ASSERT_IMPL(check, "Assertion '{0}' failed at {1}:{2}", SND_STRINGIFY_MACRO(check), __FILE__, __LINE__)

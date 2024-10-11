@@ -88,7 +88,7 @@ void snd::Engine::Init(Window* window)
 {
 	SND_SCOPE_FUNCTION_TIMER();
 
-	SND_INFO("Initializing the engine");
+	SND_CORE_INFO("Initializing the engine");
 	SND_ASSERT(window);
 
 	m_Window = window;
@@ -129,7 +129,7 @@ void snd::Engine::Init(Window* window)
 
 void snd::Engine::Shutdown()
 {
-	SND_INFO("Shutting down the engine");
+	SND_CORE_INFO("Shutting down the engine");
 
 	input::Shutdown();
 	ui::Shutdown();
@@ -154,7 +154,7 @@ void snd::Engine::OnEvent(Event& event)
 
 bool snd::Engine::OnWindowClosed(WindowClosedEvent& event)
 {
-	SND_TRACE("Window \"{}\" was manually closed, shutting down", m_Window->Title());
+	SND_CORE_TRACE("Window \"{}\" was manually closed, shutting down", m_Window->Title());
 	m_ExitRequested = true;
 	return true;
 }
@@ -220,7 +220,7 @@ void snd::Engine::Tick(f32 dt)
 
 	if (input::ButtonJustWentUp(KeyboardBit::Escape))
 	{
-		SND_TRACE("Manual shutdown was requested", m_Window->Title());
+		SND_CORE_TRACE("Manual shutdown was requested", m_Window->Title());
 		m_ExitRequested = true;
 	}
 

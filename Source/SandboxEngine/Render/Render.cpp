@@ -38,7 +38,7 @@ void snd::render::Init(Window* window)
 	bgfx::setDebug(BGFX_DEBUG_TEXT);
 #endif
 
-	SND_INFO("Using Renderer API \"{}\"", bgfx::getRendererName(bgfx::getRendererType()));
+	SND_CORE_INFO("Using Renderer API \"{}\"", bgfx::getRendererName(bgfx::getRendererType()));
 
 	Vertex::InitLayout();
 

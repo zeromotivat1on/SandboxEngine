@@ -42,13 +42,13 @@ snd::Memory snd::filesystem::Read(const char* filepath)
 
     if (!handle)
     {
-        SND_ERROR("Failed to open file '{}'", filepath);
+        SND_CORE_ERROR("Failed to open file '{}'", filepath);
         return mem;
     }
 
     if (fseek(handle, 0, SEEK_END) != 0)
     {
-        SND_ERROR("Failed to seek through file '{}'", filepath);
+        SND_CORE_ERROR("Failed to seek through file '{}'", filepath);
         fclose(handle);
         return mem;
     }
@@ -57,7 +57,7 @@ snd::Memory snd::filesystem::Read(const char* filepath)
 
     if (mem.Size == -1)
     {
-        SND_ERROR("Failed to get file size for '{}'", filepath);
+        SND_CORE_ERROR("Failed to get file size for '{}'", filepath);
         fclose(handle);
         return mem;
     }
@@ -68,7 +68,7 @@ snd::Memory snd::filesystem::Read(const char* filepath)
 
     if (!mem.Data)
     {
-        SND_ERROR("Failed to allocate buffer for file");
+        SND_CORE_ERROR("Failed to allocate buffer for file");
         fclose(handle);
         memset(&mem, 0, sizeof(mem));
         return mem;
@@ -80,7 +80,7 @@ snd::Memory snd::filesystem::Read(const char* filepath)
 
     if (err != 0)
     {
-        SND_ERROR("Failed to read from file '{}'", filepath);
+        SND_CORE_ERROR("Failed to read from file '{}'", filepath);
     }
 
     return mem;
@@ -90,7 +90,7 @@ bool snd::filesystem::Read(const char* filepath, Memory& mem)
 {
     if (!mem.Valid())
     {
-        SND_ERROR("Given memory is not valid");
+        SND_CORE_ERROR("Given memory is not valid");
         return false;
     }
 
@@ -98,7 +98,7 @@ bool snd::filesystem::Read(const char* filepath, Memory& mem)
 
     if (!handle)
     {
-        SND_ERROR("Failed to open file '{}'", filepath);
+        SND_CORE_ERROR("Failed to open file '{}'", filepath);
         return false;
     }
 
@@ -111,7 +111,7 @@ bool snd::filesystem::Read(const char* filepath, Memory& mem)
         return true;
     }
 
-    SND_ERROR("Failed to read from file '{}'", filepath);
+    SND_CORE_ERROR("Failed to read from file '{}'", filepath);
     return false;
 }
 

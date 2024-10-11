@@ -1,5 +1,8 @@
 #pragma once
 
+// Intrinsics
+#include <intrin.h>
+
 // STD
 #include <chrono>
 #include <algorithm>
@@ -29,6 +32,10 @@
 #include "SandboxEngine/Core/SID.h"
 #include "SandboxEngine/Core/UID.h"
 
+// Threading
+#include "SandboxEngine/Threading/Thread.h"
+#include "SandboxEngine/Threading/WorkQueue.h"
+
 // Memory
 #include "SandboxEngine/Memory/Arena.h"
 #include "SandboxEngine/Memory/Memory.h"
@@ -44,5 +51,5 @@
 
 #ifdef SND_PLATFORM_WINDOWS
 	#define NOMINMAX // disable windows min/max macro definitions to avoid possible name conflicts
-	#include "Windows.h"
+	#include <Windows.h>
 #endif
