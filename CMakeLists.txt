@@ -90,11 +90,6 @@ if(WIN32)
     target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_EXPOSE_NATIVE_WIN32) # add native window acccess
 endif()
 
-# Add GLM
-add_subdirectory("${VENDOR_DIR}/glm")
-target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
-target_compile_definitions(${PROJECT_NAME} PRIVATE  GLM_ENABLE_EXPERIMENTAL)
-
 # Add spdlog
 add_subdirectory("${VENDOR_DIR}/spdlog")
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
