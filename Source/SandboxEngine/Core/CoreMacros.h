@@ -22,7 +22,7 @@
 #define INVALID_INDEX           (-1)
 #define INVALID_UINDEX          (-1u)
 
-#define ARRAY_COUNT(arr)        sizeof(arr) / sizeof(arr[0])
+#define ARRAY_COUNT(arr)        (sizeof(arr) / sizeof(arr[0]))
 
 #define SND_INLINE              __forceinline
 
