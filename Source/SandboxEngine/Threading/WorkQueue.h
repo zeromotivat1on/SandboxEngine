@@ -2,11 +2,8 @@
 
 namespace snd::thread
 {
-    // Multithreading circular work queue with synced entry addition and process.
+    // Circular FIFO work queue with synced entry addition and process.
     // Supported thread model is multiple producers multiple consumers.
-    // At some situations when entry has not been processed but returned true,
-    // this means that internal atomic operation was not completed as expected,
-    // but it still counts as success because read and write indices are correct.
     class WorkQueue
     {
     public:

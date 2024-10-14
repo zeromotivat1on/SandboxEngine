@@ -20,13 +20,7 @@ namespace snd::thread
         const u32 entryToAdd = m_EntryToAdd;
         const u32 nextEntryToAdd = (entryToAdd + 1) % ARRAY_COUNT(m_Entries);
 
-        // SND_ASSERT(nextEntryToAdd != m_EntryToProcess);
-        if (nextEntryToAdd == m_EntryToProcess)
-        {
-            SND_CORE_ERROR(
-                "Wrong read/write indices, m_EntryToAdd = {}, entryToAdd = {}, nextEntryToAdd = {}, m_EntryToProcess = {}, char data = {}",
-                m_EntryToAdd, entryToAdd, nextEntryToAdd, m_EntryToProcess, (const char*)data);
-        }
+        SND_ASSERT(nextEntryToAdd != m_EntryToProcess);
 
         const u32 idx = AtomicCompareExchange((volatile s32*)&m_EntryToAdd, nextEntryToAdd, entryToAdd);
         if (idx == entryToAdd)
@@ -37,12 +31,6 @@ namespace snd::thread
 
             AtomicIncrement((volatile s32*)&m_ProcessedEntryCount);
             ReleaseSemaphore(m_Semaphore);
-        }
-        else
-        {
-            SND_CORE_WARNING(
-                "Add comparand miss, m_EntryToAdd = {}, nextEntryToAdd = {}, entryToAdd = {}",
-                m_EntryToAdd, nextEntryToAdd, entryToAdd);
         }
     }
 
@@ -61,12 +49,6 @@ namespace snd::thread
             Entry& entry = m_Entries[entryToProcess];
             entry.Delegate.Execute(this, entry.Data);
             AtomicIncrement((volatile s32*)&m_AddedEntryCount);
-        }
-        else
-        {
-            SND_CORE_WARNING(
-                "Process comparand miss, m_EntryToProcess = {}, nextEntryToProcess = {}, entryToProcess = {}",
-                m_EntryToProcess, nextEntryToProcess, entryToProcess);
         }
 
         return true;
