@@ -4,7 +4,7 @@ namespace snd::thread
 {
     using Handle            = void*;
     using SemaphoreHandle   = void*;
-    using EntryPoint        = u64 (void* userdata);
+    using EntryPoint        = u32 (void* userdata);
 
     enum class CreateType : u8
     {

@@ -4,58 +4,76 @@
 namespace snd::thread
 {
     WorkQueue::WorkQueue(SemaphoreHandle semaphore)
-        : m_Semaphore(semaphore), m_EntryCount(0), m_NextEntry(0), m_DoneEntryCount(0), m_Entries()
+        : m_Semaphore(semaphore), m_Entries(),
+          m_EntryToAdd(0), m_EntryToProcess(0),
+          m_AddedEntryCount(0), m_ProcessedEntryCount(0)
     {
     }
 
     bool WorkQueue::InProgress() const
     {
-        return m_DoneEntryCount <  m_EntryCount;
+        return m_ProcessedEntryCount != m_AddedEntryCount;
     }
 
-    void WorkQueue::AddEntry(OnEntryProcess delegate, void* data)
+    void WorkQueue::AddEntry(const OnEntryProcess& delegate, void* data)
     {
-        SND_ASSERT(m_EntryCount < 256);
+        const u32 entryToAdd = m_EntryToAdd;
+        const u32 nextEntryToAdd = (entryToAdd + 1) % ARRAY_COUNT(m_Entries);
 
-        m_Entries[m_EntryCount].Delegate = delegate;
-        m_Entries[m_EntryCount].Data = data;
+        // SND_ASSERT(nextEntryToAdd != m_EntryToProcess);
+        if (nextEntryToAdd == m_EntryToProcess)
+        {
+            SND_CORE_ERROR(
+                "Wrong read/write indices, m_EntryToAdd = {}, entryToAdd = {}, nextEntryToAdd = {}, m_EntryToProcess = {}, char data = {}",
+                m_EntryToAdd, entryToAdd, nextEntryToAdd, m_EntryToProcess, (const char*)data);
+        }
 
-        WriteBarrier();
-        WriteFence();
+        const u32 idx = AtomicCompareExchange((volatile s32*)&m_EntryToAdd, nextEntryToAdd, entryToAdd);
+        if (idx == entryToAdd)
+        {
+            Entry& entry = m_Entries[entryToAdd];
+            entry.Delegate = delegate;
+            entry.Data = data;
 
-        m_EntryCount++;
-
-        ReleaseSemaphore(m_Semaphore);
+            AtomicIncrement((volatile s32*)&m_ProcessedEntryCount);
+            ReleaseSemaphore(m_Semaphore);
+        }
+        else
+        {
+            SND_CORE_WARNING(
+                "Add comparand miss, m_EntryToAdd = {}, nextEntryToAdd = {}, entryToAdd = {}",
+                m_EntryToAdd, nextEntryToAdd, entryToAdd);
+        }
     }
 
-    bool WorkQueue::ProcessNextEntry()
+    bool WorkQueue::ProcessEntry()
     {
-        const u32 originalNextEntry = m_NextEntry;
-        if (originalNextEntry >= m_EntryCount)
+        const u32 entryToProcess = m_EntryToProcess;
+        if (entryToProcess == m_EntryToAdd)
         {
             return false;
         }
 
-        const u32 idx = AtomicCompareExchange((volatile s32*)&m_NextEntry, originalNextEntry + 1, originalNextEntry);
-        if (idx == originalNextEntry)
+        const u32 nextEntryToProcess = (entryToProcess + 1) % ARRAY_COUNT(m_Entries);
+        const u32 idx = AtomicCompareExchange((volatile s32*)&m_EntryToProcess, nextEntryToProcess, entryToProcess);
+        if (idx == entryToProcess)
         {
-            Entry& entry = m_Entries[idx];
+            Entry& entry = m_Entries[entryToProcess];
             entry.Delegate.Execute(this, entry.Data);
-            AtomicIncrement((volatile s32*)&m_DoneEntryCount);
+            AtomicIncrement((volatile s32*)&m_AddedEntryCount);
+        }
+        else
+        {
+            SND_CORE_WARNING(
+                "Process comparand miss, m_EntryToProcess = {}, nextEntryToProcess = {}, entryToProcess = {}",
+                m_EntryToProcess, nextEntryToProcess, entryToProcess);
         }
 
         return true;
     }
 
-    void WorkQueue::Wait(u32 ms) const
+    void WorkQueue::WaitForWork(u32 ms) const
     {
         WaitSemaphore(m_Semaphore, ms);
-    }
-
-    void WorkQueue::Reset() const
-    {
-        m_EntryCount = 0;
-        m_NextEntry = 0;
-        m_DoneEntryCount = 0;
     }
 }
