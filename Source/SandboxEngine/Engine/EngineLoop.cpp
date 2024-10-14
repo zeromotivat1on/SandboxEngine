@@ -5,6 +5,7 @@
 
 void snd::EngineLoop::Init()
 {
+    memory::Init();
 	log::Init();
 
 	Window* window = Window::Create({ "Sandbox Engine", 1280, 720 });

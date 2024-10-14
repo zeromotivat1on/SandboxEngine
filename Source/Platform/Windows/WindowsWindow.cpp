@@ -13,7 +13,7 @@ static void GLFWErrorCallback(int error, const char* description)
 
 snd::Window* snd::Window::Create(const Props& props)
 {
-    void* data = g_Arena.Push(sizeof(WindowsWindow));
+    void* data = memory::g_CoreStack.Push(sizeof(WindowsWindow));
 	return new (data) WindowsWindow(props);
 }
 

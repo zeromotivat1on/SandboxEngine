@@ -8,7 +8,7 @@ namespace snd::ecs
     SND_INLINE void Init()
     {
         SND_ASSERT(!g_EntityContainer);
-        void* data = g_Arena.Push(sizeof(EntityContainer));
+        void* data = memory::g_CoreStack.Push(sizeof(EntityContainer));
         g_EntityContainer = new (data) EntityContainer();
     }
 

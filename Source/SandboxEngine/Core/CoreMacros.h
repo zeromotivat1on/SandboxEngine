@@ -30,9 +30,9 @@
 
 // Memory
 
-#define KB(n)   n * 1000
-#define MB(n)   n * 1000 * 1000
-#define GB(n)   n * 1000 * 1000 * 1000
+#define KB(n)   (n * 1000)
+#define MB(n)   (KB(n) * 1000)
+#define GB(n)   (MB(n) * 1000)
 
 // Constructors and operators
 

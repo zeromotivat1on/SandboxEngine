@@ -212,7 +212,7 @@ bool snd::Engine::OnMouseKeyReleased(MouseKeyReleasedEvent& event)
 
 void snd::Engine::Tick(f32 dt)
 {
-    g_FrameArena.Clear();
+    memory::g_FrameStack.Clear();
 
 	m_Window->Update();
 

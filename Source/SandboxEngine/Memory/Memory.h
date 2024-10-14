@@ -1,42 +1,42 @@
 #pragma once
 
-#define FRAME_ARENA_SIZE    MB(16)
-#define GLOBAL_ARENA_SIZE   MB(256)
+#define ENGINE_BLOCK_SIZE   MB(16)
+#define CORE_STACK_SIZE     MB(2)
+#define FRAME_STACK_SIZE    MB(2)
 
-namespace snd
+namespace snd::memory
 {
-    inline Arena g_Arena        = Arena(GLOBAL_ARENA_SIZE);
-    inline Arena g_FrameArena   = Arena(FRAME_ARENA_SIZE);
-
-    struct Memory
+    struct Block
     {
-                Memory();
-                Memory(u8* data, u32 size);
-
-        u8*     Data;
-        u32     Size;
-
-        bool    Valid() const;
+        u8* Data;
+        u64 Size;
     };
 
-    SND_INLINE Memory::Memory()
-        : Data(nullptr), Size(0)
+    struct Stack
     {
-    }
+        u8*     Data;
+        u64     Size;
+        u64     Position;
 
-    SND_INLINE Memory::Memory(u8* data, u32 size)
-        : Data(data), Size(size)
-    {
-    }
+        void*   Push(u64 bytes);
+        void    Pop(u64 bytes);
+        void    Clear();
+    };
 
-    SND_INLINE bool Memory::Valid() const
+    struct StackScopeBlock
     {
-        return Data && Size > 0;
-    }
+                StackScopeBlock(Stack* stack, u64 size);
+                ~StackScopeBlock();
 
-    SND_INLINE void MemoryRelease(void* data, void* userData)
-    {
-        SND_ASSERT(data);
-        free(data);
-    }
+        Stack*  Owner;
+        void*   Data;
+        u64     Size;
+    };
+
+    inline Block g_EngineBlock;
+    inline Stack g_CoreStack;
+    inline Stack g_FrameStack;
+
+    void Init();
+    void Shutdown();
 }

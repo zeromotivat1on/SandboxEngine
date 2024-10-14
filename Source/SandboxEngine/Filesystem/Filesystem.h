@@ -15,8 +15,8 @@ namespace snd::filesystem
 
 	void MakePath(char* outPath, u8 partCount, ...);
 
-    Memory  Read(const char* filepath);
-    bool    Read(const char* filepath, Memory& mem);
+    // Sync read file as binary.
+    bool Read(const char* filepath, u8* buffer, u64 size, u64& outBytesRead);
 
 	bgfx::ShaderHandle	ReadShader(const char* name);
 	bgfx::ProgramHandle ReadProgram(const char* vertex, const char* fragment = nullptr);

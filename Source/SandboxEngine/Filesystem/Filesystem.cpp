@@ -2,139 +2,81 @@
 #include "SandboxEngine/Filesystem/Filesystem.h"
 #include "SandboxEngine/Filesystem/AssetRegistry.h"
 
-void snd::filesystem::Init()
+namespace snd::filesystem
 {
-    SND_ASSERT(!g_AssetRegistry);
-    void* data = g_Arena.Push(sizeof(AssetRegistry));
-    g_AssetRegistry = new (data) AssetRegistry();
-}
-
-void snd::filesystem::Shutdown()
-{
-    SND_ASSERT(g_AssetRegistry);
-    g_AssetRegistry = nullptr;
-}
-
-void snd::filesystem::MakePath(char* outPath, u8 partCount, ...)
-{
-    va_list args;
-    va_start(args, partCount);
-
-    outPath[0] = '\0';
-
-    for (s32 i = 0; i < partCount - 1; ++i)
+    void Init()
     {
+        SND_ASSERT(!g_AssetRegistry);
+        void* data = memory::g_CoreStack.Push(sizeof(AssetRegistry));
+        g_AssetRegistry = new (data) AssetRegistry();
+    }
+
+    void Shutdown()
+    {
+        SND_ASSERT(g_AssetRegistry);
+        g_AssetRegistry = nullptr;
+    }
+
+    void MakePath(char* outPath, u8 partCount, ...)
+    {
+        va_list args;
+        va_start(args, partCount);
+
+        outPath[0] = '\0';
+
+        for (s32 i = 0; i < partCount - 1; ++i)
+        {
+            const char* part = va_arg(args, const char*);
+            strcat(outPath, part);
+            strcat(outPath, "/");
+        }
+
         const char* part = va_arg(args, const char*);
         strcat(outPath, part);
-        strcat(outPath, "/");
+
+        va_end(args);
     }
 
-    const char* part = va_arg(args, const char*);
-    strcat(outPath, part);
+    bool Read(const char* filepath, u8* buffer, u64 size, u64& outBytesRead)
+    {
+    	if (FILE* handle = fopen(filepath, "rb"))
+    	{
+    		const u64 bytesRead = fread(buffer, 1, size, handle);
+    		const s32 err = ferror(handle);
+    		fclose(handle);
+    		if (err == 0)
+    		{
+    			outBytesRead = bytesRead;
+    			return true;
+    		}
+    	}
+    	outBytesRead = 0;
+    	return false;
+    }
 
-    va_end(args);
+    bgfx::ShaderHandle ReadShader(const char* name)
+    {
+        char shaderPath[512];
+        MakePath(shaderPath, 2, g_ShaderBinaryPath, name);
+
+        u64 bytesRead;
+        memory::StackScopeBlock shaderBlock(&memory::g_FrameStack, KB(8));
+        if (Read(shaderPath, (u8*)shaderBlock.Data, shaderBlock.Size, bytesRead))
+        {
+            const bgfx::Memory* shaderMemory = bgfx::alloc(bytesRead);
+        	memcpy(shaderMemory->data, shaderBlock.Data, bytesRead);
+            const bgfx::ShaderHandle handle = bgfx::createShader(shaderMemory);
+            bgfx::setName(handle, name);
+            return handle;
+        }
+
+        return BGFX_INVALID_HANDLE;
+    }
+
+    bgfx::ProgramHandle ReadProgram(const char* vertex, const char* fragment)
+    {
+    	const bgfx::ShaderHandle vsh = ReadShader(vertex);
+    	const bgfx::ShaderHandle fsh = ReadShader(fragment);
+    	return bgfx::createProgram(vsh, fsh, true);
+    }
 }
-
-snd::Memory snd::filesystem::Read(const char* filepath)
-{
-    Memory mem;
-    FILE* handle = fopen(filepath, "rb");
-
-    if (!handle)
-    {
-        SND_CORE_ERROR("Failed to open file '{}'", filepath);
-        return mem;
-    }
-
-    if (fseek(handle, 0, SEEK_END) != 0)
-    {
-        SND_CORE_ERROR("Failed to seek through file '{}'", filepath);
-        fclose(handle);
-        return mem;
-    }
-
-    mem.Size = ftell(handle);
-
-    if (mem.Size == -1)
-    {
-        SND_CORE_ERROR("Failed to get file size for '{}'", filepath);
-        fclose(handle);
-        return mem;
-    }
-
-    fseek(handle, 0, SEEK_SET);
-
-    mem.Data = static_cast<u8*>(malloc(mem.Size));
-
-    if (!mem.Data)
-    {
-        SND_CORE_ERROR("Failed to allocate buffer for file");
-        fclose(handle);
-        memset(&mem, 0, sizeof(mem));
-        return mem;
-    }
-
-    const u64 numRead = fread(mem.Data, 1, mem.Size, handle);
-    const s32 err     = ferror(handle);
-    fclose(handle);
-
-    if (err != 0)
-    {
-        SND_CORE_ERROR("Failed to read from file '{}'", filepath);
-    }
-
-    return mem;
-}
-
-bool snd::filesystem::Read(const char* filepath, Memory& mem)
-{
-    if (!mem.Valid())
-    {
-        SND_CORE_ERROR("Given memory is not valid");
-        return false;
-    }
-
-    FILE* handle = fopen(filepath, "rb");
-
-    if (!handle)
-    {
-        SND_CORE_ERROR("Failed to open file '{}'", filepath);
-        return false;
-    }
-
-    const u64 numRead = fread(mem.Data, 1, mem.Size, handle);
-    const s32 err     = ferror(handle);
-    fclose(handle);
-
-    if (err == 0)
-    {
-        return true;
-    }
-
-    SND_CORE_ERROR("Failed to read from file '{}'", filepath);
-    return false;
-}
-
-bgfx::ShaderHandle snd::filesystem::ReadShader(const char* name)
-{
-    char shaderPath[512];
-    MakePath(shaderPath, 2, g_ShaderBinaryPath, name);
-
-    if (const Memory& mem = Read(shaderPath); mem.Valid())
-    {
-    	const bgfx::Memory* shaderMem   = bgfx::makeRef(mem.Data, mem.Size, MemoryRelease);
-        const bgfx::ShaderHandle handle = bgfx::createShader(shaderMem);
-        bgfx::setName(handle, name);
-        return handle;
-    }
-
-    return BGFX_INVALID_HANDLE;
-}
-
-bgfx::ProgramHandle snd::filesystem::ReadProgram(const char* vertex, const char* fragment)
-{
-	const bgfx::ShaderHandle vsh = ReadShader(vertex);
-	const bgfx::ShaderHandle fsh = ReadShader(fragment);
-	return bgfx::createProgram(vsh, fsh, true);
-}
-

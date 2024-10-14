@@ -37,7 +37,6 @@
 #include "SandboxEngine/Threading/WorkQueue.h"
 
 // Memory
-#include "SandboxEngine/Memory/Arena.h"
 #include "SandboxEngine/Memory/Memory.h"
 #include "SandboxEngine/Memory/Buffer.h"
 #include "SandboxEngine/Memory/SparseBuffer.h"
