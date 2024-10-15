@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 find_package(Git REQUIRED)
 
-option(GIT_SUBMODULE "Check submodules during build" ON)
+option(GIT_UPDATE_SUBMODULES "Update git submodules during build" ON)
 option(COMPILE_SHADERS "Compile shaders during build" ON)
 
-if(GIT_SUBMODULE)
+if(GIT_UPDATE_SUBMODULES)
     message(STATUS "Submodule update")
     execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -90,11 +90,6 @@ if(WIN32)
     target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_EXPOSE_NATIVE_WIN32) # add native window acccess
 endif()
 
-# Add spdlog
-add_subdirectory("${VENDOR_DIR}/spdlog")
-target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
-target_compile_definitions(${PROJECT_NAME} PRIVATE SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE) # set all log levels as active
-
 # Add BGFX
 set(BGFX_BUILD_EXAMPLES OFF CACHE BOOL "Disable building bgfx examples")
 add_subdirectory("${VENDOR_DIR}/bgfx")
@@ -176,7 +171,7 @@ file(GLOB_RECURSE TESTS_SOURCE CONFIGURE_DEPENDS
     "${SOURCE_DIR}/Tests/*.cpp"
 )
 
-add_executable(sndtests "${TESTS_SOURCE}" "${PROJECT_ENGINE_DIR}/Core/Log.cpp")
+add_executable(sndtests "${TESTS_SOURCE}")
 target_include_directories(sndtests PRIVATE ${SOURCE_DIR})
 target_include_directories(sndtests PRIVATE ${VENDOR_DIR})
 target_include_directories(sndtests PRIVATE ${PROJECT_ENGINE_DIR})

@@ -11,15 +11,15 @@ namespace snd::input
     class ButtonTapDetector
     {
     public:
-                            ButtonTapDetector(TInputBit button, f32 maxDt);
+        explicit    ButtonTapDetector(TInputBit button, f32 maxDt);
 
-        bool                GestureValid() const;
-        void                Update();
+        bool        GestureValid() const;
+        void        Update();
 
     private:
-        TInputBit           m_Button;
-        f32                 m_MaxDt;
-        f32                 m_LastTime;
+        TInputBit   m_Button;
+        f32         m_MaxDt;
+        f32         m_LastTime;
     };
 
     // Class that detects the given button sequence.
@@ -28,31 +28,32 @@ namespace snd::input
     class ButtonSequenceDetector
     {
     public:
-                            ButtonSequenceDetector(TInputBit* buttons, u32 buttonCount, f32 maxDt, SimpleDelegate& delegate);
+                            ButtonSequenceDetector(TInputBit* buttons, u16 buttonCount, f32 maxDt, SimpleDelegate& delegate);
 
         void                Update();
 
     private:
         SimpleDelegate*     m_Delegate;
         TInputBit*          m_Buttons;
-        u32                 m_ButtonCount;
-        u32                 m_NextButtonIndex;
         f32                 m_MaxDt;
         f32                 m_StartTime;
+        u16                 m_ButtonCount;
+        u16                 m_NextButtonIndex;
     };
 
     // ButtonTapDetector
 
     template <typename TInputBit>
     ButtonTapDetector<TInputBit>::ButtonTapDetector(TInputBit button, f32 maxDt)
-        : m_Button(button), m_MaxDt(maxDt), m_LastTime(CurrentTime() - maxDt)
+        : m_Button(button), m_MaxDt(maxDt)
     {
+        m_LastTime = (f32)SEC(time::Current()) - maxDt;
     }
 
     template <typename TInputBit>
     bool ButtonTapDetector<TInputBit>::GestureValid() const
     {
-        const f32 dt = CurrentTime() - m_LastTime;
+        const f32 dt = (f32)SEC(time::Current()) - m_LastTime;
         return (dt < m_MaxDt);
     }
 
@@ -61,14 +62,14 @@ namespace snd::input
     {
         if (input::ButtonJustWentDown(m_Button))
         {
-            m_LastTime = CurrentTime();
+            m_LastTime = (f32)SEC(time::Current());
         }
     }
 
     // ButtonSequenceDetector
 
     template <typename TInputBit>
-    ButtonSequenceDetector<TInputBit>::ButtonSequenceDetector(TInputBit* buttons, u32 buttonCount, f32 maxDt, SimpleDelegate& delegate)
+    ButtonSequenceDetector<TInputBit>::ButtonSequenceDetector(TInputBit* buttons, u16 buttonCount, f32 maxDt, SimpleDelegate& delegate)
         : m_Delegate(&delegate), m_Buttons(buttons), m_ButtonCount(buttonCount), m_NextButtonIndex(0), m_MaxDt(maxDt), m_StartTime(0)
     {
     }
@@ -79,39 +80,39 @@ namespace snd::input
         SND_ASSERT(m_NextButtonIndex < m_ButtonCount);
 
         const TInputBit nextButton = m_Buttons[m_NextButtonIndex];
-            
+
         // If any button other than the expected button just went down, invalidate the sequence.
         if (input::AnyButtonJustWentDownExcept(nextButton))
         {
             m_NextButtonIndex = 0; // reset
             return;
         }
-            
-        // Otherwise, if the expected button just went down, check dt and update our state appropriately.
+
+        // Otherwise, if the expected button just went down, check dt and update state appropriately.
         if (input::ButtonJustWentDown(nextButton))
         {
             if (m_NextButtonIndex == 0)
             {
                 // The first button in the sequence.
-                m_StartTime = CurrentTime();
+                m_StartTime = (f32)SEC(time::Current());
                 m_NextButtonIndex++;
                 return;
             }
-                
-            const f32 dt = CurrentTime() - m_StartTime;
+
+            const f32 dt = (f32)SEC(time::Current()) - m_StartTime;
             if (dt < m_MaxDt)
             {
                 // Sequence is still valid.
                 m_NextButtonIndex++;
                 if (m_NextButtonIndex == m_ButtonCount)
                 {
-                    (void)m_Delegate->ExecuteSafe();
+                    m_Delegate->Execute();
                     m_NextButtonIndex = 0;
                 }
             }
             else
             {
-                // Sorry, not fast enough.
+                // Not fast enough.
                 m_NextButtonIndex = 0;
             }
         }

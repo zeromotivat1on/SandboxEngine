@@ -107,10 +107,6 @@ namespace snd
             m_Capacity = capacity;
             m_ElementSize = elementSize;
         }
-        else
-        {
-            SND_CORE_CRITICAL("Realloc failed (data = {}, buffer = {})", static_cast<void*>(m_Data), static_cast<void*>(this));
-        }
     }
 
     SND_INLINE void Buffer::Free()

@@ -12,7 +12,7 @@ namespace snd::thread
             case CreateType::Immediate: return 0;
             case CreateType::Suspended: return CREATE_SUSPENDED;
             default:
-                SND_CORE_CRITICAL("Unknown thread create type '{}'", (u8)type);
+                SND_CORE_LOG(Error, "Unknown thread create type '%d'", (u8)type);
                 return 0;
         }
     }

@@ -8,7 +8,7 @@ u8 g_GlfwWindowCount = 0;
 
 static void GLFWErrorCallback(int error, const char* description)
 {
-	SND_CORE_ERROR("GLFW Error {}: {}", error, description);
+	SND_CORE_LOG(Error, "GLFW Error {}: {}", error, description);
 }
 
 snd::Window* snd::Window::Create(const Props& props)
@@ -22,17 +22,17 @@ void snd::WindowsWindow::Init(const Window::Props& props)
 	if (g_GlfwWindowCount == 0)
 	{
 		const s32 success = glfwInit();
-		SND_ASSERT(success, "Failed to initialize GLFW");
+		SND_ASSERT(success);
 		glfwSetErrorCallback(GLFWErrorCallback);
 	}
 
-	SND_CORE_INFO("Creating window '{}' {}x{}", props.Title, props.Width, props.Height);
+	SND_CORE_LOG(Log, "Creating window '%s' %dx%d", props.Title, props.Width, props.Height);
 
 	m_Title = props.Title;
 	m_Width = props.Width;
 	m_Height = props.Height;
 
-	m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
+	m_Window = glfwCreateWindow(m_Width, m_Height, m_Title, nullptr, nullptr);
 	glfwMakeContextCurrent(m_Window);
 	glfwSetWindowUserPointer(m_Window, this);
 	glfwSetInputMode(m_Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
@@ -67,7 +67,7 @@ void snd::WindowsWindow::OnClose(GLFWwindow* window)
 {
 	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
 	WindowClosedEvent event;
-	win.m_Callback(event);
+	win.m_Callback.Execute(event);
 }
 
 void snd::WindowsWindow::OnResize(GLFWwindow* window, int width, int height)
@@ -77,7 +77,7 @@ void snd::WindowsWindow::OnResize(GLFWwindow* window, int width, int height)
 	win.m_Height = height;
 
 	WindowResizedEvent event(width, height);
-	win.m_Callback(event);
+	win.m_Callback.Execute(event);
 }
 
 void snd::WindowsWindow::OnKey(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -87,25 +87,25 @@ void snd::WindowsWindow::OnKey(GLFWwindow* window, int key, int scancode, int ac
 
 	switch (action)
 	{
-	case GLFW_PRESS:
-	{
-		KeyPressedEvent event(keyCode, false);
-		win.m_Callback(event);
-		break;
-	}
-	case GLFW_RELEASE:
-	{
-		KeyReleasedEvent event(keyCode);
-		win.m_Callback(event);
-		break;
-	}
-	case GLFW_REPEAT:
-	{
-		KeyPressedEvent event(keyCode, true);
-		win.m_Callback(event);
-		break;
-	}
-	default: SND_CORE_ERROR("Unknown key action \'{}\'", action);
+    	case GLFW_PRESS:
+    	{
+    		KeyPressedEvent event(keyCode, false);
+    		win.m_Callback.Execute(event);
+    		break;
+    	}
+    	case GLFW_RELEASE:
+    	{
+    		KeyReleasedEvent event(keyCode);
+    		win.m_Callback.Execute(event);
+    		break;
+    	}
+    	case GLFW_REPEAT:
+    	{
+    		KeyPressedEvent event(keyCode, true);
+    		win.m_Callback.Execute(event);
+    		break;
+    	}
+    	default: SND_CORE_LOG(Error, "Unknown key action '%d'", action);
 	}
 }
 
@@ -114,21 +114,21 @@ void snd::WindowsWindow::OnSetChar(GLFWwindow* window, unsigned int key)
 	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
 	const KeyCode keyCode = static_cast<KeyCode>(key);
 	KeyTypedEvent event(keyCode);
-	win.m_Callback(event);
+	win.m_Callback.Execute(event);
 }
 
 void snd::WindowsWindow::OnMouseMove(GLFWwindow* window, double xPos, double yPos)
 {
 	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
 	MouseMovedEvent event(static_cast<f32>(xPos), static_cast<f32>(yPos));
-	win.m_Callback(event);
+	win.m_Callback.Execute(event);
 }
 
 void snd::WindowsWindow::OnMouseScroll(GLFWwindow* window, double xOffset, double yOffset)
 {
 	WindowsWindow& win = *static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
 	MouseScrolledEvent event(static_cast<float>(xOffset), static_cast<float>(yOffset));
-	win.m_Callback(event);
+	win.m_Callback.Execute(event);
 }
 
 void snd::WindowsWindow::OnMouseKey(GLFWwindow* window, int key, int action, int mods)
@@ -138,19 +138,19 @@ void snd::WindowsWindow::OnMouseKey(GLFWwindow* window, int key, int action, int
 
 	switch (action)
 	{
-	case GLFW_PRESS:
-	{
-		MouseKeyPressedEvent event(mouseCode);
-		win.m_Callback(event);
-		break;
-	}
-	case GLFW_RELEASE:
-	{
-		MouseKeyReleasedEvent event(mouseCode);
-		win.m_Callback(event);
-		break;
-	}
-	default: SND_CORE_ERROR("Unknown mouse key action \'{}\'", action);
+    	case GLFW_PRESS:
+    	{
+    		MouseKeyPressedEvent event(mouseCode);
+    		win.m_Callback.Execute(event);
+    		break;
+    	}
+    	case GLFW_RELEASE:
+    	{
+    		MouseKeyReleasedEvent event(mouseCode);
+    		win.m_Callback.Execute(event);
+    		break;
+    	}
+    	default: SND_CORE_LOG(Error, "Unknown mouse key action '%d'", action);
 	}
 }
 

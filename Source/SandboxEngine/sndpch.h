@@ -26,7 +26,7 @@
 #include "SandboxEngine/Core/CoreMacros.h"
 #include "SandboxEngine/Core/Log.h"
 #include "SandboxEngine/Core/Error.h"
-#include "SandboxEngine/Core/Timer.h"
+#include "SandboxEngine/Core/Time.h"
 #include "SandboxEngine/Core/String.h"
 #include "SandboxEngine/Core/Delegate.h"
 #include "SandboxEngine/Core/SID.h"

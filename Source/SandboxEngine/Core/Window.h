@@ -7,18 +7,18 @@ namespace snd
 	class Window
 	{
 	public:
-		using EventCallback			= std::function<void(Event&)>;
+        DECLARE_DELEGATE_Params(EventCallback, Event&);
 
 		struct Props
 		{
-			std::string				Title;
+			const char*				Title;
 			u16						Width;
 			u16						Height;
 		};
 
 	public:
 		static Window*				Create(const Props& props);
-		
+
 		virtual						~Window() = default;
 
 		virtual void* 				Handle() const = 0;
@@ -47,12 +47,12 @@ namespace snd
 	};
 
 	SND_INLINE f32 Window::AspectRatio() const
-	{ 
+	{
 		return static_cast<f32>(Width()) / static_cast<f32>(Height());
 	}
 
 	SND_INLINE vec4 Window::OrthoDataCentered() const
-	{ 
+	{
 		const f32 halfWidth  = static_cast<f32>(Width())  * 0.5f;
 		const f32 halfHeight = static_cast<f32>(Height()) * 0.5f;
 
@@ -61,7 +61,7 @@ namespace snd
 		const f32 bottom	 = -halfHeight;
 		const f32 top		 = halfHeight;
 
-		return vec4(left, right, bottom, top); 
+		return vec4(left, right, bottom, top);
 	}
 
 	SND_INLINE vec4 Window::OrthoDataDirect() const

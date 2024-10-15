@@ -1,7 +1,6 @@
 #include "sndpch.h"
 #include "SandboxEngine/Render/Render.h"
 #include "SandboxEngine/Render/Vertex.h"
-#include "SandboxEngine/Core/Timer.h"
 #include "SandboxEngine/Core/Input.h"
 #include "SandboxEngine/Filesystem/Filesystem.h"
 #include "SandboxEngine/Components/CameraComponent.h"
@@ -38,7 +37,7 @@ void snd::render::Init(Window* window)
 	bgfx::setDebug(BGFX_DEBUG_TEXT);
 #endif
 
-	SND_CORE_INFO("Using Renderer API \"{}\"", bgfx::getRendererName(bgfx::getRendererType()));
+	SND_CORE_LOG(Log, "Using Renderer API '%s'", bgfx::getRendererName(bgfx::getRendererType()));
 
 	Vertex::InitLayout();
 
@@ -134,7 +133,6 @@ void snd::render::Tick(f32 dt)
 
 	u8 dbgTextY = 1;
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Window size: %dx%d", s_Window->Width(), s_Window->Height());
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Run time: %.2fs", StartupTime());
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Delta time: %.2fms", (dt * 1000.0f));
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "FPS: %.2f", (1.0f / dt));
 	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Vsync: %s", s_Window->Vsync() ? "ON" : "OFF");

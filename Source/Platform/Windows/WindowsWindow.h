@@ -45,7 +45,7 @@ namespace snd
 
 	private:
 		GLFWwindow*			m_Window;
-		std::string			m_Title;
+		const char*			m_Title;
 		u16					m_Width;
 		u16					m_Height;
 		bool				m_Vsync;
@@ -63,7 +63,7 @@ namespace snd
 	{
 		Shutdown();
 	}
-	
+
 	SND_INLINE void* WindowsWindow::Handle() const
 	{
 		return m_Window;
@@ -73,7 +73,7 @@ namespace snd
 	{
 		return glfwGetWin32Window(m_Window);
 	}
-	
+
 	SND_INLINE u16 WindowsWindow::Width() const
 	{
 		return m_Width;
@@ -86,7 +86,7 @@ namespace snd
 
 	SND_INLINE const char* WindowsWindow::Title() const
 	{
-		return m_Title.c_str();
+		return m_Title;
 	}
 
 	SND_INLINE void WindowsWindow::SetEventCallback(const EventCallback& callback)
@@ -108,7 +108,7 @@ namespace snd
 	{
 		return glfwWindowShouldClose(m_Window);
 	}
-	
+
 	SND_INLINE void WindowsWindow::SetVsync(bool enable)
 	{
 		m_Vsync = enable;

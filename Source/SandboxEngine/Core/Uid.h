@@ -52,8 +52,8 @@ namespace snd
 
     SND_INLINE uid::uid()
     {
-        const u64 ctime = static_cast<u64>(CurrentTime()) << 32;
-        const u64 stime = static_cast<u64>(StartupTime()) << 8;
+        const u64 ctime = (u64)(time::Current() << 32);
+        const u64 stime = (u64)(time::SinceSystemBoot() << 8);
         const u64 gpcgc = uid_details::g_HashPcgCounter++;
 
         m_Hash = uid_details::UidHashPcg64(ctime + stime + gpcgc);

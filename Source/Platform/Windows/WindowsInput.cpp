@@ -44,7 +44,7 @@ void snd::input::Init(Window* window)
 	memset(&g_KeyboardState, 0, sizeof(g_KeyboardState));
 	memset(&g_GamepadState,  0, sizeof(g_GamepadState));
 	memset(&g_MouseState,	 0, sizeof(g_MouseState));
-	
+
 	// Prepare converted input key bits from engine system to platform specific.
 	ConvertBits<KeyboardBit>(g_ConvertedKeyboardBits);
 	ConvertBits<GamepadBit> (g_ConvertedGamepadBits);
@@ -75,7 +75,7 @@ void snd::input::Update()
 		// Cache prev button states.
 		g_KeyboardState.PrevButtons = g_KeyboardState.Buttons;
 	}
-	
+
 	// Update gamepad state.
 	{
 		GLFWgamepadstate gamepadstate;
@@ -109,7 +109,7 @@ void snd::input::Update()
 		// Cache prev button states.
 		g_GamepadState.PrevButtons = g_GamepadState.Buttons;
 	}
-	
+
 	// Update mouse state.
 	{
 		// Update button states.
@@ -134,11 +134,11 @@ void snd::input::Update()
 		// Update mouse position.
 		g_MouseLastX = g_MouseState.X;
 		g_MouseLastY = g_MouseState.Y;
-		
+
 		f64 mouseX = 0;
 		f64 mouseY = 0;
 		glfwGetCursorPos(s_GlfwWindow, &mouseX, &mouseY);
-		
+
 		g_MouseState.X = static_cast<f32>(mouseX);
 		g_MouseState.Y = static_cast<f32>(mouseY);
 
@@ -393,7 +393,7 @@ snd::KeyboardBit snd::input::ConvertKeyboardCode(s32 keycode)
 		case GLFW_KEY_RIGHT_CONTROL:	return KeyboardBit::RightControl;
 		case GLFW_KEY_RIGHT_ALT:		return KeyboardBit::RightAlt;
 		default:
-			SND_CORE_ERROR("Unknown keycode {}", keycode);
+			SND_CORE_LOG(Error, "Unknown keycode %d", keycode);
 			return KeyboardBit::Count;
 	}
 
@@ -419,7 +419,7 @@ snd::GamepadBit snd::input::ConvertGamepadCode(s32 keycode)
 		case GLFW_GAMEPAD_BUTTON_DPAD_DOWN:		return GamepadBit::DpadDown;
 		case GLFW_GAMEPAD_BUTTON_DPAD_LEFT:		return GamepadBit::DpadLeft;
 		default:
-			SND_CORE_ERROR("Unknown keycode {}", keycode);
+			SND_CORE_LOG(Error, "Unknown keycode %d", keycode);
 			return GamepadBit::Count;
 	}
 }
@@ -432,7 +432,7 @@ snd::MouseBit snd::input::ConvertMouseCode(s32 keycode)
 		case GLFW_MOUSE_BUTTON_RIGHT:	return MouseBit::Right;
 		case GLFW_MOUSE_BUTTON_MIDDLE:	return MouseBit::Middle;
 		default:
-			SND_CORE_ERROR("Unknown keycode {}", keycode);
+			SND_CORE_LOG(Error, "Unknown keycode %d", keycode);
 			return MouseBit::Count;
 	}
 }
@@ -544,7 +544,7 @@ s32 snd::input::ConvertBit(KeyboardBit bit)
 		case KeyboardBit::RightControl:	return GLFW_KEY_RIGHT_CONTROL;
 		case KeyboardBit::RightAlt:		return GLFW_KEY_RIGHT_ALT;
 		default:
-			SND_CORE_ERROR("Unknown keyboard bit {}", static_cast<s32>(bit));
+			SND_CORE_LOG(Error, "Unknown keyboard bit %d", static_cast<s32>(bit));
 			return INVALID_INDEX;
 	}
 }
@@ -569,7 +569,7 @@ s32 snd::input::ConvertBit(GamepadBit bit)
 		case GamepadBit::DpadDown:	 	return GLFW_GAMEPAD_BUTTON_DPAD_DOWN;
 		case GamepadBit::DpadLeft:	 	return GLFW_GAMEPAD_BUTTON_DPAD_LEFT;
 		default:
-			SND_CORE_ERROR("Unknown gamepad bit {}", static_cast<s32>(bit));
+			SND_CORE_LOG(Error, "Unknown gamepad bit %d", static_cast<s32>(bit));
 			return INVALID_INDEX;
 	}
 }
@@ -582,7 +582,7 @@ s32 snd::input::ConvertBit(MouseBit bit)
 		case MouseBit::Right:	return GLFW_MOUSE_BUTTON_RIGHT;
 		case MouseBit::Middle:	return GLFW_MOUSE_BUTTON_MIDDLE;
 		default:
-			SND_CORE_ERROR("Unknown mouse bit {}", static_cast<s32>(bit));
+			SND_CORE_LOG(Error, "Unknown mouse bit %d", static_cast<s32>(bit));
 			return INVALID_INDEX;
 	}
 }
