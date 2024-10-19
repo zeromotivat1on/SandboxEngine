@@ -36,6 +36,13 @@ namespace snd::memory
         return data;
     }
 
+    void* Stack::PushZero(u64 bytes)
+    {
+        void* data = Push(bytes);
+        memset(data, 0, bytes);
+        return data;
+    }
+
     void Stack::Pop(u64 bytes)
     {
         SND_ASSERT(Position >= bytes);

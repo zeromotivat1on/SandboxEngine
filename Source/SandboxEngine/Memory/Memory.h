@@ -19,6 +19,7 @@ namespace snd::memory
         u64     Position;
 
         void*   Push(u64 bytes);
+        void*   PushZero(u64 bytes);
         void    Pop(u64 bytes);
         void    Clear();
     };
