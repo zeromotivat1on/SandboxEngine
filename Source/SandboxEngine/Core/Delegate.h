@@ -2,24 +2,25 @@
 
 #include "Vendor/fastdelegate/FastDelegate.h"
 
+// Max amount of delegate binding params is 8.
+
 // Declare delegate of type - void().
-#define DECLARE_DELEGATE(Name)                                  using Name = ::snd::Delegate<void>
+#define DECLARE_DELEGATE(Name)                                  using Name = snd::Delegate<void>
 
 // Declare delegate of type - ReturnType().
-#define DECLARE_DELEGATE_Return(Name, ReturnType)               using Name = ::snd::Delegate<ReturnType>
+#define DECLARE_DELEGATE_Return(Name, ReturnType)               using Name = snd::Delegate<ReturnType>
 
 // Declare delegate of type - void(params...)
-#define DECLARE_DELEGATE_Params(Name, ...)                      using Name = ::snd::Delegate<void, __VA_ARGS__>
+#define DECLARE_DELEGATE_Params(Name, ...)                      using Name = snd::Delegate<void, __VA_ARGS__>
 
 // Declare delegate of type - ReturnType(params...).
-// Note: max amount of params is 8.
-#define DECLARE_DELEGATE_Return_Params(Name, ReturnType, ...)   using Name = ::snd::Delegate<ReturnType, __VA_ARGS__>
+#define DECLARE_DELEGATE_Return_Params(Name, ReturnType, ...)   using Name = snd::Delegate<ReturnType, __VA_ARGS__>
 
 // Declare multicast delegate of type - void().
-#define DECLARE_DELEGATE_MULTICAST(Name)                        using Name = ::snd::DelegateMulticast<>
+#define DECLARE_DELEGATE_MULTICAST(Name)                        using Name = snd::DelegateMulticast<>
 
 // Declare multicast delegate of type - void(params...).
-#define DECLARE_DELEGATE_MULTICAST_Params(Name, ...)            using Name = ::snd::DelegateMulticast<__VA_ARGS__>
+#define DECLARE_DELEGATE_MULTICAST_Params(Name, ...)            using Name = snd::DelegateMulticast<__VA_ARGS__>
 
 namespace snd
 {
@@ -29,29 +30,29 @@ namespace snd
     class Delegate
     {
     public:
-        using DelegateImpl      = fastdelegate::FastDelegate<TReturn(Params...)>;
-        
+        using DelegateImpl = fastdelegate::FastDelegate<TReturn(Params...)>;
+
     public:
-        void                    BindRaw(TReturn (*bindFunction)(Params... params));
+        void            BindRaw(TReturn (*bindFunction)(Params... params));
 
-        template <class TMethodOwner, class TObj>
-        void                    BindMethod(TObj* obj, TReturn (TMethodOwner::*bindFunction)(Params... params));
+        template <typename T, typename TType>
+        void            BindMethod(T* owner, TReturn (TType::*bindFunction)(Params... params));
 
-        template <class TMethodOwner, class TObj>
-        void                    BindMethod(const TObj* obj, TReturn (TMethodOwner::*bindFunction)(Params... params) const);
+        template <typename T, typename TType>
+        void            BindMethod(const T* owner, TReturn (TType::*bindFunction)(Params... params) const);
 
-        template <class TFunctor>
-        void                    BindLambda(TFunctor&& functor);
+        template <typename TFunctor>
+        void            BindLambda(TFunctor&& functor);
 
-        bool                    Bound() const;
+        bool            Bound() const;
 
-        TReturn                 Execute(Params... params) const;
-        bool                    ExecuteSafe(Params... params) const;
+        TReturn         Execute(Params... params) const;
+        bool            ExecuteSafe(Params... params) const;
 
-        void                    Clear();
+        void            Clear();
 
     private:
-        DelegateImpl            m_Handle;
+        DelegateImpl    m_Handle;
     };
 
     // Multicast delegate that can hold several functions to execute.
@@ -60,32 +61,32 @@ namespace snd
     class DelegateMulticast
     {
     public:
-        using DelegateType =        Delegate<void, Params...>;
+        using DelegateType = Delegate<void, Params...>;
 
     public:
-        static constexpr u8         MaxBindings = 16;
+        static constexpr u8 s_MaxBindings = 16;
 
     public:
-        void                        Add(const DelegateType& delegate);
-        void                        AddRaw(void (*bindFunction)(Params... params));
+        void            Add(const DelegateType& delegate);
+        void            AddRaw(void (*bindFunction)(Params... params));
 
-        template <class TMethodOwner, class TObj>
-        void                        AddMethod(TObj* obj, void (TMethodOwner::*bindFunction)(Params... params));
+        template <typename T, typename TType>
+        void            AddMethod(T* owner, void (TType::*bindFunction)(Params... params));
 
-        template <class TMethodOwner, class TObj>
-        void                        AddMethod(const TObj* obj, void (TMethodOwner::*bindFunction)(Params... params) const);
+        template <typename T, typename TType>
+        void            AddMethod(const T* owner, void (TType::*bindFunction)(Params... params) const);
 
-        template <class TFunctor>
-        void                        AddLambda(TFunctor&& functor);
+        template <typename TFunctor>
+        void            AddLambda(TFunctor&& functor);
 
-        bool                        Bound() const;
+        bool            Bound() const;
 
-        void                        Broadcast(Params... params) const;
-        void                        Clear();
+        void            Broadcast(Params... params) const;
+        void            Clear();
 
     private:
-        DelegateType                m_Bindings[MaxBindings];
-        u8                          m_BindingsNum = 0;
+        DelegateType    m_Bindings[s_MaxBindings];
+        u8              m_BindingsNum = 0;
     };
 
     using SimpleDelegate            = Delegate<void>;
@@ -100,21 +101,21 @@ namespace snd
     }
 
     template <typename TReturn, typename ... Params>
-    template <class TMethodOwner, class TObj>
-    void Delegate<TReturn, Params...>::BindMethod(TObj* obj, TReturn(TMethodOwner::* bindFunction)(Params... params))
+    template <typename T, typename TType>
+    void Delegate<TReturn, Params...>::BindMethod(T* owner, TReturn(TType::* bindFunction)(Params... params))
     {
-        m_Handle.bind(obj, bindFunction);
+        m_Handle.bind(owner, bindFunction);
     }
 
     template <typename TReturn, typename ... Params>
-    template <class TMethodOwner, class TObj>
-    void Delegate<TReturn, Params...>::BindMethod(const TObj* obj, TReturn(TMethodOwner::* bindFunction)(Params... params) const)
+    template <typename T, typename TType>
+    void Delegate<TReturn, Params...>::BindMethod(const T* owner, TReturn(TType::* bindFunction)(Params... params) const)
     {
-        m_Handle.bind(obj, bindFunction);
+        m_Handle.bind(owner, bindFunction);
     }
 
     template <typename TReturn, typename ... Params>
-    template <class TFunctor>
+    template <typename TFunctor>
     void Delegate<TReturn, Params...>::BindLambda(TFunctor&& functor)
     {
         m_Handle.bind(std::forward<TFunctor>(functor));
@@ -151,42 +152,42 @@ namespace snd
     }
 
     // DelegateMulticast
-    
+
     template <typename ... Params>
     void DelegateMulticast<Params...>::Add(const DelegateType& delegate)
     {
-        SND_ASSERT(m_BindingsNum < MaxBindings);
+        SND_ASSERT(m_BindingsNum < s_MaxBindings);
         m_Bindings[m_BindingsNum++] = delegate;
     }
 
     template <typename ... Params>
     void DelegateMulticast<Params...>::AddRaw(void(* bindFunction)(Params... params))
     {
-        SND_ASSERT(m_BindingsNum < MaxBindings);
+        SND_ASSERT(m_BindingsNum < s_MaxBindings);
         m_Bindings[m_BindingsNum++].BindRaw(bindFunction);
     }
 
     template <typename ... Params>
-    template <class TMethodOwner, class TObj>
-    void DelegateMulticast<Params...>::AddMethod(TObj* obj, void(TMethodOwner::* bindFunction)(Params... params))
+    template <typename T, typename TType>
+    void DelegateMulticast<Params...>::AddMethod(T* owner, void(TType::* bindFunction)(Params... params))
     {
-        SND_ASSERT(m_BindingsNum < MaxBindings);
-        m_Bindings[m_BindingsNum++].BindMethod(obj, bindFunction);
+        SND_ASSERT(m_BindingsNum < s_MaxBindings);
+        m_Bindings[m_BindingsNum++].BindMethod(owner, bindFunction);
     }
 
     template <typename ... Params>
-    template <class TMethodOwner, class TObj>
-    void DelegateMulticast<Params...>::AddMethod(const TObj* obj, void(TMethodOwner::* bindFunction)(Params... params) const)
+    template <typename T, typename TType>
+    void DelegateMulticast<Params...>::AddMethod(const T* owner, void(TType::* bindFunction)(Params... params) const)
     {
-        SND_ASSERT(m_BindingsNum < MaxBindings);
-        m_Bindings[m_BindingsNum++].BindMethod(obj, bindFunction);
+        SND_ASSERT(m_BindingsNum < s_MaxBindings);
+        m_Bindings[m_BindingsNum++].BindMethod(owner, bindFunction);
     }
 
     template <typename ... Params>
-    template <class TFunctor>
+    template <typename TFunctor>
     void DelegateMulticast<Params...>::AddLambda(TFunctor&& functor)
     {
-        SND_ASSERT(m_BindingsNum < MaxBindings);
+        SND_ASSERT(m_BindingsNum < s_MaxBindings);
         m_Bindings[m_BindingsNum++].BindLambda(std::forward<TFunctor>(functor));
     }
 
