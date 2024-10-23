@@ -21,7 +21,7 @@ namespace snd
 {
     SND_INLINE void AssertFailed(const char* cond, const char* filename, u32 line)
     {
-        SND_CORE_LOG(Error, "Assertion '%s' failed at '%s:%d'", cond, filename, line);
+        SND_ERROR("Assertion (%s) failed at (%s:%d)", cond, filename, line);
         SND_DEBUG_BREAK();
     }
 }

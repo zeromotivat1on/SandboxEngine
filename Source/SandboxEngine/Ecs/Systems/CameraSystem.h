@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace snd::ecs
+namespace snd
 {
     void TickCameraSystem(float dt);
 }

@@ -14,12 +14,13 @@ if(GIT_UPDATE_SUBMODULES)
     endif()
 endif()
 
-project(SandboxEngine VERSION 0.1)
+project(SandboxEngine VERSION 0.1.1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(SHADER_DIR "${PROJECT_SOURCE_DIR}/Shaders")
+set(ASSET_DIR "${PROJECT_SOURCE_DIR}/Assets")
+set(SHADER_DIR "${ASSET_DIR}/Shaders")
 set(SHADER_BINARY_DIR "${SHADER_DIR}/Bin")
 set(SOURCE_DIR "${PROJECT_SOURCE_DIR}/Source")
 set(VENDOR_DIR "${SOURCE_DIR}/Vendor")
@@ -50,15 +51,16 @@ if(MSVC)
 endif()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    # Setup platform
+    # Platform
     $<$<PLATFORM_ID:Windows>:SND_PLATFORM_WINDOWS>
-    # Setup configuration
+    # Configuration
     $<$<CONFIG:Debug>:SND_BUILD_DEBUG>
     $<$<CONFIG:Release>:SND_BUILD_RELEASE>
     # Paths
-    PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
-    SHADER_DIR="${SHADER_DIR}"
-    SHADER_BINARY_DIR="${SHADER_BINARY_DIR}"
+    ROOT_FOLDER_PATH="${PROJECT_SOURCE_DIR}"
+    ASSET_FOLDER_PATH="${ASSET_DIR}"
+    SHADER_FOLDER_PATH="${SHADER_DIR}"
+    SHADER_BINARY_FOLDER_PATH="${SHADER_BINARY_DIR}"
 )
 
 # Set custom binary output directory for different project configurations
@@ -164,6 +166,7 @@ if(COMPILE_SHADERS)
 endif()
 
 # Build tests
+# TODO: move common own-std-like code to separate lib and create tests there.
 enable_testing()
 
 file(GLOB_RECURSE TESTS_SOURCE CONFIGURE_DEPENDS

@@ -1,68 +1,33 @@
 #include "sndpch.h"
 #include "SandboxEngine/Memory/Memory.h"
 
-namespace snd::memory
+void snd::InitAppMemory(void* vm, u64 vmsize)
 {
-    void Init()
+    SND_ASSERT(vm);
+    SND_ASSERT(vmsize > PHYS_CORE_ALLOC_SIZE);
+
+    void* physcore = vmcommit(vm, PHYS_CORE_ALLOC_SIZE);
+    SND_ASSERT(physcore);
+
+    gPersistentStack.Data = (u8*)physcore;
+    gPersistentStack.Size = PERSISTENT_BLOCK_SIZE;
+    gPersistentStack.Pos = 0;
+
+    gFrameStack.Data = gPersistentStack.Data + gPersistentStack.Size;
+    gFrameStack.Size = FRAME_BLOCK_SIZE;
+    gFrameStack.Pos = 0;
+
+    gTransientStack.Data = gPersistentStack.Data + gPersistentStack.Size;
+    gTransientStack.Size = TRANSIENT_BLOCK_SIZE;
+    gTransientStack.Pos = 0;
+}
+
+void snd::FreeAppMemory(void* vm)
+{
+    SND_ASSERT(vm);
+    const bool res = vmrelease(vm);
+    if (!res)
     {
-        SND_ASSERT(!g_EngineBlock.Data);
-        g_EngineBlock.Size = ENGINE_BLOCK_SIZE;
-        g_EngineBlock.Data = (u8*)malloc(ENGINE_BLOCK_SIZE);
-
-        g_CoreStack.Data = g_EngineBlock.Data;
-        g_CoreStack.Size = CORE_STACK_SIZE;
-        g_CoreStack.Position = 0;
-
-        g_FrameStack.Data = g_CoreStack.Data + g_CoreStack.Size;
-        g_FrameStack.Size = FRAME_STACK_SIZE;
-        g_FrameStack.Position = 0;
-    }
-
-    void Shutdown()
-    {
-        SND_ASSERT(g_EngineBlock.Data);
-        free(g_EngineBlock.Data);
-
-        memset(&g_EngineBlock, 0, sizeof(g_EngineBlock));
-        memset(&g_CoreStack, 0, sizeof(g_CoreStack));
-        memset(&g_FrameStack, 0, sizeof(g_FrameStack));
-    }
-
-    void* Stack::Push(u64 bytes)
-    {
-        SND_ASSERT(Position + bytes <= Size);
-        void* data = Data + Position;
-        Position += bytes;
-        return data;
-    }
-
-    void* Stack::PushZero(u64 bytes)
-    {
-        void* data = Push(bytes);
-        memset(data, 0, bytes);
-        return data;
-    }
-
-    void Stack::Pop(u64 bytes)
-    {
-        SND_ASSERT(Position >= bytes);
-        Position -= bytes;
-    }
-
-    void Stack::Clear()
-    {
-        Position = 0;
-    }
-
-    StackScopeBlock::StackScopeBlock(Stack* stack, u64 size)
-        : Owner(stack), Size(size)
-    {
-        SND_ASSERT(stack);
-        Data = stack->Push(size);
-    }
-
-    StackScopeBlock::~StackScopeBlock()
-    {
-        Owner->Pop(Size);
+        SND_ERROR("Failed to release app memory");
     }
 }

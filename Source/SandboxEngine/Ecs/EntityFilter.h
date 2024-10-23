@@ -13,22 +13,22 @@ namespace snd
         {
         public:
                                     Iterator(EntityContainer* container, EntityIndex index, u16* ids, u8 idCount);
-            
+
             Entity                  operator*() const;
             bool                    operator==(const Iterator& other) const;
             bool                    operator!=(const Iterator& other) const;
             Iterator&               operator++();
 
         private:
-            EntityContainer*        m_Container;
-            u16*                    m_Ids;
-            u8                      m_IdCount;
-            EntityIndex             m_Index;
+            EntityContainer*        mContainer;
+            u16*                    mIds;
+            u8                      mIdCount;
+            EntityIndex             mIndex;
         };
 
     public:
         // Max amount of unique components to filter entities from.
-        static constexpr u8 s_MaxComponentIdCount = 32;
+        static constexpr u8 sMaxComponentIdCount = 32;
 
     public:
                                     EntityFilter();
@@ -38,14 +38,14 @@ namespace snd
                                     NOT_COPYABLE(EntityFilter);
                                     NOT_MOVABLE (EntityFilter);
                                     ~EntityFilter() = default;
-        
+
         const Iterator              begin() const;
         const Iterator              end() const;
-        
+
     private:
-        EntityContainer*            m_Container;    // container to grab entities and components from
-        u16*                        m_Ids;          // component ids to observe
-        u8                          m_IdCount;      // amount of component ids
+        EntityContainer*            mContainer;    // container to grab entities and components from
+        u16*                        mIds;          // component ids to observe
+        u8                          mIdCount;      // amount of component ids
     };
 
     template <typename ...TComponents>
@@ -53,20 +53,20 @@ namespace snd
     {
     public:
         using Iterator      = EntityFilter::Iterator;
-    
+
     public:
                             EntityFilterTemplate();
                             EntityFilterTemplate(EntityContainer* container);
                             NOT_COPYABLE(EntityFilterTemplate);
                             NOT_MOVABLE (EntityFilterTemplate);
                             ~EntityFilterTemplate() = default;
-        
+
         const Iterator      begin() const;
         const Iterator      end() const;
-        
+
     private:
-        EntityFilter        m_View;                                         // filter general implementation
-        u16                 m_Ids[EntityFilter::s_MaxComponentIdCount];     // component ids to outlive filter member
+        EntityFilter        mView;                                         // filter general implementation
+        u16                 mIds[EntityFilter::sMaxComponentIdCount];     // component ids to outlive filter member
     };
 
     // Check whether a given entity index is valid for further iteration.
@@ -74,64 +74,64 @@ namespace snd
     {
         return index != INVALID_ENTITY_INDEX && container->Has(index, componentIds, idCount);
     }
-    
+
     // EntityFilter
 
     SND_INLINE EntityFilter::EntityFilter()
-        : m_Container(nullptr), m_Ids(nullptr), m_IdCount(0)
+        : mContainer(nullptr), mIds(nullptr), mIdCount(0)
     {
     }
 
     SND_INLINE EntityFilter::EntityFilter(EntityContainer* container)
-        : m_Container(container), m_Ids(nullptr), m_IdCount(0)
+        : mContainer(container), mIds(nullptr), mIdCount(0)
     {
     }
 
     SND_INLINE EntityFilter::EntityFilter(u16* componentIds, u8 idCount)
-        : m_Container(g_EntityContainer), m_Ids(componentIds), m_IdCount(idCount)
+        : mContainer(gEntityContainer), mIds(componentIds), mIdCount(idCount)
     {
-        SND_ASSERT(idCount <= s_MaxComponentIdCount);
+        SND_ASSERT(idCount <= sMaxComponentIdCount);
     }
 
     SND_INLINE EntityFilter::EntityFilter(EntityContainer* container, u16* componentIds, u8 idCount)
-        : m_Container(container), m_Ids(componentIds), m_IdCount(idCount)
+        : mContainer(container), mIds(componentIds), mIdCount(idCount)
     {
-        SND_ASSERT(idCount <= s_MaxComponentIdCount);
+        SND_ASSERT(idCount <= sMaxComponentIdCount);
     }
 
     SND_INLINE const EntityFilter::Iterator EntityFilter::begin() const
     {
         EntityIndex firstIndex = 0;
-        
-        while (firstIndex < m_Container->Count() && !ValidIndex(m_Container, firstIndex, m_Ids, m_IdCount)) 
+
+        while (firstIndex < mContainer->Count() && !ValidIndex(mContainer, firstIndex, mIds, mIdCount))
         {
             firstIndex++;
         }
-        
-        return Iterator(m_Container, firstIndex, m_Ids, m_IdCount);
+
+        return Iterator(mContainer, firstIndex, mIds, mIdCount);
     }
 
-    
+
     SND_INLINE const EntityFilter::Iterator EntityFilter::end() const
     {
-        return Iterator(m_Container, static_cast<EntityIndex>(m_Container->Count()), m_Ids, m_IdCount);
+        return Iterator(mContainer, static_cast<EntityIndex>(mContainer->Count()), mIds, mIdCount);
     }
 
     // EntityFilter::Iterator
 
     SND_INLINE EntityFilter::Iterator::Iterator(EntityContainer* container, EntityIndex index, u16* ids, u8 idCount)
-        : m_Container(container), m_Ids(ids), m_IdCount(idCount), m_Index(index)
+        : mContainer(container), mIds(ids), mIdCount(idCount), mIndex(index)
     {
     }
 
     SND_INLINE Entity EntityFilter::Iterator::operator*() const
     {
-        return m_Container->Data()[m_Index]; 
+        return mContainer->Data()[mIndex];
     }
 
     SND_INLINE bool EntityFilter::Iterator::operator==(const Iterator& other) const
     {
-        return m_Index == other.m_Index || m_Index == m_Container->Count();
+        return mIndex == other.mIndex || mIndex == mContainer->Count();
     }
 
     SND_INLINE bool EntityFilter::Iterator::operator!=(const Iterator& other) const
@@ -143,10 +143,10 @@ namespace snd
     {
         do
         {
-            m_Index++;
+            mIndex++;
         }
-        while (m_Index < m_Container->Count() && !ValidIndex(m_Container, m_Index, m_Ids, m_IdCount));
-        
+        while (mIndex < mContainer->Count() && !ValidIndex(mContainer, mIndex, mIds, mIdCount));
+
         return *this;
     }
 
@@ -159,15 +159,15 @@ namespace snd
 
         if constexpr (componentIdCount > 0)
         {
-            GetComponentIds<TComponents...>(m_Ids);
-            new (&m_View) EntityFilter(m_Ids, componentIdCount);
+            GetComponentIds<TComponents...>(mIds);
+            new (&mView) EntityFilter(mIds, componentIdCount);
         }
         else
         {
-            new (&m_View) EntityFilter();    
+            new (&mView) EntityFilter();
         }
     }
-    
+
     template <typename ...TComponents>
     EntityFilterTemplate<TComponents...>::EntityFilterTemplate(EntityContainer* container)
     {
@@ -175,24 +175,24 @@ namespace snd
 
         if constexpr (componentIdCount > 0)
         {
-            GetComponentIds<TComponents...>(m_Ids);
-            new (&m_View) EntityFilter(container, m_Ids, componentIdCount);
+            GetComponentIds<TComponents...>(mIds);
+            new (&mView) EntityFilter(container, mIds, componentIdCount);
         }
         else
         {
-            new (&m_View) EntityFilter(container);    
+            new (&mView) EntityFilter(container);
         }
     }
 
     template <typename ...TComponents>
     const typename EntityFilterTemplate<TComponents...>::Iterator EntityFilterTemplate<TComponents...>::begin() const
     {
-        return m_View.begin();
+        return mView.begin();
     }
 
     template <typename ...TComponents>
     const typename EntityFilterTemplate<TComponents...>::Iterator EntityFilterTemplate<TComponents...>::end() const
     {
-        return m_View.end();
+        return mView.end();
     }
 }

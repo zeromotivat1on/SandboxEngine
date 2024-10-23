@@ -1,7 +1,7 @@
 #include "sndpch.h"
 #include "SandboxEngine/Math/Matrix.h"
 
-// matrix math
+// math
 
 snd::mat4 snd::math::LookAt(const vec3& eye, const vec3& at, const vec3& up)
 {

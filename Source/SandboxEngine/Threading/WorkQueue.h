@@ -1,6 +1,6 @@
 #pragma once
 
-namespace snd::thread
+namespace snd
 {
     // Circular FIFO work queue with synced entry addition and process.
     // Supported thread model is multiple producers multiple consumers.
@@ -16,7 +16,7 @@ namespace snd::thread
         };
 
     public:
-        explicit            WorkQueue(SemaphoreHandle semaphore);
+        explicit            WorkQueue(void* semaphore);
 
         bool                InProgress() const;
 
@@ -31,11 +31,11 @@ namespace snd::thread
         void                WaitForWork(u32 ms) const;
 
     private:
-        SemaphoreHandle     m_Semaphore;
-        Entry               m_Entries[256];
-        volatile u32        m_EntryToAdd;
-        volatile u32        m_EntryToProcess;
-        volatile u32        m_AddedEntryCount;
-        volatile u32        m_ProcessedEntryCount;
+        void*           mSemaphore;
+        Entry           mEntries[256];
+        volatile u32    mEntryToAdd;
+        volatile u32    mEntryToProcess;
+        volatile u32    mAddedEntryCount;
+        volatile u32    mProcessedEntryCount;
     };
 }

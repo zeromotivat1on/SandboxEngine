@@ -4,7 +4,7 @@ namespace snd
 {
     struct mat3;
     struct euler;
-    
+
     struct vec2
     {
         f32             x;
@@ -27,7 +27,7 @@ namespace snd
         vec2&		    operator/=(const vec2& a);
         vec2&		    operator/=(f32 a);
         vec2&		    operator*=(f32 a);
-        
+
         bool			operator==(const vec2& a) const;
         bool			operator!=(const vec2& a) const;
 
@@ -35,7 +35,7 @@ namespace snd
 
         vec2& 			Set(f32 a, f32 b);
         vec2&			Zero();
-        
+
         bool			Equal(const vec2& a) const;
         bool			Equal(const vec2& a, f32 epsilon) const;
 
@@ -44,7 +44,7 @@ namespace snd
         f32             Dot(const vec2& a) const;
         vec2&           Normalize();            // normalize vector
         vec2&		    Truncate(f32 length);   // cap vector length
-        
+
         s32				Dimension() const;
 
         f32*			Ptr();
@@ -55,7 +55,7 @@ namespace snd
         vec2&			Snap();                 // snap to closest integer value
         vec2&			Lerp(const vec2& v1, const vec2& v2, f32 alpha);
     };
-    
+
     SND_INLINE vec2::vec2()
         : x(0.0f), y(0.0f)
     {
@@ -65,7 +65,7 @@ namespace snd
         : x(a), y(a)
     {
     }
-    
+
     SND_INLINE vec2::vec2(f32 a, f32 b)
         : x(a), y(b)
     {
@@ -95,7 +95,7 @@ namespace snd
     {
         return vec2(x - a.x, y - a.y);
     }
-    
+
     SND_INLINE f32 vec2::operator*(const vec2& a) const
     {
         return Dot(a);
@@ -201,14 +201,14 @@ namespace snd
     {
         return x * a.x + y * a.y;
     }
-    
+
     SND_INLINE vec2& vec2::Normalize()
     {
         const f32 lengthInv = math::InvSqrt(x * x + y * y);
 
         x *= lengthInv;
         y *= lengthInv;
-        
+
         return *this;
     }
 
@@ -219,7 +219,7 @@ namespace snd
             Zero();
             return *this;
         }
-        
+
         const f32 lengthSquare = x * x + y * y;
         if (lengthSquare > length * length)
         {
@@ -227,7 +227,7 @@ namespace snd
             x *= scaleFactor;
             y *= scaleFactor;
         }
-        
+
         return *this;
     }
 
@@ -260,8 +260,8 @@ namespace snd
 
     SND_INLINE vec2& vec2::Snap()
     {
-        x = static_cast<f32>(static_cast<s32>(x));
-        y = static_cast<f32>(static_cast<s32>(y));
+        x = (f32)((s32)x);
+        y = (f32)((s32)y);
         return *this;
     }
 
@@ -279,7 +279,7 @@ namespace snd
         {
             *this = v1 + alpha * (v2 - v1);
         }
-        
+
         return *this;
     }
 
@@ -306,7 +306,7 @@ namespace snd
         vec3&		    operator/=(const vec3& a);
         vec3&		    operator/=(f32 a);
         vec3&		    operator*=(f32 a);
-        
+
         bool			operator==(const vec3& a) const;
         bool			operator!=(const vec3& a) const;
 
@@ -314,7 +314,7 @@ namespace snd
 
         vec3& 			Set(f32 a, f32 b, f32 c);
         vec3&			Zero();
-        
+
         bool			Equal(const vec3& a) const;
         bool			Equal(const vec3& a, f32 epsilon) const;
 
@@ -324,7 +324,7 @@ namespace snd
         vec3            Cross(const vec3& a) const;
         vec3&           Normalize();            // normalize vector
         vec3&		    Truncate(f32 length);   // cap vector length
-        
+
         s32				Dimension() const;
 
         f32			    Yaw() const;
@@ -332,7 +332,7 @@ namespace snd
         euler		    EulerAngles() const;
         const vec2&	    Vec2() const;
         vec2&		    Vec2();
-        
+
         f32*			Ptr();
         const f32*	    Ptr() const;
         const char*	    String(s8 precision = 2) const;
@@ -507,7 +507,7 @@ namespace snd
         x *= lengthInv;
         y *= lengthInv;
         z *= lengthInv;
-        
+
         return *this;
     }
 
@@ -518,7 +518,7 @@ namespace snd
             Zero();
             return *this;
         }
-        
+
         const f32 lengthSquare = x * x + y * y + z * z;
         if (lengthSquare > length * length)
         {
@@ -527,7 +527,7 @@ namespace snd
             y *= scaleFactor;
             z *= scaleFactor;
         }
-        
+
         return *this;
     }
 
@@ -550,12 +550,12 @@ namespace snd
 
     SND_INLINE const vec2& vec3::Vec2() const
     {
-	    return *reinterpret_cast<const vec2*>(this);
+	    return *(const vec2*)this;
     }
 
     SND_INLINE vec2& vec3::Vec2()
     {
-        return *reinterpret_cast<vec2*>(this);
+        return *(vec2*)this;
     }
 
     SND_INLINE f32* vec3::Ptr()
@@ -583,9 +583,9 @@ namespace snd
 
     SND_INLINE vec3& vec3::Snap()
     {
-        x = static_cast<f32>(static_cast<s32>(x));
-        y = static_cast<f32>(static_cast<s32>(y));
-        z = static_cast<f32>(static_cast<s32>(z));
+        x = (f32)((s32)x);
+        y = (f32)((s32)y);
+        z = (f32)((s32)z);
         return *this;
     }
 
@@ -631,7 +631,7 @@ namespace snd
         vec4&		    operator/=(const vec4& a);
         vec4&		    operator/=(f32 a);
         vec4&		    operator*=(f32 a);
-        
+
         bool			operator==(const vec4& a) const;
         bool			operator!=(const vec4& a) const;
 
@@ -639,7 +639,7 @@ namespace snd
 
         vec4& 			Set(f32 a, f32 b, f32 c, f32 d);
         vec4&			Zero();
-        
+
         bool			Equal(const vec4& a) const;
         bool			Equal(const vec4& a, f32 epsilon) const;
 
@@ -647,14 +647,14 @@ namespace snd
         f32			    LengthSqr() const;
         f32             Dot(const vec4& a) const;
         vec4&           Normalize();            // normalize vector
-        
+
         s32				Dimension() const;
 
         const vec2&	    Vec2() const;
         vec2&		    Vec2();
         const vec3&	    Vec3() const;
         vec3&		    Vec3();
-        
+
         f32*			Ptr();
         const f32*	    Ptr() const;
         const char*	    String(s8 precision = 2) const;
@@ -670,7 +670,7 @@ namespace snd
     SND_INLINE vec4::vec4(f32 a)
         : x(a), y(a), z(a), w(a)
     {
-        
+
     }
 
     SND_INLINE vec4::vec4(f32 a, f32 b, f32 c, f32 d)
@@ -831,7 +831,7 @@ namespace snd
         y *= lengthInv;
         z *= lengthInv;
         w *= lengthInv;
-        
+
         return *this;
     }
 
@@ -842,22 +842,22 @@ namespace snd
 
     SND_INLINE const vec2& vec4::Vec2() const
     {
-	    return *reinterpret_cast<const vec2*>(this);
+	    return *(const vec2*)this;
     }
 
     SND_INLINE vec2& vec4::Vec2()
     {
-        return *reinterpret_cast<vec2*>(this);
+        return *(vec2*)this;
     }
 
     SND_INLINE const vec3& vec4::Vec3() const
     {
-        return *reinterpret_cast<const vec3*>(this);
+        return *(const vec3*)this;
     }
 
     SND_INLINE vec3& vec4::Vec3()
     {
-        return *reinterpret_cast<vec3*>(this);
+        return *(vec3*)this;
     }
 
     SND_INLINE f32* vec4::Ptr()

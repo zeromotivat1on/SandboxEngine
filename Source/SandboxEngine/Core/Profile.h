@@ -20,7 +20,7 @@ namespace snd
 					   ~ScopeTimer();
 
 		const char*   Name;
-		time::Timer   Timer;
+		Timer         Timer;
 	};
 
 	SND_INLINE ScopeTimer::ScopeTimer(const char* name)
@@ -31,7 +31,7 @@ namespace snd
 
 	SND_INLINE ScopeTimer::~ScopeTimer()
 	{
-		SND_CORE_LOG(Log, "Timer '%s' took %dms", Name, Timer.Stop());
+		SND_LOG("Timer (%s) took %dms", Name, Timer.Stop());
 	}
 }
 #endif

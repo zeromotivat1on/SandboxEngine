@@ -1,61 +1,58 @@
 #include "sndpch.h"
 #include "SandboxEngine/Threading/WorkQueue.h"
 
-namespace snd::thread
+snd::WorkQueue::WorkQueue(void* semaphore)
+    : mSemaphore(semaphore), mEntries(),
+      mEntryToAdd(0), mEntryToProcess(0),
+      mAddedEntryCount(0), mProcessedEntryCount(0)
 {
-    WorkQueue::WorkQueue(SemaphoreHandle semaphore)
-        : m_Semaphore(semaphore), m_Entries(),
-          m_EntryToAdd(0), m_EntryToProcess(0),
-          m_AddedEntryCount(0), m_ProcessedEntryCount(0)
+}
+
+bool snd::WorkQueue::InProgress() const
+{
+    return mProcessedEntryCount != mAddedEntryCount;
+}
+
+void snd::WorkQueue::AddEntry(const OnEntryProcess& delegate, void* data)
+{
+    const u32 entryToAdd = mEntryToAdd;
+    const u32 nextEntryToAdd = (entryToAdd + 1) % ARRAY_COUNT(mEntries);
+
+    SND_ASSERT(nextEntryToAdd != mEntryToProcess);
+
+    const u32 idx = AtomicCompareExchange((volatile s32*)&mEntryToAdd, nextEntryToAdd, entryToAdd);
+    if (idx == entryToAdd)
     {
+        Entry& entry = mEntries[entryToAdd];
+        entry.Delegate = delegate;
+        entry.Data = data;
+
+        AtomicIncrement((volatile s32*)&mProcessedEntryCount);
+        ReleaseSemaphore(mSemaphore);
+    }
+}
+
+bool snd::WorkQueue::ProcessEntry()
+{
+    const u32 entryToProcess = mEntryToProcess;
+    if (entryToProcess == mEntryToAdd)
+    {
+        return false;
     }
 
-    bool WorkQueue::InProgress() const
+    const u32 nextEntryToProcess = (entryToProcess + 1) % ARRAY_COUNT(mEntries);
+    const u32 idx = AtomicCompareExchange((volatile s32*)&mEntryToProcess, nextEntryToProcess, entryToProcess);
+    if (idx == entryToProcess)
     {
-        return m_ProcessedEntryCount != m_AddedEntryCount;
+        Entry& entry = mEntries[entryToProcess];
+        entry.Delegate.Execute(this, entry.Data);
+        AtomicIncrement((volatile s32*)&mAddedEntryCount);
     }
 
-    void WorkQueue::AddEntry(const OnEntryProcess& delegate, void* data)
-    {
-        const u32 entryToAdd = m_EntryToAdd;
-        const u32 nextEntryToAdd = (entryToAdd + 1) % ARRAY_COUNT(m_Entries);
+    return true;
+}
 
-        SND_ASSERT(nextEntryToAdd != m_EntryToProcess);
-
-        const u32 idx = AtomicCompareExchange((volatile s32*)&m_EntryToAdd, nextEntryToAdd, entryToAdd);
-        if (idx == entryToAdd)
-        {
-            Entry& entry = m_Entries[entryToAdd];
-            entry.Delegate = delegate;
-            entry.Data = data;
-
-            AtomicIncrement((volatile s32*)&m_ProcessedEntryCount);
-            ReleaseSemaphore(m_Semaphore);
-        }
-    }
-
-    bool WorkQueue::ProcessEntry()
-    {
-        const u32 entryToProcess = m_EntryToProcess;
-        if (entryToProcess == m_EntryToAdd)
-        {
-            return false;
-        }
-
-        const u32 nextEntryToProcess = (entryToProcess + 1) % ARRAY_COUNT(m_Entries);
-        const u32 idx = AtomicCompareExchange((volatile s32*)&m_EntryToProcess, nextEntryToProcess, entryToProcess);
-        if (idx == entryToProcess)
-        {
-            Entry& entry = m_Entries[entryToProcess];
-            entry.Delegate.Execute(this, entry.Data);
-            AtomicIncrement((volatile s32*)&m_AddedEntryCount);
-        }
-
-        return true;
-    }
-
-    void WorkQueue::WaitForWork(u32 ms) const
-    {
-        WaitSemaphore(m_Semaphore, ms);
-    }
+void snd::WorkQueue::WaitForWork(u32 ms) const
+{
+    WaitSemaphore(mSemaphore, ms);
 }

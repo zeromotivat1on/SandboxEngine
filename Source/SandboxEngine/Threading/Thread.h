@@ -1,37 +1,34 @@
 #pragma once
 
-namespace snd::thread
+namespace snd
 {
-    using Handle            = void*;
-    using SemaphoreHandle   = void*;
-    using EntryPoint        = u32 (void* userdata);
+    using ThreadEntryPoint = u32 (void* userdata);
 
-    enum class CreateType : u8
+    enum class ThreadCreateType : u8
     {
         Immediate = 0,  // start thread immediately after creation
         Suspended = 1,  // create and suspend thread until resume
     };
 
-    Handle  Current();
-    u64     CurrentId();
-    void    Sleep(u32 ms);
-    bool    Active(Handle handle);
+    u64     ThreadCurrentId();
+    void    ThreadSleep(u32 ms);
+    bool    ThreadActive(void* handle);
 
-    Handle  Create(CreateType type, EntryPoint entry, void* userdata);
-    void    Resume(Handle handle);
-    void    Suspend(Handle handle);
-    void    Terminate(Handle handle);
+    void*   ThreadCreate(ThreadCreateType type, ThreadEntryPoint entry, void* userdata);
+    void    ThreadResume(void* handle);
+    void    ThreadSuspend(void* handle);
+    void    ThreadTerminate(void* handle);
 
     // Create semaphore with initial val count and maximum max count.
-    SemaphoreHandle MakeSemaphore(s32 val, s32 max);
-    void            ReleaseSemaphore(SemaphoreHandle handle);
-    void            WaitSemaphore(SemaphoreHandle handle, u32 ms);
+    void*   MakeSemaphore(s32 val, s32 max);
+    void    ReleaseSemaphore(void* handle);
+    void    WaitSemaphore(void* handle, u32 ms);
 
     // Hint compiler to not reorder reads, happened before barrier.
-    // Basically disable read/store concerned optimizations.
+    // Basically disable read/load concerned optimizations.
     void    ReadBarrier();
 
-    // Same as read barrier, but for write/load operations.
+    // Same as read barrier, but for write/store operations.
     void    WriteBarrier();
 
     // Read and write barriers at once.

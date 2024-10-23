@@ -6,34 +6,32 @@
 #define MIN(ms)     (SEC(ms) / 60)
 #define HOUR(ms)    (MIN(ms) / 60)
 
-namespace snd::time
+namespace snd
 {
-    inline s64 g_HighPrecisionFrequency;
+    inline u64 gHighPrecisionFrequency;
 
-    void Init();
-    void Shutdown();
-
-    s64 Current();
-    s64 SinceSystemBoot();
-	s64 HighPrecisionCounter();
+    u64 CurrentTime();
+    u64 TimeSinceSystemBoot();
+	u64 HighPrecisionCounter();
+	u64 HighPrecisionFrequency();
 
     struct Timer
     {
-        s64     StartTime;
+        u64     StartTime;
 
         void    Start();
-        s64     Stop();
+        u64     Stop();
     };
 
     SND_INLINE void Timer::Start()
     {
-        StartTime = Current();
+        StartTime = CurrentTime();
     }
 
-    SND_INLINE s64 Timer::Stop()
+    SND_INLINE u64 Timer::Stop()
     {
         SND_ASSERT(StartTime != 0);
-        const s64 elapsed = Current() - StartTime;
+        const u64 elapsed = CurrentTime() - StartTime;
         StartTime = 0;
         return elapsed;
     }

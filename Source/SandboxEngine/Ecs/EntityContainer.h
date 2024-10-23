@@ -26,9 +26,6 @@ namespace snd
         std::vector<SparseBuffer>       m_ComponentBuffers;
     };
 
-    // General-purpose global entity container.
-    inline EntityContainer* g_EntityContainer = nullptr;
-
     SND_INLINE Entity* EntityContainer::Data()
     {
         return m_Entities.data();

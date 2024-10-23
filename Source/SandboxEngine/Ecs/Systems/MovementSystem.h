@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace snd::ecs
+namespace snd
 {
     void TickMovementSystem(f32 dt);
 }

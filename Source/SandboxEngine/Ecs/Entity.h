@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#define INVALID_ENTITY_INDEX            static_cast<::snd::EntityIndex>(INVALID_UINDEX)
-#define INVALID_ENTITY_ID               ::snd::GetEntityId(INVALID_ENTITY_INDEX, 0)
+#define INVALID_ENTITY_INDEX    (snd::EntityIndex)INVALID_UINDEX
+#define INVALID_ENTITY_ID       snd::GetEntityId(INVALID_ENTITY_INDEX, 0)
 
 namespace snd
 {
@@ -9,19 +9,15 @@ namespace snd
     using                           EntityIndex         = u32;
     using                           EntityVersion       = u32;
 
-    inline constexpr u16            g_MaxEntities       = 2048;     // max amount of entities we can process
-    inline constexpr u16            g_MaxComponents     = 128;      // max amount of components we can store
+    inline constexpr u16            gMaxEntities       = 2048;     // max amount of entities we can process
+    inline constexpr u16            gMaxComponents     = 128;      // max amount of components we can store
 
-    namespace ecs
-    {
-        // Global counter of unique components, do not modify directly.
-        inline u16 g_ComponentTypeCounter = 0;
-    }
+    inline u16 gComponentTypeCounter = 0;
 
     template<typename TComponent>
     u16 GetComponentId()
     {
-        static u16 s_ComponentId = ecs::g_ComponentTypeCounter++;
+        static u16 s_ComponentId = gComponentTypeCounter++;
         return s_ComponentId;
     }
 
@@ -35,7 +31,7 @@ namespace snd
     SND_INLINE Entity GetEntity(EntityIndex index, EntityVersion version)
     {
         // Shift the index up 32, and put the version in the bottom
-        return (static_cast<Entity>(index) << 32) | static_cast<Entity>(version);
+        return ((Entity)index << 32) | (Entity)version;
     }
 
     SND_INLINE EntityIndex GetEntityIndex(Entity id)
@@ -47,7 +43,7 @@ namespace snd
     SND_INLINE EntityVersion GetEntityVersion(Entity id)
     {
         // Cast to a 32 bit int to get our version number (ignoring the top 32 bits).
-        return static_cast<EntityVersion>(id);
+        return (EntityVersion)id;
     }
 
     SND_INLINE bool IsEntityValid(Entity id)

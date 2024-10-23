@@ -1,76 +1,78 @@
 #pragma once
 
-#include "SandboxEngine/Events/Event.h"
-
 namespace snd
 {
-	class Window
-	{
-	public:
-        DECLARE_DELEGATE_Params(EventCallback, Event&);
+    inline u8               gWindowCount;
+    inline struct Window*   gWindow;
 
-		struct Props
-		{
-			const char*				Title;
-			u16						Width;
-			u16						Height;
-		};
+    struct Window
+    {
+        // Platform specific.
+        void* Handle;
+        void* NativeHandle;
 
-	public:
-		static Window*				Create(const Props& props);
+        // Window data.
+        const char* Title;
+		u16         Width;
+        u16         Height;
 
-		virtual						~Window() = default;
+        // Input state.
+        s8          Buttons[INPUT_BUTTON_COUNT];        // general state
+        s8          ButtonsUp[INPUT_BUTTON_COUNT];      // released this frame
+        s8          ButtonsDown[INPUT_BUTTON_COUNT];    // pressed this frame
+        f32         Axes[INPUT_AXIS_COUNT];
 
-		virtual void* 				Handle() const = 0;
-		virtual void* 				NativeHandle() const = 0;
+        void Update();
+        void ShouldClose(bool close);
+        void EnableCursor(bool enable);
 
-		virtual u16					Width() const = 0;
-		virtual u16					Height() const = 0;
-		virtual const char*			Title() const = 0;
-		virtual bool 				Vsync() const = 0;
-		virtual bool				Focused() const = 0;
+        bool ShouldClose() const;
 
-		virtual void				SetEventCallback(const EventCallback& callback) = 0;
-		virtual void 				SetVsync(bool enable) = 0;
-		virtual bool				ShouldClose() const = 0;
+        vec2 MousePos();
+        vec2 MouseOffset();
+        vec2 ScrollOffset();
 
-		virtual void				Update() = 0;
+        // Get [left, right, bottom, top] orthographic data with origin at window center.
+        vec4 OrthoDataCentered() const;
+        f32 AspectRatio() const;
+    };
 
-	public:
-		f32							AspectRatio() const;
+    Window* OpenWindow(const char* title, u16 width, u16 height);
+    void CloseWindow(Window* wnd);
 
-		// Get [left, right, bottom, top] orthographic data with origin at window center.
-		vec4						OrthoDataCentered() const;
+    // Window
 
-		// Get [left, right, bottom, top] orthographic data with direct origin at window top-left.
-		vec4						OrthoDataDirect() const;
-	};
+    SND_INLINE vec2 Window::MousePos()
+    {
+        return vec2(Axes[INPUT_MOUSE_X], Axes[INPUT_MOUSE_Y]);
+    }
 
-	SND_INLINE f32 Window::AspectRatio() const
-	{
-		return static_cast<f32>(Width()) / static_cast<f32>(Height());
-	}
+    SND_INLINE vec2 Window::MouseOffset()
+    {
+        return vec2(Axes[INPUT_MOUSE_OFFSET_X], Axes[INPUT_MOUSE_OFFSET_Y]);
+    }
 
-	SND_INLINE vec4 Window::OrthoDataCentered() const
-	{
-		const f32 halfWidth  = static_cast<f32>(Width())  * 0.5f;
-		const f32 halfHeight = static_cast<f32>(Height()) * 0.5f;
+    SND_INLINE vec2 Window::ScrollOffset()
+    {
+        return vec2(Axes[INPUT_MOUSE_SCROLL_X], Axes[INPUT_MOUSE_SCROLL_Y]);
+    }
 
-		const f32 left		 = -halfWidth;
-		const f32 right		 = halfWidth;
-		const f32 bottom	 = -halfHeight;
-		const f32 top		 = halfHeight;
+    SND_INLINE vec4 Window::OrthoDataCentered() const
+    {
+    	const f32 halfWidth  = (f32)Width * 0.5f;
+    	const f32 halfHeight = (f32)Height * 0.5f;
 
-		return vec4(left, right, bottom, top);
-	}
+        const f32 left	    = -halfWidth;
+        const f32 right	    =  halfWidth;
+        const f32 bottom    = -halfHeight;
+        const f32 top       =  halfHeight;
 
-	SND_INLINE vec4 Window::OrthoDataDirect() const
-	{
-		const f32 left   = 0.0f;
-		const f32 right  = Width();
-		const f32 bottom = Height();
-		const f32 top    = 0.0f;
+    	return vec4(left, right, bottom, top);
+    }
 
-		return vec4(left, right, bottom, top);
-	}
+    SND_INLINE f32 Window::AspectRatio() const
+    {
+        return (f32)Width / (f32)Height;
+    }
 }
+

@@ -1,46 +1,53 @@
 #include "sndpch.h"
 #include "SandboxEngine/Core/Log.h"
 
-namespace snd::log
+void* snd::GetStdout()
 {
-    HANDLE g_Stdout;
+    return GetStdHandle(STD_OUTPUT_HANDLE);
+}
 
-    void Init()
-    {
-        g_Stdout = GetStdHandle(STD_OUTPUT_HANDLE);
-        SND_ASSERT(g_Stdout != INVALID_HANDLE_VALUE);
-    }
+void snd::Msg(void* outstream, MsgCategory category, const char* msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    MsgVa(outstream, category, msg, args);
+    va_end(args);
+}
 
-    void Shutdown()
-    {
-        g_Stdout = INVALID_HANDLE_VALUE;
-    }
+void snd::MsgVa(void* outstream, MsgCategory category, const char* msg, va_list args)
+{
+    static char buffer[2][2048];
+    SND_ASSERT(outstream);
 
-    void Console(Category category, const char* msg, ...)
-    {
-        static char s_Buffer[2][2048];
+    char* vamsg = buffer[0];
+    char* fmtmsg = buffer[1];
 
-        const char* logFormat = "[%s]: %s\n";
-        char* formattedMsg = s_Buffer[0];
-        char* logMsg = s_Buffer[1];
+    vsnprintf(vamsg, sizeof(buffer[0]), msg, args);
+    sprintf(fmtmsg, "[%s]: %s\n", gMsgCategoryNames[(u8)category], vamsg);
 
-        va_list args;
-        va_start(args, msg);
-        vsnprintf(formattedMsg, sizeof(s_Buffer[0]), msg, args);
-        va_end(args);
+    WriteFile(outstream, fmtmsg, strlen(fmtmsg), nullptr, nullptr);
+}
 
-        sprintf(logMsg, logFormat, ToString(category), formattedMsg);
-        WriteFile(g_Stdout, logMsg, strlen(logMsg), nullptr, nullptr);
-    }
+void snd::MsgLog(const char* msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    MsgVa(gLogStdout, MsgCategory::Log, msg, args);
+    va_end(args);
+}
 
-    const char* ToString(Category category)
-    {
-        switch(category)
-        {
-            case Category::Log:     return "Log";
-            case Category::Warning: return "Warning";
-            case Category::Error:   return "Error";
-            default:                return "None";
-        }
-    }
+void snd::MsgWarn(const char* msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    MsgVa(gLogStdout, MsgCategory::Warning, msg, args);
+    va_end(args);
+}
+
+void snd::MsgErr(const char* msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    MsgVa(gLogStdout, MsgCategory::Error, msg, args);
+    va_end(args);
 }

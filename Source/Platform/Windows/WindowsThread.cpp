@@ -3,136 +3,128 @@
 
 #define INVALID_THREAD_OP_RES ((DWORD)-1)
 
-namespace snd::thread
+static DWORD GetCreationFlags(snd::ThreadCreateType type)
 {
-    DWORD GetCreationFlags(CreateType type)
+    switch(type)
     {
-        switch(type)
-        {
-            case CreateType::Immediate: return 0;
-            case CreateType::Suspended: return CREATE_SUSPENDED;
-            default:
-                SND_CORE_LOG(Error, "Unknown thread create type '%d'", (u8)type);
-                return 0;
-        }
+        case snd::ThreadCreateType::Immediate: return 0;
+        case snd::ThreadCreateType::Suspended: return CREATE_SUSPENDED;
+        default:
+            SND_ERROR("Unknown thread create type (%d)", (u8)type);
+            return 0;
     }
+}
 
-    Handle Current()
-    {
-        return GetCurrentThread();
-    }
+u64 snd::ThreadCurrentId()
+{
+    return GetCurrentThreadId();
+}
 
-    u64 CurrentId()
-    {
-        return GetCurrentThreadId();
-    }
+void snd::ThreadSleep(u32 ms)
+{
+    Sleep(ms);
+}
 
-    void Sleep(u32 ms)
-    {
-        ::Sleep(ms);
-    }
+bool snd::ThreadActive(void* handle)
+{
+    DWORD exitCode;
+    GetExitCodeThread(handle, &exitCode);
+    return exitCode == STILL_ACTIVE;
+}
 
-    bool Active(Handle handle)
-    {
-        DWORD exitCode;
-        GetExitCodeThread(handle, &exitCode);
-        return exitCode == STILL_ACTIVE;
-    }
+void* snd::ThreadCreate(ThreadCreateType type, ThreadEntryPoint entry, void* userdata)
+{
+    DWORD id;
+    return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)entry, userdata, GetCreationFlags(type), &id);
+}
 
-    Handle Create(CreateType type, EntryPoint entry, void* userdata)
-    {
-        DWORD id;
-        return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)entry, userdata, GetCreationFlags(type), &id);
-    }
+void snd::ThreadResume(void* handle)
+{
+    const DWORD res = ResumeThread(handle);
+    SND_ASSERT(res != INVALID_THREAD_OP_RES);
+}
 
-    void Resume(Handle handle)
-    {
-        const DWORD res = ResumeThread(handle);
-        SND_ASSERT(res != INVALID_THREAD_OP_RES);
-    }
+void snd::ThreadSuspend(void* handle)
+{
+    const DWORD res = SuspendThread(handle);
+    SND_ASSERT(res != INVALID_THREAD_OP_RES);
+}
 
-    void Suspend(Handle handle)
-    {
-        const DWORD res = SuspendThread(handle);
-        SND_ASSERT(res != INVALID_THREAD_OP_RES);
-    }
+void snd::ThreadTerminate(void* handle)
+{
+    DWORD exitCode;
+    GetExitCodeThread(handle, &exitCode);
+    const BOOL res = TerminateThread(handle, exitCode);
+    SND_ASSERT(res);
+}
 
-    void Terminate(Handle handle)
-    {
-        DWORD exitCode;
-        GetExitCodeThread(handle, &exitCode);
-        const BOOL res = TerminateThread(handle, exitCode);
-        SND_ASSERT(res);
-    }
+void* snd::MakeSemaphore(s32 val, s32 max)
+{
+    return CreateSemaphore(nullptr, val, max, nullptr);
+}
 
-    SemaphoreHandle MakeSemaphore(s32 val, s32 max)
-    {
-        return CreateSemaphore(nullptr, val, max, nullptr);
-    }
+void snd::ReleaseSemaphore(void* handle)
+{
+    LONG prevCount;
+    ::ReleaseSemaphore(handle, 1, &prevCount);
+}
 
-    void ReleaseSemaphore(SemaphoreHandle handle)
-    {
-        LONG prevCount;
-        ::ReleaseSemaphore(handle, 1, &prevCount);
-    }
+void snd::WaitSemaphore(void* handle, u32 ms)
+{
+    WaitForSingleObjectEx(handle, ms, FALSE);
+}
 
-    void WaitSemaphore(SemaphoreHandle handle, u32 ms)
-    {
-        WaitForSingleObjectEx(handle, ms, FALSE);
-    }
+void snd::ReadBarrier()
+{
+    _ReadBarrier();
+}
 
-    void ReadBarrier()
-    {
-        _ReadBarrier();
-    }
+void snd::WriteBarrier()
+{
+    _WriteBarrier();
+}
 
-    void WriteBarrier()
-    {
-        _WriteBarrier();
-    }
+void snd::ReadWriteBarrier()
+{
+    _ReadWriteBarrier();
+}
 
-    void ReadWriteBarrier()
-    {
-        _ReadWriteBarrier();
-    }
+void snd::ReadFence()
+{
+    _mm_lfence();
+}
 
-    void ReadFence()
-    {
-        _mm_lfence();
-    }
+void snd::WriteFence()
+{
+    _mm_sfence();
+}
 
-    void WriteFence()
-    {
-        _mm_sfence();
-    }
+void snd::ReadWriteFence()
+{
+    _mm_mfence();
+}
 
-    void ReadWriteFence()
-    {
-        _mm_mfence();
-    }
+s32 snd::AtomicExchange(volatile s32* dst, s32 val)
+{
+    return InterlockedExchange((volatile LONG*)dst, val);
+}
 
-    s32 AtomicExchange(volatile s32* dst, s32 val)
-    {
-        return InterlockedExchange((volatile LONG*)dst, val);
-    }
+s32 snd::AtomicCompareExchange(volatile s32* dst, s32 val, s32 cmp)
+{
+    return InterlockedCompareExchange((volatile LONG*)dst, val, cmp);
+}
 
-    s32 AtomicCompareExchange(volatile s32* dst, s32 val, s32 cmp)
-    {
-        return InterlockedCompareExchange((volatile LONG*)dst, val, cmp);
-    }
+s32 snd::AtomicAdd(volatile s32* dst, s32 val)
+{
+    return InterlockedAdd((volatile LONG*)dst, val);
+}
 
-    s32 AtomicAdd(volatile s32* dst, s32 val)
-    {
-        return InterlockedAdd((volatile LONG*)dst, val);
-    }
+s32 snd::AtomicIncrement(volatile s32* dst)
+{
+    return InterlockedIncrement((volatile LONG*)dst);
+}
 
-    s32 AtomicIncrement(volatile s32* dst)
-    {
-        return InterlockedIncrement((volatile LONG*)dst);
-    }
-
-    s32 AtomicDecrement(volatile s32* dst)
-    {
-        return InterlockedDecrement((volatile LONG*)dst);
-    }
+s32 snd::AtomicDecrement(volatile s32* dst)
+{
+    return InterlockedDecrement((volatile LONG*)dst);
 }

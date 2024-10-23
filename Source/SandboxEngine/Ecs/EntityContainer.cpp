@@ -45,7 +45,7 @@ void* snd::EntityContainer::Assign(Entity id, u16 componentId, u16 componentSize
 
     if (!m_ComponentBuffers[componentId].Valid())
     {
-        m_ComponentBuffers[componentId] = SparseBuffer(g_MaxEntities, componentSize);
+        m_ComponentBuffers[componentId] = SparseBuffer(gMaxEntities, componentSize);
     }
 
     return m_ComponentBuffers[componentId].GetOrAllocate(index);

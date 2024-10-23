@@ -1,36 +1,28 @@
 #include "sndpch.h"
 #include "SandboxEngine/Core/Time.h"
 
-namespace snd::time
+u64 snd::CurrentTime()
 {
-    void Init()
-    {
-        LARGE_INTEGER frequency;
-        const BOOL res = QueryPerformanceFrequency(&frequency);
-        SND_ASSERT(res);
-        g_HighPrecisionFrequency = frequency.QuadPart;
-    }
+    return HighPrecisionCounter() * 1000ULL / gHighPrecisionFrequency;
+}
 
-    void Shutdown()
-    {
-        g_HighPrecisionFrequency = 0;
-    }
+u64 snd::TimeSinceSystemBoot()
+{
+    return GetTickCount64();
+}
 
-    s64 Current()
-    {
-        return HighPrecisionCounter() * 1000LL / g_HighPrecisionFrequency;
-    }
+u64 snd::HighPrecisionCounter()
+{
+    LARGE_INTEGER counter;
+    const BOOL res = QueryPerformanceCounter(&counter);
+    SND_ASSERT(res);
+    return counter.QuadPart;
+}
 
-    s64 SinceSystemBoot()
-    {
-        return GetTickCount64();
-    }
-
-    s64 HighPrecisionCounter()
-    {
-        LARGE_INTEGER counter;
-        const BOOL res = QueryPerformanceCounter(&counter);
-        SND_ASSERT(res);
-        return counter.QuadPart;
-    }
+u64 snd::HighPrecisionFrequency()
+{
+    LARGE_INTEGER frequency;
+    const BOOL res = QueryPerformanceFrequency(&frequency);
+    SND_ASSERT(res);
+    return frequency.QuadPart;
 }

@@ -2,21 +2,21 @@
 
 #include <bgfx/bgfx.h>
 
-namespace snd::filesystem
+namespace snd
 {
-    inline const char* g_RootPath           = PROJECT_SOURCE_DIR;
-    inline const char* g_ShaderPath         = SHADER_DIR;
-    inline const char* g_ShaderBinaryPath   = SHADER_BINARY_DIR;
+    inline const char* gRootFolderPath;
+    inline const char* gAssetFolderPath;
+    inline const char* gShaderFolderPath;
+    inline const char* gShaderBinaryFolderPath;
 
-    inline class AssetRegistry* g_AssetRegistry = nullptr;
+    inline class AssetRegistry* gAssetRegistry;
 
-    void Init();
-    void Shutdown();
+    void InitCorePaths();
 
 	void MakePath(char* outPath, u8 partCount, ...);
 
     // Sync read file as binary.
-    bool Read(const char* filepath, u8* buffer, u64 size, u64& outBytesRead);
+    bool ReadFile(const char* filepath, u8* buffer, u64 size, u64& outBytesRead);
 
 	bgfx::ShaderHandle	ReadShader(const char* name);
 	bgfx::ProgramHandle ReadProgram(const char* vertex, const char* fragment = nullptr);

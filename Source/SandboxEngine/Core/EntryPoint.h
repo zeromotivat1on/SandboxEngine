@@ -2,5 +2,5 @@
 
 namespace snd
 {
-	int EntryPoint(int argc, const char** argv);
+	s32 EntryPoint();
 }

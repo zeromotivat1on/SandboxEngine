@@ -3,34 +3,23 @@
 #include "SandboxEngine/Ecs/Entity.h"
 #include "SandboxEngine/Ecs/EntityContainer.h"
 
-namespace snd::ecs
+namespace snd
 {
-    SND_INLINE void Init()
-    {
-        SND_ASSERT(!g_EntityContainer);
-        void* data = memory::g_CoreStack.Push(sizeof(EntityContainer));
-        g_EntityContainer = new (data) EntityContainer();
-    }
-
-    SND_INLINE void Shutdown()
-    {
-        SND_ASSERT(g_EntityContainer);
-        g_EntityContainer = nullptr;
-    }
+    inline EntityContainer* gEntityContainer;
 
     SND_INLINE Entity NewEntity()
     {
-        return g_EntityContainer->New();
+        return gEntityContainer->New();
     }
 
     // Assign component to given entity, return default constructed component.
     template <typename TComponent>
-    TComponent* Assign(Entity id)
+    TComponent* AssignComponent(Entity id)
     {
         const u16 componentId   = GetComponentId<TComponent>();
         const u16 componentSize = sizeof(TComponent);
 
-        if (void* componentData = g_EntityContainer->Assign(id, componentId, componentSize))
+        if (void* componentData = gEntityContainer->Assign(id, componentId, componentSize))
         {
             TComponent* component = new(componentData) TComponent();
             return component;
@@ -41,12 +30,12 @@ namespace snd::ecs
 
     // Assign given component to given entity, return constructed component from given one.
     template <typename TComponent>
-    TComponent* Assign(Entity id, const TComponent& component)
+    TComponent* AssignComponent(Entity id, const TComponent& component)
     {
         const u16 componentId   = GetComponentId<TComponent>();
         const u16 componentSize = sizeof(TComponent);
 
-        if (void* componentData = g_EntityContainer->Assign(id, componentId, componentSize))
+        if (void* componentData = gEntityContainer->Assign(id, componentId, componentSize))
         {
             TComponent* newComponent = new(componentData) TComponent(component);
             return newComponent;
@@ -56,14 +45,14 @@ namespace snd::ecs
     }
 
     template <typename TComponent>
-    TComponent* Get(Entity id)
+    TComponent* GetComponent(Entity id)
     {
-        return static_cast<TComponent*>(g_EntityContainer->Get(id, GetComponentId<TComponent>()));
+        return (TComponent*)gEntityContainer->Get(id, GetComponentId<TComponent>());
     }
 
     template <typename TComponent>
-    bool Remove(Entity id)
+    bool RemoveComponent(Entity id)
     {
-        return g_EntityContainer->Remove(id, GetComponentId<TComponent>());
+        return gEntityContainer->Remove(id, GetComponentId<TComponent>());
     }
 }
