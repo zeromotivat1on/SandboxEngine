@@ -129,17 +129,18 @@ s32 snd::EntryPoint()
     gLogStdout = GetStdout();
     gHighPrecisionFrequency = HighPrecisionFrequency();
 
-    OsInfo osinfo;
-    GetOsInfo(&osinfo);
-    SND_ASSERT(osinfo.AvailVirt > VM_CORE_ALLOC_SIZE);
-
 #if SND_BUILD_DEBUG
     void* baseAddr = (void*)TB(2);
 #else
     void* baseAddr = nullptr;
 #endif
-    void* vm = vmreserve(baseAddr, VM_CORE_ALLOC_SIZE);
-    InitAppMemory(vm, VM_CORE_ALLOC_SIZE);
+
+    gVirtSpace = ReserveVirtSpace(baseAddr, VIRT_SPACE_SIZE);
+    gPhysHeap = AllocPhysHeap(gVirtSpace, PHYS_HEAP_SIZE);
+
+    InitArena(gPersArena,  gPhysHeap, PERS_ARENA_SIZE);
+    InitArena(gTranArena,  gPhysHeap, TRAN_ARENA_SIZE,  PERS_ARENA_SIZE);
+    InitArena(gFrameArena, gPhysHeap, FRAME_ARENA_SIZE, PERS_ARENA_SIZE + TRAN_ARENA_SIZE);
 
     InitCorePaths();
     InitInputMaps();
@@ -148,20 +149,20 @@ s32 snd::EntryPoint()
     gWindow = OpenWindow("Sandbox Engine", 1280, 720);
     gWindow->EnableCursor(true);
 
-    gEntityContainer = (EntityContainer*)gPersistentStack.PushZero(sizeof(EntityContainer));
+    gEntityContainer = PushStruct(gPersArena, EntityContainer);
     Entity player = InitTestPlayer(gWindow);
 
-    gRenderer = (Renderer*)gPersistentStack.PushZero(sizeof(Renderer));
+    gRenderer = PushStruct(gPersArena, Renderer);
     gRenderer->Window = gWindow;
     gRenderer->Camera = GetComponent<CameraComponent>(player);
     gRenderer->Vsync = true;
     gRenderer->Init();
 
 	// Create debug test cubes.
-	// TODO: vector in entity container is throwing exception on debug build, dont know why,
+	// TODO: vector in entity container is throwing exception on debug build,
 	// also need to get rid of stl as much as possible in ecs and other engine parts.
     Entity cube;
-    for (s32 i = 0; i < 4; ++i)
+    for (s32 i = 0; i < 10; ++i)
     {
 		cube = NewEntityDebugCube();
 		GetComponent<TransformComponent>(cube)->Location.x += i * 10.0f;
@@ -171,7 +172,7 @@ s32 snd::EntryPoint()
 	u64 beginCounter = HighPrecisionCounter();
 	while (!gWindow->ShouldClose())
 	{
-        gFrameStack.Clear();
+        gFrameArena.Clear();
 
         gWindow->Update();
 
@@ -196,7 +197,8 @@ s32 snd::EntryPoint()
 
 	gRenderer->Terminate();
 	CloseWindow(gWindow);
-    FreeAppMemory(vm);
+    FreePhysHeap(gPhysHeap, PHYS_HEAP_SIZE);
+    ReleaseVirtSpace(gVirtSpace);
 
 	return SND_CORE_SUCCESS;
 }

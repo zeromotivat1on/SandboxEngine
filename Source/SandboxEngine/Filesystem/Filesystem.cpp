@@ -53,17 +53,20 @@ bgfx::ShaderHandle snd::ReadShader(const char* name)
     MakePath(shaderPath, 2, gShaderBinaryFolderPath, name);
 
     constexpr u64 buffSize = KB(8);
+    u8* buff = PushSize(gFrameArena, buffSize);
     u64 bytesRead;
-    u8* buff = (u8*)gFrameStack.Push(buffSize);
+    
     if (ReadFile(shaderPath, buff, buffSize, bytesRead))
     {
         const bgfx::Memory* shaderMemory = bgfx::alloc(bytesRead);
     	memcpy(shaderMemory->data, buff, bytesRead);
         const bgfx::ShaderHandle handle = bgfx::createShader(shaderMemory);
         bgfx::setName(handle, name);
+        gFrameArena.Pop(buffSize);
         return handle;
     }
 
+    gFrameArena.Pop(buffSize);
     return BGFX_INVALID_HANDLE;
 }
 

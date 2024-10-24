@@ -27,22 +27,32 @@ void snd::GetOsInfo(OsInfo* info)
     info->LgCoreNum = sysinfo.dwNumberOfProcessors;
 }
 
-void* snd::vmreserve(void* addr, u64 size)
+void* snd::ReserveVirtSpace(void* addr, u64 size)
 {
+    SND_ASSERT(size > 0);
     return VirtualAlloc(addr, size, MEM_RESERVE, PAGE_READWRITE);
 }
 
-void* snd::vmcommit(void* vm, u64 size)
+void* snd::AllocPhysHeap(void* vm, u64 size)
 {
-    return VirtualAlloc(vm, size, MEM_COMMIT, PAGE_READWRITE);
+    SND_ASSERT(vm);
+    SND_ASSERT(size > 0);
+
+    void* physHeap = VirtualAlloc(vm, size, MEM_COMMIT, PAGE_READWRITE);
+    SND_ASSERT(physHeap);
+
+    return physHeap;
 }
 
-bool snd::vmdecommit(void* vm, u64 size)
+void snd::FreePhysHeap(void* heap, u64 size)
 {
-    return VirtualFree(vm, size, MEM_DECOMMIT);
+    SND_ASSERT(heap);
+    SND_ASSERT(size > 0);
+    VirtualFree(heap, size, MEM_DECOMMIT);
 }
 
-bool snd::vmrelease(void* vm)
+void snd::ReleaseVirtSpace(void* vm)
 {
-    return VirtualFree(vm, 0, MEM_RELEASE);
+    SND_ASSERT(vm);
+    VirtualFree(vm, 0, MEM_RELEASE);
 }

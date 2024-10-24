@@ -47,9 +47,7 @@ snd::Window* snd::OpenWindow(const char* title, u16 width, u16 height)
 		glfwSetErrorCallback(GLFWErrorCallback);
     }
 
-    Window* wnd = (Window*)gPersistentStack.PushZero(sizeof(Window));
-    memset(wnd, 0, sizeof(Window));
-
+    Window* wnd = PushStruct(gPersArena, Window);
     wnd->Handle = glfwCreateWindow(width, height, title, nullptr, nullptr);
     SND_ASSERT(wnd->Handle);
 
