@@ -30,6 +30,7 @@ namespace snd
         u16     FreeEntityCount;
 
         void    Init();
+        void    Tick(f32 dt);
 
         Entity  NewEntity();
         void    DeleteEntity(Entity e);

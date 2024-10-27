@@ -30,6 +30,21 @@ void snd::Ecs::Init()
     }
 }
 
+void snd::Ecs::Tick(f32 dt)
+{
+    for (Entity e = 0; e < kMaxEntities; ++e)
+    {
+        auto* transform = (TransformComponent*)gEcs->ComponentData(e, COMPONENT_TRANSFORM);
+        auto* movement = (MovementComponent*)gEcs->ComponentData(e, COMPONENT_MOVEMENT);
+        auto* camera = (CameraComponent*)gEcs->ComponentData(e, COMPONENT_CAMERA);
+
+        transform->Location += movement->Velocity * dt;
+
+        camera->Eye = transform->Location;
+        camera->At = camera->Eye + ForwardVector(camera->Yaw, camera->Pitch);
+    }
+}
+
 snd::Entity snd::Ecs::NewEntity()
 {
     if (FreeEntityCount > 0)

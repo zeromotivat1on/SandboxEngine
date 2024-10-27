@@ -10,8 +10,6 @@
 #include "Ecs/Components/TransformComponent.h"
 #include "Ecs/Components/MovementComponent.h"
 #include "Ecs/Components/CameraComponent.h"
-#include "Engine/Ecs/Systems/CameraSystem.h"
-#include "Engine/Ecs/Systems/MovementSystem.h"
 
 namespace snd
 {
@@ -187,11 +185,8 @@ s32 snd::EntryPoint()
         gFrameArena.Clear();
 
         gWindow->Update();
-
         TickTestPlayer(player, cube, gWindow, dt);
-        TickMovementSystem(dt);
-        TickCameraSystem(dt);
-
+        gEcs->Tick(dt);
         gRenderer->Render(dt);
 
 		const u64 endCounter = HighPrecisionCounter();
