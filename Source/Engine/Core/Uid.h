@@ -64,7 +64,7 @@ namespace snd
     {
     }
 
-    SND_INLINE sid_hash uid::Id() const
+    SND_INLINE uid_hash uid::Id() const
     {
         return m_Hash;
     }
