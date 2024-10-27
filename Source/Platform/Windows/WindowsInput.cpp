@@ -1,5 +1,5 @@
 #include "sndpch.h"
-#include "SandboxEngine/Core/Input.h"
+#include "Engine/Core/Input.h"
 #include <GLFW/glfw3.h>
 
 void snd::InitInputMaps()

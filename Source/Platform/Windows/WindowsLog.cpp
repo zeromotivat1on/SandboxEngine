@@ -1,17 +1,9 @@
 #include "sndpch.h"
-#include "SandboxEngine/Core/Log.h"
+#include "Engine/Core/Log.h"
 
 void* snd::GetStdout()
 {
     return GetStdHandle(STD_OUTPUT_HANDLE);
-}
-
-void snd::Msg(void* outstream, MsgCategory category, const char* msg, ...)
-{
-    va_list args;
-    va_start(args, msg);
-    MsgVa(outstream, category, msg, args);
-    va_end(args);
 }
 
 void snd::MsgVa(void* outstream, MsgCategory category, const char* msg, va_list args)
@@ -26,28 +18,4 @@ void snd::MsgVa(void* outstream, MsgCategory category, const char* msg, va_list 
     sprintf(fmtmsg, "[%s]: %s\n", gMsgCategoryNames[(u8)category], vamsg);
 
     WriteFile(outstream, fmtmsg, strlen(fmtmsg), nullptr, nullptr);
-}
-
-void snd::MsgLog(const char* msg, ...)
-{
-    va_list args;
-    va_start(args, msg);
-    MsgVa(gLogStdout, MsgCategory::Log, msg, args);
-    va_end(args);
-}
-
-void snd::MsgWarn(const char* msg, ...)
-{
-    va_list args;
-    va_start(args, msg);
-    MsgVa(gLogStdout, MsgCategory::Warning, msg, args);
-    va_end(args);
-}
-
-void snd::MsgErr(const char* msg, ...)
-{
-    va_list args;
-    va_start(args, msg);
-    MsgVa(gLogStdout, MsgCategory::Error, msg, args);
-    va_end(args);
 }

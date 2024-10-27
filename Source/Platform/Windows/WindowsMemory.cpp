@@ -1,5 +1,5 @@
 #include "sndpch.h"
-#include "SandboxEngine/Memory/Memory.h"
+#include "Engine/Memory/Memory.h"
 
 void snd::GetOsInfo(OsInfo* info)
 {

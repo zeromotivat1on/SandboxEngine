@@ -25,7 +25,7 @@ set(SHADER_BINARY_DIR "${SHADER_DIR}/Bin")
 set(SOURCE_DIR "${PROJECT_SOURCE_DIR}/Source")
 set(VENDOR_DIR "${SOURCE_DIR}/Vendor")
 set(PLATFORM_DIR "${SOURCE_DIR}/Platform")
-set(PROJECT_ENGINE_DIR "${SOURCE_DIR}/SandboxEngine")
+set(PROJECT_ENGINE_DIR "${SOURCE_DIR}/Engine")
 
 # Specify project source files
 file(GLOB_RECURSE PROJECT_PRECOMPILED_HEADERS CONFIGURE_DEPENDS
@@ -76,10 +76,6 @@ function(set_def_output_dirs target_name)
 endfunction()
 
 set_def_output_dirs(${PROJECT_NAME})
-
-# Add googletest
-add_subdirectory("${VENDOR_DIR}/googletest")
-target_link_libraries(${PROJECT_NAME} PRIVATE gtest)
 
 # Add fastdelegate
 target_include_directories(${PROJECT_NAME} PRIVATE "${VENDOR_DIR}/fastdelegate/FastDelegate.h")
@@ -165,22 +161,4 @@ if(COMPILE_SHADERS)
     add_dependencies(bgfx_shader_compilation bgfx shaderc)
 endif()
 
-# Build tests
 # TODO: move common own-std-like code to separate lib and create tests there.
-enable_testing()
-
-file(GLOB_RECURSE TESTS_SOURCE CONFIGURE_DEPENDS
-    "${SOURCE_DIR}/Tests/*.h"
-    "${SOURCE_DIR}/Tests/*.cpp"
-)
-
-add_executable(sndtests "${TESTS_SOURCE}")
-target_include_directories(sndtests PRIVATE ${SOURCE_DIR})
-target_include_directories(sndtests PRIVATE ${VENDOR_DIR})
-target_include_directories(sndtests PRIVATE ${PROJECT_ENGINE_DIR})
-target_include_directories(sndtests PRIVATE "${VENDOR_DIR}/spdlog/include")
-target_link_libraries(sndtests GTest::gtest_main)
-set_def_output_dirs(sndtests)
-
-include(GoogleTest)
-gtest_discover_tests(sndtests)

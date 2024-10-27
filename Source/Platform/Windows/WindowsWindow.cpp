@@ -1,7 +1,7 @@
 #include "sndpch.h"
-#include "SandboxEngine/Core/Window.h"
-#include "SandboxEngine/Core/Input.h"
-#include "SandboxEngine/Render/Render.h"
+#include "Engine/Core/Window.h"
+#include "Engine/Core/Input.h"
+#include "Engine/Render/Render.h"
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
