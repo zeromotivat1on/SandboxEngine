@@ -27,7 +27,7 @@ namespace snd
         uid_hash    Id() const;
 
     private:
-        uid_hash    m_Hash;
+        uid_hash    mHash;
     };
 
     // Numeric hash details.
@@ -56,27 +56,27 @@ namespace snd
         const u64 stime = (u64)(TimeSinceSystemBoot() << 8);
         const u64 gpcgc = uid_details::g_HashPcgCounter++;
 
-        m_Hash = uid_details::UidHashPcg64(ctime + stime + gpcgc);
+        mHash = uid_details::UidHashPcg64(ctime + stime + gpcgc);
     }
 
     SND_INLINE uid::uid(u64 input)
-        : m_Hash(uid_details::UidHashPcg64(input))
+        : mHash(uid_details::UidHashPcg64(input))
     {
     }
 
     SND_INLINE uid_hash uid::Id() const
     {
-        return m_Hash;
+        return mHash;
     }
 
     SND_INLINE bool uid::operator==(const uid& other) const
     {
-        return m_Hash == other.m_Hash;
+        return mHash == other.mHash;
     }
 
     SND_INLINE bool uid::operator==(uid_hash hash) const
     {
-        return m_Hash == hash;
+        return mHash == hash;
     }
 
     SND_INLINE bool uid::operator!=(const uid& other) const

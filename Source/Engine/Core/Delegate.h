@@ -52,7 +52,7 @@ namespace snd
         void            Clear();
 
     private:
-        DelegateImpl    m_Handle;
+        DelegateImpl    mHandle;
     };
 
     // Multicast delegate that can hold several functions to execute.
@@ -85,8 +85,8 @@ namespace snd
         void            Clear();
 
     private:
-        DelegateType    m_Bindings[s_MaxBindings];
-        u8              m_BindingsNum = 0;
+        DelegateType    mBindings[s_MaxBindings];
+        u8              mBindingsNum = 0;
     };
 
     using SimpleDelegate            = Delegate<void>;
@@ -97,40 +97,40 @@ namespace snd
     template <typename TReturn, typename ... Params>
     void Delegate<TReturn, Params...>::BindRaw(TReturn(* bindFunction)(Params... params))
     {
-        m_Handle.bind(bindFunction);
+        mHandle.bind(bindFunction);
     }
 
     template <typename TReturn, typename ... Params>
     template <typename T, typename TType>
     void Delegate<TReturn, Params...>::BindMethod(T* owner, TReturn(TType::* bindFunction)(Params... params))
     {
-        m_Handle.bind(owner, bindFunction);
+        mHandle.bind(owner, bindFunction);
     }
 
     template <typename TReturn, typename ... Params>
     template <typename T, typename TType>
     void Delegate<TReturn, Params...>::BindMethod(const T* owner, TReturn(TType::* bindFunction)(Params... params) const)
     {
-        m_Handle.bind(owner, bindFunction);
+        mHandle.bind(owner, bindFunction);
     }
 
     template <typename TReturn, typename ... Params>
     template <typename TFunctor>
     void Delegate<TReturn, Params...>::BindLambda(TFunctor&& functor)
     {
-        m_Handle.bind(std::forward<TFunctor>(functor));
+        mHandle.bind(std::forward<TFunctor>(functor));
     }
 
     template <typename TReturn, typename ... Params>
     bool Delegate<TReturn, Params...>::Bound() const
     {
-        return !m_Handle.empty();
+        return !mHandle.empty();
     }
 
     template <typename TReturn, typename ... Params>
     TReturn Delegate<TReturn, Params...>::Execute(Params... params) const
     {
-        return m_Handle(params...);
+        return mHandle(params...);
     }
 
     template <typename TReturn, typename ... Params>
@@ -138,7 +138,7 @@ namespace snd
     {
         if (Bound())
         {
-            m_Handle(params...);
+            mHandle(params...);
             return true;
         }
 
@@ -148,7 +148,7 @@ namespace snd
     template <typename TReturn, typename ... Params>
     void Delegate<TReturn, Params...>::Clear()
     {
-        m_Handle.clear();
+        mHandle.clear();
     }
 
     // DelegateMulticast
@@ -156,60 +156,60 @@ namespace snd
     template <typename ... Params>
     void DelegateMulticast<Params...>::Add(const DelegateType& delegate)
     {
-        SND_ASSERT(m_BindingsNum < s_MaxBindings);
-        m_Bindings[m_BindingsNum++] = delegate;
+        SND_ASSERT(mBindingsNum < s_MaxBindings);
+        mBindings[mBindingsNum++] = delegate;
     }
 
     template <typename ... Params>
     void DelegateMulticast<Params...>::AddRaw(void(* bindFunction)(Params... params))
     {
-        SND_ASSERT(m_BindingsNum < s_MaxBindings);
-        m_Bindings[m_BindingsNum++].BindRaw(bindFunction);
+        SND_ASSERT(mBindingsNum < s_MaxBindings);
+        mBindings[mBindingsNum++].BindRaw(bindFunction);
     }
 
     template <typename ... Params>
     template <typename T, typename TType>
     void DelegateMulticast<Params...>::AddMethod(T* owner, void(TType::* bindFunction)(Params... params))
     {
-        SND_ASSERT(m_BindingsNum < s_MaxBindings);
-        m_Bindings[m_BindingsNum++].BindMethod(owner, bindFunction);
+        SND_ASSERT(mBindingsNum < s_MaxBindings);
+        mBindings[mBindingsNum++].BindMethod(owner, bindFunction);
     }
 
     template <typename ... Params>
     template <typename T, typename TType>
     void DelegateMulticast<Params...>::AddMethod(const T* owner, void(TType::* bindFunction)(Params... params) const)
     {
-        SND_ASSERT(m_BindingsNum < s_MaxBindings);
-        m_Bindings[m_BindingsNum++].BindMethod(owner, bindFunction);
+        SND_ASSERT(mBindingsNum < s_MaxBindings);
+        mBindings[mBindingsNum++].BindMethod(owner, bindFunction);
     }
 
     template <typename ... Params>
     template <typename TFunctor>
     void DelegateMulticast<Params...>::AddLambda(TFunctor&& functor)
     {
-        SND_ASSERT(m_BindingsNum < s_MaxBindings);
-        m_Bindings[m_BindingsNum++].BindLambda(std::forward<TFunctor>(functor));
+        SND_ASSERT(mBindingsNum < s_MaxBindings);
+        mBindings[mBindingsNum++].BindLambda(std::forward<TFunctor>(functor));
     }
 
     template <typename ... Params>
     bool DelegateMulticast<Params...>::Bound() const
     {
-        return m_BindingsNum > 0;
+        return mBindingsNum > 0;
     }
 
     template <typename ... Params>
     void DelegateMulticast<Params...>::Broadcast(Params... params) const
     {
-        for (u8 i = 0; i < m_BindingsNum; ++i)
+        for (u8 i = 0; i < mBindingsNum; ++i)
         {
-            m_Bindings[i].Execute(params...);
+            mBindings[i].Execute(params...);
         }
     }
 
     template <typename ... Params>
     void DelegateMulticast<Params...>::Clear()
     {
-        for (auto& binding : m_Bindings)
+        for (auto& binding : mBindings)
         {
             binding.Clear();
         }

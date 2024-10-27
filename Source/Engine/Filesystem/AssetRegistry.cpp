@@ -6,7 +6,7 @@ namespace snd::filesystem
 {
     AssetRegistry::AssetRegistry()
     {
-        m_Registry.reserve(1024);
+        mRegistry.reserve(1024);
     }
 
     AssetHandle AssetRegistry::Store(const char* filepath, AssetType type)
@@ -21,13 +21,13 @@ namespace snd::filesystem
     AssetHandle AssetRegistry::StoreShader(const char* filepath)
     {
         const AssetHandle handle = UID(ReadShader(filepath).idx);
-        m_Registry.try_emplace(handle, filepath, AssetType::Shader);
+        mRegistry.try_emplace(handle, filepath, AssetType::Shader);
         return handle;
     }
 
     Asset* AssetRegistry::Request(AssetHandle handle)
     {
-        if (auto it = m_Registry.find(handle); it != m_Registry.end())
+        if (auto it = mRegistry.find(handle); it != mRegistry.end())
         {
             return &it->second;
         }

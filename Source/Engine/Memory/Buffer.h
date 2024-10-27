@@ -30,30 +30,30 @@ namespace snd
         u16             ElementSize() const;    // buffer element size in bytes
 
     private:
-        u8*             m_Data;
-        u32             m_Capacity;
-        u16             m_ElementSize;
+        u8*             mData;
+        u32             mCapacity;
+        u16             mElementSize;
     };
 
     SND_INLINE Buffer::Buffer()
-        : m_Data(nullptr), m_Capacity(0), m_ElementSize(0)
+        : mData(nullptr), mCapacity(0), mElementSize(0)
     {
     }
 
     SND_INLINE Buffer::Buffer(u32 capacity, u16 elementSize)
-        : m_Data(nullptr), m_Capacity(capacity), m_ElementSize(elementSize)
+        : mData(nullptr), mCapacity(capacity), mElementSize(elementSize)
     {
         Realloc(capacity, elementSize);
     }
 
     SND_INLINE Buffer::Buffer(Buffer&& other) noexcept
-        : m_Data(other.m_Data),
-          m_Capacity(other.m_Capacity),
-          m_ElementSize(other.m_ElementSize)
+        : mData(other.mData),
+          mCapacity(other.mCapacity),
+          mElementSize(other.mElementSize)
     {
-        other.m_Data = nullptr;
-        other.m_Capacity = 0;
-        other.m_ElementSize = 0;
+        other.mData = nullptr;
+        other.mCapacity = 0;
+        other.mElementSize = 0;
     }
 
     SND_INLINE Buffer::~Buffer()
@@ -69,14 +69,14 @@ namespace snd
             Free();
 
             // Transfer ownership of the other object's resources.
-            m_Data = other.m_Data;
-            m_Capacity = other.m_Capacity;
-            m_ElementSize = other.m_ElementSize;
+            mData = other.mData;
+            mCapacity = other.mCapacity;
+            mElementSize = other.mElementSize;
 
             // Nullify the other object.
-            other.m_Data = nullptr;
-            other.m_Capacity = 0;
-            other.m_ElementSize = 0;
+            other.mData = nullptr;
+            other.mCapacity = 0;
+            other.mElementSize = 0;
         }
 
         return *this;
@@ -84,7 +84,7 @@ namespace snd
 
     SND_INLINE void Buffer::Realloc(u32 capacity)
     {
-        Realloc(capacity, m_ElementSize);
+        Realloc(capacity, mElementSize);
     }
 
     SND_INLINE void Buffer::Realloc(u32 capacity, u16 elementSize)
@@ -95,73 +95,73 @@ namespace snd
             return;
         }
 
-        if (void* newData = realloc(m_Data, static_cast<u64>(capacity) * elementSize))
+        if (void* newData = realloc(mData, static_cast<u64>(capacity) * elementSize))
         {
-            m_Data = static_cast<u8*>(newData);
+            mData = static_cast<u8*>(newData);
 
-            if (capacity > m_Capacity)
+            if (capacity > mCapacity)
             {
-                memset(m_Data + Capacity64() * elementSize, 0, static_cast<u64>(capacity - m_Capacity) * elementSize);
+                memset(mData + Capacity64() * elementSize, 0, static_cast<u64>(capacity - mCapacity) * elementSize);
             }
 
-            m_Capacity = capacity;
-            m_ElementSize = elementSize;
+            mCapacity = capacity;
+            mElementSize = elementSize;
         }
     }
 
     SND_INLINE void Buffer::Free()
     {
-        if (m_Data)
+        if (mData)
         {
-            free(m_Data);
-            m_Data = nullptr;
-            m_Capacity = 0;
-            m_ElementSize = 0;
+            free(mData);
+            mData = nullptr;
+            mCapacity = 0;
+            mElementSize = 0;
         }
     }
 
     SND_INLINE void* Buffer::Get(u32 index) const
     {
-        if (index >= m_Capacity)
+        if (index >= mCapacity)
         {
             return nullptr;
         }
 
-        return m_Data + static_cast<u64>(index) * m_ElementSize;
+        return mData + static_cast<u64>(index) * mElementSize;
     }
 
     SND_INLINE bool Buffer::Valid() const
     {
-        return m_Data && m_Capacity > 0 && m_ElementSize > 0;
+        return mData && mCapacity > 0 && mElementSize > 0;
     }
 
     SND_INLINE void* Buffer::Data() const
     {
-        return m_Data;
+        return mData;
     }
 
     SND_INLINE void* Buffer::Last() const
     {
-        return m_Data + (Capacity64() - 1) * m_ElementSize;
+        return mData + (Capacity64() - 1) * mElementSize;
     }
 
     SND_INLINE u64 Buffer::Size() const
     {
-        return Capacity64() * m_ElementSize;
+        return Capacity64() * mElementSize;
     }
 
     SND_INLINE u32 Buffer::Capacity() const
     {
-        return m_Capacity;
+        return mCapacity;
     }
 
     SND_INLINE u64 Buffer::Capacity64() const
     {
-        return m_Capacity;
+        return mCapacity;
     }
 
     SND_INLINE u16 Buffer::ElementSize() const
     {
-        return m_ElementSize;
+        return mElementSize;
     }
 }

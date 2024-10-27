@@ -26,7 +26,7 @@ namespace snd
         const char*     String() const;
 
     private:
-        sid_hash        m_Hash;
+        sid_hash        mHash;
     };
 
     // String hash details.
@@ -58,29 +58,29 @@ namespace snd
     // sid
 
     SND_INLINE sid::sid(const char* str)
-        : m_Hash(sid_details::SidHashFnv(str))
+        : mHash(sid_details::SidHashFnv(str))
     {
-        g_SidTable.try_emplace(m_Hash, str);
+        g_SidTable.try_emplace(mHash, str);
     }
 
     SND_INLINE sid_hash sid::Id() const
     {
-        return m_Hash;
+        return mHash;
     }
 
     SND_INLINE const char* sid::String() const
     {
-        return g_SidTable.at(m_Hash);
+        return g_SidTable.at(mHash);
     }
 
     SND_INLINE bool sid::operator==(const sid& other) const
     {
-        return m_Hash == other.m_Hash;
+        return mHash == other.mHash;
     }
 
     SND_INLINE bool sid::operator==(sid_hash hash) const
     {
-        return m_Hash == hash;
+        return mHash == hash;
     }
 
     SND_INLINE bool sid::operator!=(const sid& other) const

@@ -26,35 +26,35 @@ namespace snd
         bool                Valid() const;      // is buffer initialized
 
     private:
-        u32                 m_SparseCapacity;   // max amount of sparse indices
-        u32                 m_DenseCount;       // current amount of dense elements
-        u32*                m_SparseIndices;    // sparse indices data
-        Buffer              m_DenseData;        // dense elements data
+        u32                 mSparseCapacity;   // max amount of sparse indices
+        u32                 mDenseCount;       // current amount of dense elements
+        u32*                mSparseIndices;    // sparse indices data
+        Buffer              mDenseData;        // dense elements data
     };
 
     SND_INLINE SparseBuffer::SparseBuffer()
-        : m_SparseCapacity(0), m_DenseCount(0), m_SparseIndices(nullptr)
+        : mSparseCapacity(0), mDenseCount(0), mSparseIndices(nullptr)
     {
     }
 
     SND_INLINE SparseBuffer::SparseBuffer(u32 sparseCapacity, u16 denseElementSize)
-        : m_SparseCapacity(sparseCapacity),
-          m_DenseCount(0),
-          m_SparseIndices(new u32[sparseCapacity]),
-          m_DenseData(0, denseElementSize)
+        : mSparseCapacity(sparseCapacity),
+          mDenseCount(0),
+          mSparseIndices(new u32[sparseCapacity]),
+          mDenseData(0, denseElementSize)
     {
-        memset(m_SparseIndices, INVALID_UINDEX, m_SparseCapacity * sizeof(u32));
+        memset(mSparseIndices, INVALID_UINDEX, mSparseCapacity * sizeof(u32));
     }
 
     SND_INLINE SparseBuffer::SparseBuffer(SparseBuffer&& other) noexcept
-        : m_SparseCapacity(other.m_SparseCapacity),
-          m_DenseCount(other.m_DenseCount),
-          m_SparseIndices(other.m_SparseIndices),
-          m_DenseData(std::move(other.m_DenseData))
+        : mSparseCapacity(other.mSparseCapacity),
+          mDenseCount(other.mDenseCount),
+          mSparseIndices(other.mSparseIndices),
+          mDenseData(std::move(other.mDenseData))
     {
-        other.m_SparseIndices = nullptr; // ensure the old object does not try to free memory
-        other.m_SparseCapacity = 0;
-        other.m_DenseCount = 0;
+        other.mSparseIndices = nullptr; // ensure the old object does not try to free memory
+        other.mSparseCapacity = 0;
+        other.mDenseCount = 0;
     }
 
     SND_INLINE SparseBuffer::~SparseBuffer()
@@ -70,15 +70,15 @@ namespace snd
             Free();
 
             // Transfer ownership.
-            m_SparseCapacity = other.m_SparseCapacity;
-            m_DenseCount = other.m_DenseCount;
-            m_SparseIndices = other.m_SparseIndices;
-            m_DenseData = std::move(other.m_DenseData);
+            mSparseCapacity = other.mSparseCapacity;
+            mDenseCount = other.mDenseCount;
+            mSparseIndices = other.mSparseIndices;
+            mDenseData = std::move(other.mDenseData);
 
             // Nullify the other object.
-            other.m_SparseIndices = nullptr;
-            other.m_SparseCapacity = 0;
-            other.m_DenseCount = 0;
+            other.mSparseIndices = nullptr;
+            other.mSparseCapacity = 0;
+            other.mDenseCount = 0;
         }
 
         return *this;
@@ -86,67 +86,67 @@ namespace snd
 
     SND_INLINE void SparseBuffer::Realloc(u32 sparseCapacity)
     {
-        if (sparseCapacity <= m_SparseCapacity)
+        if (sparseCapacity <= mSparseCapacity)
         {
             return;
         }
 
         u32* sparseIndices = new u32[sparseCapacity];
 
-        memset(sparseIndices + m_SparseCapacity, INVALID_UINDEX, (sparseCapacity - m_SparseCapacity) * sizeof(u32));
-        memcpy(sparseIndices, m_SparseIndices, m_SparseCapacity * sizeof(u32));
+        memset(sparseIndices + mSparseCapacity, INVALID_UINDEX, (sparseCapacity - mSparseCapacity) * sizeof(u32));
+        memcpy(sparseIndices, mSparseIndices, mSparseCapacity * sizeof(u32));
 
-        delete[] m_SparseIndices;
+        delete[] mSparseIndices;
 
-        m_SparseIndices = sparseIndices;
-        m_SparseCapacity = sparseCapacity;
+        mSparseIndices = sparseIndices;
+        mSparseCapacity = sparseCapacity;
     }
 
     SND_INLINE void SparseBuffer::Free()
     {
-        delete[] m_SparseIndices;
+        delete[] mSparseIndices;
 
-        m_SparseIndices = nullptr;
-        m_SparseCapacity = 0;
+        mSparseIndices = nullptr;
+        mSparseCapacity = 0;
 
-        m_DenseData.Free();
-        m_DenseCount = 0;
+        mDenseData.Free();
+        mDenseCount = 0;
     }
 
     SND_INLINE void* SparseBuffer::Get(u32 index) const
     {
-        if (index >= m_SparseCapacity)
+        if (index >= mSparseCapacity)
         {
             return nullptr;
         }
 
-        const u32 denseIndex = m_SparseIndices[index];
+        const u32 denseIndex = mSparseIndices[index];
 
-        if (denseIndex >= m_DenseCount)
+        if (denseIndex >= mDenseCount)
         {
             return nullptr;
         }
 
-        return m_DenseData.Get(denseIndex);
+        return mDenseData.Get(denseIndex);
     }
 
     SND_INLINE void* SparseBuffer::Allocate(u32 index)
     {
-        if (index >= m_SparseCapacity || m_SparseIndices[index] != INVALID_UINDEX)
+        if (index >= mSparseCapacity || mSparseIndices[index] != INVALID_UINDEX)
         {
             return nullptr;
         }
 
-        const u32 denseIndex = m_DenseCount++;
-        m_SparseIndices[index] = denseIndex;
+        const u32 denseIndex = mDenseCount++;
+        mSparseIndices[index] = denseIndex;
 
-        if (denseIndex >= m_DenseData.Capacity())
+        if (denseIndex >= mDenseData.Capacity())
         {
-            const u32 newCapacity = m_DenseData.Capacity() * 2 + 1;
-            m_DenseData.Realloc(newCapacity);
+            const u32 newCapacity = mDenseData.Capacity() * 2 + 1;
+            mDenseData.Realloc(newCapacity);
         }
 
-        return m_DenseData.Get(denseIndex);
+        return mDenseData.Get(denseIndex);
     }
 
     SND_INLINE void* SparseBuffer::GetOrAllocate(u32 index)
@@ -161,42 +161,42 @@ namespace snd
 
     SND_INLINE bool SparseBuffer::Remove(u32 index)
     {
-        if (index >= m_SparseCapacity || m_SparseIndices[index] == INVALID_UINDEX)
+        if (index >= mSparseCapacity || mSparseIndices[index] == INVALID_UINDEX)
         {
             return false;
         }
 
-        const u32 denseIndex     = m_SparseIndices[index];
-        const u32 lastDenseIndex = m_DenseCount - 1;
+        const u32 denseIndex     = mSparseIndices[index];
+        const u32 lastDenseIndex = mDenseCount - 1;
 
-        m_SparseIndices[index] = INVALID_UINDEX;
+        mSparseIndices[index] = INVALID_UINDEX;
 
         if (denseIndex == lastDenseIndex)
         {
-            m_DenseCount--;
+            mDenseCount--;
             return true;
         }
 
-        void* lastElement   = m_DenseData.Get(lastDenseIndex);
-        void* targetElement = m_DenseData.Get(denseIndex);
+        void* lastElement   = mDenseData.Get(lastDenseIndex);
+        void* targetElement = mDenseData.Get(denseIndex);
 
-        memcpy(targetElement, lastElement, m_DenseData.ElementSize());
+        memcpy(targetElement, lastElement, mDenseData.ElementSize());
 
-        for (u32 i = 0; i < m_SparseCapacity; ++i)
+        for (u32 i = 0; i < mSparseCapacity; ++i)
         {
-            if (m_SparseIndices[i] == lastDenseIndex)
+            if (mSparseIndices[i] == lastDenseIndex)
             {
-                m_SparseIndices[i] = denseIndex;
+                mSparseIndices[i] = denseIndex;
                 break;
             }
         }
 
-        m_DenseCount--;
+        mDenseCount--;
         return true;
     }
 
     SND_INLINE bool SparseBuffer::Valid() const
     {
-        return m_SparseIndices && m_SparseCapacity > 0 && m_DenseData.ElementSize() > 0;
+        return mSparseIndices && mSparseCapacity > 0 && mDenseData.ElementSize() > 0;
     }
 }

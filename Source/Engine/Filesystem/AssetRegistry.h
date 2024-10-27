@@ -20,6 +20,6 @@ namespace snd::filesystem
         Asset*          Request(AssetHandle handle);
 
     private:
-        AssetTable      m_Registry;
+        AssetTable      mRegistry;
     };
 }
