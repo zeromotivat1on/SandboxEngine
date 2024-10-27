@@ -33,7 +33,7 @@ namespace snd
     // Numeric hash details.
     namespace uid_details
     {
-        inline u64 g_HashPcgCounter = 1;
+        inline u64 gHashPcgCounter = 1;
 
         constexpr u32 UidHashPcg32(u32 input)
         {
@@ -54,7 +54,7 @@ namespace snd
     {
         const u64 ctime = (u64)(CurrentTime() << 32);
         const u64 stime = (u64)(TimeSinceSystemBoot() << 8);
-        const u64 gpcgc = uid_details::g_HashPcgCounter++;
+        const u64 gpcgc = uid_details::gHashPcgCounter++;
 
         mHash = uid_details::UidHashPcg64(ctime + stime + gpcgc);
     }

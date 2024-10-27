@@ -11,8 +11,8 @@ namespace snd
 
 	namespace math
 	{
-		inline constexpr f32 g_MatrixEpsilon		= 1e-06f;
-		inline constexpr f32 g_MatrixInvEpsilon		= 1e-14f;
+		inline constexpr f32 gMatrixEpsilon       = 1e-06f;
+		inline constexpr f32 gMatrixInvEpsilon    = 1e-14f;
 
 		// Right-handed look at view matrix.
 		mat4 LookAt(const vec3& eye, const vec3& at, const vec3& up);
@@ -59,9 +59,9 @@ namespace snd
 
 		mat2&			Zero();
 		mat2&			Identity();
-		bool			Identity(f32 epsilon = math::g_MatrixEpsilon) const;
-		bool			Symmetric(f32 epsilon = math::g_MatrixEpsilon) const;
-		bool			Diagonal(f32 epsilon = math::g_MatrixEpsilon) const;
+		bool			Identity(f32 epsilon = math::gMatrixEpsilon) const;
+		bool			Symmetric(f32 epsilon = math::gMatrixEpsilon) const;
+		bool			Diagonal(f32 epsilon = math::gMatrixEpsilon) const;
 
 		f32				Trace() const;
 		f32				Determinant() const;
@@ -299,7 +299,7 @@ namespace snd
 	{
 		f32 det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 
-		if (math::Absf(det) < math::g_MatrixInvEpsilon)
+		if (math::Absf(det) < math::gMatrixInvEpsilon)
 		{
 			return false;
 		}
@@ -370,9 +370,9 @@ namespace snd
 
 		mat3&			Zero();
 		mat3&			Identity();
-		bool			Identity(f32 epsilon = math::g_MatrixEpsilon) const;
-		bool			Symmetric(f32 epsilon = math::g_MatrixEpsilon) const;
-		bool			Diagonal(f32 epsilon = math::g_MatrixEpsilon) const;
+		bool			Identity(f32 epsilon = math::gMatrixEpsilon) const;
+		bool			Symmetric(f32 epsilon = math::gMatrixEpsilon) const;
+		bool			Diagonal(f32 epsilon = math::gMatrixEpsilon) const;
 		bool			Rotated() const;
 
 		f32				Trace() const;
@@ -716,9 +716,9 @@ namespace snd
 
 		mat4&			Zero();
 		mat4&			Identity();
-		bool			Identity(f32 epsilon = math::g_MatrixEpsilon) const;
-		bool			Symmetric(f32 epsilon = math::g_MatrixEpsilon) const;
-		bool			Diagonal(f32 epsilon = math::g_MatrixEpsilon) const;
+		bool			Identity(f32 epsilon = math::gMatrixEpsilon) const;
+		bool			Symmetric(f32 epsilon = math::gMatrixEpsilon) const;
+		bool			Diagonal(f32 epsilon = math::gMatrixEpsilon) const;
 		bool			Rotated() const;
 
 		f32				Trace() const;

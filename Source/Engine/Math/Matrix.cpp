@@ -104,7 +104,7 @@ bool snd::mat4::InverseSelf()
 
 	const f32 det = -det3_201_123 * mat[3][0] + det3_201_023 * mat[3][1] - det3_201_013 * mat[3][2] + det3_201_012 * mat[3][3];
 
-	if (math::Absf(det) < math::g_MatrixInvEpsilon)
+	if (math::Absf(det) < math::gMatrixInvEpsilon)
 	{
 		return false;
 	}
