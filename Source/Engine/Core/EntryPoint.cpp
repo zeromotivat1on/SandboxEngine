@@ -178,7 +178,7 @@ s32 snd::EntryPoint()
 		((TransformComponent*)gEcs->ComponentData(cube, COMPONENT_TRANSFORM))->Location.x += i * 10.0f;
     }
 
-	f32 dt = FRAMERATE(60);
+	f32 dt = FPS(60);
 	u64 beginCounter = HighPrecisionCounter();
 	while (!gWindow->ShouldClose())
 	{
@@ -197,7 +197,7 @@ s32 snd::EntryPoint()
 		// If dt is too large, we must have resumed from a breakpoint, lock to the target framerate.
 		if (dt > 1.0f)
 		{
-			dt = FRAMERATE(60);
+			dt = FPS(60);
 		}
 #endif
 	}

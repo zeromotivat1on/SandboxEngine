@@ -77,7 +77,7 @@ using float64   = double;
 #define GB(n)                   (MB(n) * 1024ULL)
 #define TB(n)                   (GB(n) * 1024ULL)
 
-#define FRAMERATE(n)            (1.0f / n)
+#define FPS(n)                  (1.0f / n)
 
 #define NO_COPY_CTOR(T)         T(const T&) = delete
 #define NO_MOVE_CTOR(T)         T(T&&) noexcept = delete
