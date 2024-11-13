@@ -2,5 +2,5 @@
 
 int main()
 {
-    return snd::EntryPoint();
+    return EntryPoint();
 }

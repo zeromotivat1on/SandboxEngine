@@ -1,37 +1,29 @@
 #pragma once
 
-#ifdef SND_BUILD_DEBUG
-	#define SND_DEBUG_PROFILE
+#ifdef BUILD_DEBUG
+	#define SCOPE_TIMER(Name)	ScopeTimer MACRO_GLUE(scope_timer_, __LINE__)(Name)
 #else
+	#define SCOPE_TIMER(Name)
 #endif
 
-#ifdef SND_DEBUG_PROFILE
-	#define SND_SCOPE_TIMER(Name)  snd::ScopeTimer GLUE(snd_scope_timer_, __LINE__)(Name)
-#else
-	#define SND_SCOPE_TIMER(Name)
-#endif
-
-#ifdef SND_DEBUG_PROFILE
-namespace snd
+#ifdef BUILD_DEBUG
+struct ScopeTimer
 {
-	struct ScopeTimer
-	{
-					   ScopeTimer(const char* name);
-					   ~ScopeTimer();
+				ScopeTimer(const char* name);
+				~ScopeTimer();
 
-		const char*   Name;
-		Timer         Timer;
-	};
+	const char*	name;
+	u64         start;
+};
 
-	SND_INLINE ScopeTimer::ScopeTimer(const char* name)
-	   : Name(name)
-	{
-		Timer.Start();
-	}
+inline ScopeTimer::ScopeTimer(const char* name)
+	: name(name)
+{
+	start = time_curr();
+}
 
-	SND_INLINE ScopeTimer::~ScopeTimer()
-	{
-		SND_LOG("Timer (%s) took %dms", Name, Timer.Stop());
-	}
+inline ScopeTimer::~ScopeTimer()
+{
+	msg_debug("Timer (%s) took %dms", name, time_curr() - start);
 }
 #endif

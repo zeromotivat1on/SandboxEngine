@@ -1,8 +1,8 @@
-#include "sndpch.h"
+#include "pch.h"
 #include "Engine/Filesystem/Filesystem.h"
 #include "Engine/Filesystem/AssetRegistry.h"
 
-void snd::InitCorePaths()
+void path_init()
 {
     gRootFolderPath = ROOT_FOLDER_PATH;
     gAssetFolderPath = ASSET_FOLDER_PATH;
@@ -10,7 +10,7 @@ void snd::InitCorePaths()
     gShaderBinaryFolderPath = SHADER_BINARY_FOLDER_PATH;
 }
 
-void snd::MakePath(char* outPath, u8 partCount, ...)
+void path_make(char* outPath, u8 partCount, ...)
 {
     va_list args;
     va_start(args, partCount);
@@ -30,49 +30,31 @@ void snd::MakePath(char* outPath, u8 partCount, ...)
     va_end(args);
 }
 
-bool snd::ReadFile(const char* filepath, u8* buffer, u64 size, u64& outBytesRead)
+bgfx::ShaderHandle file_shader_load(const char* name)
 {
-	if (FILE* handle = fopen(filepath, "rb"))
-	{
-		const u64 bytesRead = fread(buffer, 1, size, handle);
-		const s32 err = ferror(handle);
-		fclose(handle);
-		if (err == 0)
-		{
-			outBytesRead = bytesRead;
-			return true;
-		}
-	}
-	outBytesRead = 0;
-	return false;
-}
+    char shader_path[512];
+    path_make(shader_path, 2, gShaderBinaryFolderPath, name);
 
-bgfx::ShaderHandle snd::ReadShader(const char* name)
-{
-    char shaderPath[512];
-    MakePath(shaderPath, 2, gShaderBinaryFolderPath, name);
-
-    constexpr u64 buffSize = KB(8);
-    u8* buff = PushSize(gFrameArena, buffSize);
-    u64 bytesRead;
+    bgfx::ShaderHandle handle = BGFX_INVALID_HANDLE;
+    constexpr u64 buffer_size = KB(8);
+    u8* buff = arena_push_size(&g_arena_frame, buffer_size);
+    u64 bytes_read = 0;
     
-    if (ReadFile(shaderPath, buff, buffSize, bytesRead))
+    if (file_read_sync(shader_path, buff, buffer_size, &bytes_read))
     {
-        const bgfx::Memory* shaderMemory = bgfx::alloc(bytesRead);
-    	memcpy(shaderMemory->data, buff, bytesRead);
-        const bgfx::ShaderHandle handle = bgfx::createShader(shaderMemory);
+        const bgfx::Memory* shaderMemory = bgfx::alloc((u32)bytes_read);
+    	memcpy(shaderMemory->data, buff, bytes_read);
+        handle = bgfx::createShader(shaderMemory);
         bgfx::setName(handle, name);
-        gFrameArena.Pop(buffSize);
-        return handle;
     }
 
-    gFrameArena.Pop(buffSize);
-    return BGFX_INVALID_HANDLE;
+    arena_pop(&g_arena_frame, buffer_size);
+    return handle;
 }
 
-bgfx::ProgramHandle snd::ReadProgram(const char* vertex, const char* fragment)
+bgfx::ProgramHandle file_program_load(const char* vertex, const char* fragment)
 {
-	const bgfx::ShaderHandle vsh = ReadShader(vertex);
-	const bgfx::ShaderHandle fsh = ReadShader(fragment);
+	const bgfx::ShaderHandle vsh = file_shader_load(vertex);
+	const bgfx::ShaderHandle fsh = file_shader_load(fragment);
 	return bgfx::createProgram(vsh, fsh, true);
 }

@@ -1,168 +1,138 @@
-#include "sndpch.h"
+#include "pch.h"
 #include "Engine/Render/Render.h"
 #include "Engine/Render/Vertex.h"
 #include "Engine/UI/ImguiBgfx.h"
-#include "Engine/Core/Input.h"
-#include "Engine/Core/Window.h"
-#include "Engine/Filesystem/Filesystem.h"
+#include "Engine/Ecs/Ecs.h"
 #include "Engine/Ecs/Components/CameraComponent.h"
 #include "Engine/Ecs/Components/MeshComponent.h"
 #include "Engine/Ecs/Components/TransformComponent.h"
-#include "Engine/Ecs/Ecs.h"
+#include "Engine/Filesystem/Filesystem.h"
 #include <bgfx/bgfx.h>
 
-void snd::Renderer::Init()
+void render_init(Render* r, hwindow win, CameraComponent* cam, bool vsync)
 {
-    SND_ASSERT(Window);
+    ASSERT(win);
+    ASSERT(cam);
 
-	bgfx::Init bgfxInit;
-	bgfxInit.type = bgfx::RendererType::OpenGL;
-	bgfxInit.platformData.nwh = Window->NativeHandle;
-	bgfxInit.resolution.width = Window->Width;
-	bgfxInit.resolution.height = Window->Height;
+    Vertex::init_layout();
+    
+    r->window = win;
+    r->camera = cam;
+    r->vsync = vsync;
+    
+    bgfx::Init bgfx_init;
+    bgfx_init.type = bgfx::RendererType::OpenGL;
+    bgfx_init.platformData.nwh = window_native(win);
 
-	if (Vsync)
-	{
-		bgfxInit.resolution.reset |= BGFX_RESET_VSYNC;
-	}
+    u16 winw, winh;
+    window_size_inner(win, &winw, &winh);
+    
+    bgfx_init.resolution.width = winw;
+    bgfx_init.resolution.height = winh;
 
-	bgfx::init(bgfxInit);
+    if (vsync)
+    {
+	    bgfx_init.resolution.reset |= BGFX_RESET_VSYNC;
+    }
 
-	bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x443355FF, 1.0f, 0);
+    bgfx::init(bgfx_init);
 
-#ifdef SND_BUILD_DEBUG
-	bgfx::setDebug(BGFX_DEBUG_TEXT);
+    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x443355FF, 1.0f, 0);
+
+#ifdef BUILD_DEBUG
+    bgfx::setDebug(BGFX_DEBUG_TEXT);
 #endif
 
-	SND_LOG("Using Graphics API (%s)", bgfx::getRendererName(bgfx::getRendererType()));
+    msg_log("Using Graphics API (%s)", bgfx::getRendererName(bgfx::getRendererType()));
 
-	Vertex::InitLayout();
-
-	ImguiBgfxCreate();
+    ImguiBgfxCreate();
 }
 
-void snd::Renderer::Terminate()
+void render_terminate(Render* r)
 {
+    memset(r, 0, sizeof(Render));
     ImguiBgfxDestroy();
-	bgfx::shutdown();
+    bgfx::shutdown();
 }
 
-void snd::Renderer::Reset(u16 width, u16 height)
+void render_reset(Render* r, u16 w, u16 h)
 {
-	u32 flags = 0;
+    u32 flags = 0;
 
-	if (Vsync)
-	{
-		flags |= BGFX_RESET_VSYNC;
-	}
+    if (r->vsync)
+    {
+	    flags |= BGFX_RESET_VSYNC;
+    }
 
-	bgfx::reset(width, height, flags);
+    bgfx::reset(w, h, flags);
 }
 
-void snd::Renderer::Render(f32 dt)
+void render_draw(Render* r, Ecs* ecs, f32 dt)
 {
-    SND_ASSERT(Camera);
+    u16 winw, winh;
+    window_size_inner(r->window, &winw, &winh);
 
-	bgfx::setViewTransform(0, Camera->ViewMat4().Ptr(), Camera->PerspectiveMat4().Ptr());
-	bgfx::setViewRect(0, 0, 0, Window->Width, Window->Height);
+    const f32 mx = mouse_axis(r->window, MOUSE_X);
+    const f32 my = mouse_axis(r->window, MOUSE_Y);
+    const f32 moffx = mouse_axis(r->window, MOUSE_OFFSET_X);
+    const f32 moffy = mouse_axis(r->window, MOUSE_OFFSET_Y);
+    const f32 mscrollx = mouse_axis(r->window, MOUSE_SCROLL_X);
+    const f32 mscrolly = mouse_axis(r->window, MOUSE_SCROLL_Y);
+    
+    bgfx::setViewTransform(0, r->camera->ViewMat4().Ptr(), r->camera->PerspectiveMat4().Ptr());
+    bgfx::setViewRect(0, 0, 0, winw, winh);
 
-	// This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.
-	bgfx::touch(0);
+    // This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.
+    bgfx::touch(0);
 
-#ifdef SND_BUILD_DEBUG
-	bgfx::dbgTextClear();
+#ifdef BUILD_DEBUG
+    bgfx::dbgTextClear();
+    
+    u8 debug_text_y = 1;
+    bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Window render size: %dx%d", winw, winh);
+    bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Delta time: %.2fms", (dt * 1000.0f));
+    bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "FPS: %.2f", (1.0f / dt));
+    bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Vsync: %s", r->vsync ? "ON" : "OFF");
 
-	u8 dbgTextY = 1;
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Window size: %dx%d", Window->Width, Window->Height);
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Delta time: %.2fms", (dt * 1000.0f));
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "FPS: %.2f", (1.0f / dt));
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Vsync: %s", Vsync ? "ON" : "OFF");
-
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Camera: location %s, target %s", Camera->Eye.String(), Camera->At.String());
-	bgfx::dbgTextPrintf(1, dbgTextY++, 0x0f, "Mouse: position %s, offset %s", Window->MousePos().String(), Window->MouseOffset().String());
+    bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Camera: location (%.2f %.2f %.2f), target  (%.2f %.2f %.2f)", r->camera->eye.x, r->camera->eye.y, r->camera->eye.z, r->camera->at.x, r->camera->at.y, r->camera->at.z);
+    bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Mouse: position (%.2f %.2f), offset (%.2f %.2f)", mx, my, moffx, moffy);
 #endif
 
-    for (Entity e = 0; e < kMaxEntities; ++e)
-	{
-        const auto* mesh = (MeshComponent*)gEcs->ComponentData(e, COMPONENT_MESH);
-        if (mesh->Rph.idx > 0)
+    for (Entity e = 0; e < ecs->max_entity_count; ++e)
+    {
+        const auto* mesh = (MeshComponent*)ecs_component(ecs, e, CT_MESH);
+        if (mesh->rph.idx > 0)
         {
             bgfx::setState(BGFX_STATE_DEFAULT);
 
-            const auto* transform = (TransformComponent*)gEcs->ComponentData(e, COMPONENT_TRANSFORM);
+            const auto* transform = (TransformComponent*)ecs_component(ecs, e, CT_TRANSFORM);
             bgfx::setTransform(transform->Mat4().Ptr());
 
-            bgfx::setVertexBuffer(0, mesh->Vbh);
-            bgfx::setIndexBuffer(mesh->Ibh);
-            bgfx::submit(0, mesh->Rph);
+            bgfx::setVertexBuffer(0, mesh->vbh);
+            bgfx::setIndexBuffer(mesh->ibh);
+            bgfx::submit(0, mesh->rph);
         }
-	}
+    }
 
     // User interface.
     {
-        const u8 imguiMouseButtons =
-    	   (Window->Buttons[INPUT_MOUSE_LEFT] == INPUT_PRESS   ? IMGUI_MBUT_LEFT   : 0)	|
-    	   (Window->Buttons[INPUT_MOUSE_RIGHT] == INPUT_PRESS  ? IMGUI_MBUT_RIGHT  : 0)	|
-    	   (Window->Buttons[INPUT_MOUSE_MIDDLE] == INPUT_PRESS ? IMGUI_MBUT_MIDDLE : 0);
+        const u8 imgui_mouse_buttons =
+            (mouse_down(r->window, MOUSE_LEFT)   ? IMGUI_MBUT_LEFT   : 0)   |
+            (mouse_down(r->window, MOUSE_RIGHT)  ? IMGUI_MBUT_RIGHT  : 0)   |
+            (mouse_down(r->window, MOUSE_MIDDLE) ? IMGUI_MBUT_MIDDLE : 0);
 
         ImguiBgfxBeginFrame(
-        	Window->MousePos(),
-        	imguiMouseButtons,
-        	Window->ScrollOffset(),
-        	Window->Width,
-        	Window->Height
-        );
-
-        ImGui::ShowDemoWindow();
-
-        ImguiBgfxEndFrame();
+            vec2(mx, my),
+	    	imgui_mouse_buttons,
+	    	vec2((f32)Sign(mscrollx), (f32)Sign(mscrolly)),
+	    	winw,
+	    	winh
+	    );
+        
+	    ImGui::ShowDemoWindow();
+        
+	    ImguiBgfxEndFrame();
     }
 
-	bgfx::frame();
-}
-
-snd::Entity snd::NewEntityDebugCube()
-{
-	static const Vertex cubeVertices[8] =
-	{
-		{ vec3(-1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff000000 },
-		{ vec3( 1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff0000ff },
-		{ vec3(-1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff00ff00 },
-		{ vec3( 1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff00ffff },
-		{ vec3(-1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffff0000 },
-		{ vec3( 1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffff00ff },
-		{ vec3(-1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffffff00 },
-		{ vec3( 1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffffffff },
-	};
-
-	static const u16 cubeIndices[36] =
-	{
-		0, 1, 2,
-		1, 3, 2,
-		4, 6, 5,
-		5, 6, 7,
-		0, 2, 4,
-		4, 2, 6,
-		1, 5, 3,
-		5, 7, 3,
-		0, 4, 1,
-		4, 5, 1,
-		2, 3, 6,
-		6, 3, 7,
-	};
-
-	static const auto cubeVbh = bgfx::createVertexBuffer(bgfx::makeRef(cubeVertices, 8 * sizeof(Vertex)), Vertex::Layout);
-	static const auto cubeIbh = bgfx::createIndexBuffer(bgfx::makeRef(cubeIndices, 36 * sizeof(u32)));
-	static const auto cubeRph = ReadProgram("base.vs.bin", "base.fs.bin");
-
-	const Entity cube = gEcs->NewEntity();
-
-    new (gEcs->ComponentData(cube, COMPONENT_TRANSFORM)) TransformComponent(IdentityTransform());
-
-	auto* mesh = (MeshComponent*)gEcs->ComponentData(cube, COMPONENT_MESH);
-	mesh->Vbh = cubeVbh;
-	mesh->Ibh = cubeIbh;
-	mesh->Rph = cubeRph;
-
-	return cube;
+    bgfx::frame();
 }

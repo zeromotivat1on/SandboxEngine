@@ -1,43 +1,40 @@
 #pragma once
 
-#define INVALID_ENTITY          (Entity)INVALID_INDEX
-#define INVALID_COMPONENT_TYPE  (ComponentType)INVALID_INDEX
+#define INVALID_ENTITY (Entity)INDEX_NONE
 
-namespace snd
+typedef u32 Entity;
+
+inline constexpr u16 k_max_entities = 2048;
+
+enum ComponentType : u16
 {
-    using Entity = u32;
+    CT_TRANSFORM = 0,
+    CT_MOVEMENT,
+    CT_CAMERA,
+    CT_MATERIAL,
+    CT_MESH,
 
-    inline constexpr u16 kMaxEntities = 2048;
+    CT_COUNT
+};
 
-    enum ComponentType : u16
-    {
-        COMPONENT_TRANSFORM,
-        COMPONENT_MOVEMENT,
-        COMPONENT_CAMERA,
-        COMPONENT_MATERIAL,
-        COMPONENT_MESH,
+struct Ecs
+{
+    Entity* entities;
+    Entity* free_entities;
 
-        COMPONENT_COUNT
-    };
+    void*   components[CT_COUNT];
+    u16     component_sizes[CT_COUNT];
 
-    struct Ecs
-    {
-        Entity* Entities;
-        Entity* FreeEntities;
-        void*   Components[COMPONENT_COUNT];
-        u16     ComponentSizes[COMPONENT_COUNT];
-        u16     EntityCount;
-        u16     FreeEntityCount;
+    u16     max_entity_count;
+    u16     entity_count;
+    u16     free_entity_count;
+};
 
-        void    Init();
-        void    Tick(f32 dt);
+void    ecs_init(Ecs* ecs, u32 max_entities);
+Entity  ecs_entity_new(Ecs* ecs);
+void    ecs_entity_del(Ecs* ecs, Entity e);
+void*   ecs_component(Ecs* ecs, Entity e, ComponentType ct);
+void    ecs_component_del(Ecs* ecs, Entity e, ComponentType ct);
 
-        Entity  NewEntity();
-        void    DeleteEntity(Entity e);
-
-        void*   ComponentData(Entity e, ComponentType ct);
-        void    ClearComponentData(Entity e, ComponentType ct);
-    };
-
-    inline Ecs* gEcs;
-}
+// Create debug cube entity with default transform.
+Entity ecs_entity_new_debug_cube(Ecs* ecs);

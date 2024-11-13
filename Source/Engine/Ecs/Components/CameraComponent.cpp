@@ -1,36 +1,36 @@
-﻿#include "sndpch.h"
-#include "Engine/Ecs/Components/CameraComponent.h"
+﻿#include "pch.h"
+#include "Ecs/Components/CameraComponent.h"
 
-snd::vec3 snd::CameraComponent::ForwardVector() const
+vec3 CameraComponent::ForwardVector() const
 {
-    return (At - Eye).Normalize();
+    return (at - eye).Normalize();
 }
 
-snd::vec3 snd::CameraComponent::RightVector() const
+vec3 CameraComponent::RightVector() const
 {
-    return ForwardVector().Cross(Up).Normalize();
+    return ForwardVector().Cross(up).Normalize();
 }
 
-snd::mat4 snd::CameraComponent::ViewMat4() const
+mat4 CameraComponent::ViewMat4() const
 {
-    return math::LookAt(Eye, At, Up);
+    return lookat(eye, at, up);
 }
 
-snd::mat4 snd::CameraComponent::PerspectiveMat4() const
+mat4 CameraComponent::PerspectiveMat4() const
 {
-    return math::Perspective(math::Rad(Fov), Aspect, Near, Far);
+    return perspective(Rad(fov), aspect, clip_near, clip_far);
 }
 
-snd::mat4 snd::CameraComponent::OrthographicMat4() const
+mat4 CameraComponent::OrthographicMat4() const
 {
-    return math::Orthographic(Left, Right, Bottom, Top, Near, Far);
+    return orthographic(clip_left, clip_right, clip_bottom, clip_top, clip_near, clip_far);
 }
 
-snd::vec3 snd::ForwardVector(f32 yaw, f32 pitch)
+vec3 ForwardVector(f32 yaw, f32 pitch)
 {
-    const f32 ycos = math::Cos(math::Rad(yaw)); 
-    const f32 ysin = math::Sin(math::Rad(yaw));
-    const f32 pcos = math::Cos(math::Rad(pitch));
-    const f32 psin = math::Sin(math::Rad(pitch));
+    const f32 ycos = Cos(Rad(yaw)); 
+    const f32 ysin = Sin(Rad(yaw));
+    const f32 pcos = Cos(Rad(pitch));
+    const f32 psin = Sin(Rad(pitch));
     return vec3(ycos * pcos, psin, ysin * pcos).Normalize();
 }

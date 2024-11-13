@@ -2,16 +2,13 @@
 
 #include <bgfx/bgfx.h>
 
-namespace snd
+struct Vertex
 {
-    struct Vertex
-    {
-        vec3                        Position;
-        vec3                        Normal;
-        vec2                        Texture;
-        u32                         Color;
+    vec3                        position;
+    vec3                        normal;
+    vec2                        texture;
+    u32                         color;
 
-        static bgfx::VertexLayout   Layout;
-        static void                 InitLayout();
-    };
-}
+    static bgfx::VertexLayout   layout;
+    static void                 init_layout();
+};

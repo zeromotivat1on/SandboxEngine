@@ -1,27 +1,23 @@
 #pragma once
 
-#ifdef SND_BUILD_DEBUG
-	#define SND_ENABLE_ASSERT
-	#ifdef SND_PLATFORM_WINDOWS
-		#define SND_DEBUG_BREAK() __debugbreak()
-	#else
-		#error "Only Windows supported for now"
-	#endif
+#ifdef BUILD_DEBUG
+    #ifdef WIN32
+        #define DEBUG_BREAK() __debugbreak()
+    #else
+        #error "Only Windows supported for now"
+    #endif
 #else
-	#define SND_DEBUG_BREAK()
+	#define DEBUG_BREAK()
 #endif
 
-#ifdef SND_ENABLE_ASSERT
-	#define SND_ASSERT(check) { if (!(check)) { snd::AssertFailed(SND_STRINGIFY_MACRO(check), __FILE__, __LINE__); } }
+#ifdef BUILD_DEBUG
+	#define ASSERT(check) { if (!(check)) { assert_failed(MACRO_STRING(check), __FILE__, __LINE__); } }
 #else
-	#define SND_ASSERT(check)
+    #define ASSERT(check)
 #endif
 
-namespace snd
+inline void assert_failed(const char* cond, const char* filename, u32 line)
 {
-    SND_INLINE void AssertFailed(const char* cond, const char* filename, u32 line)
-    {
-        SND_CRITICAL("Assertion (%s) failed at (%s:%d)", cond, filename, line);
-        SND_DEBUG_BREAK();
-    }
+    msg_critical("Assertion (%s) failed at (%s:%d)", cond, filename, line);
+    DEBUG_BREAK();
 }

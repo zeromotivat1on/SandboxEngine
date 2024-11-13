@@ -2,12 +2,9 @@
 
 #include <bgfx/bgfx.h>
 
-namespace snd
+struct MeshComponent
 {
-    struct MeshComponent
-    {
-        bgfx::VertexBufferHandle    Vbh;    // vertex buffer handle
-        bgfx::IndexBufferHandle     Ibh;    // index buffer handle
-        bgfx::ProgramHandle         Rph;    // render pipeline handle
-    };
-}
+    bgfx::VertexBufferHandle    vbh;    // vertex buffer handle
+    bgfx::IndexBufferHandle     ibh;    // index buffer handle
+    bgfx::ProgramHandle         rph;    // render pipeline handle
+};

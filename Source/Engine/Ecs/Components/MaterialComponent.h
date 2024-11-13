@@ -2,11 +2,8 @@
 
 #include <bgfx/bgfx.h>
 
-namespace snd
+struct MaterialComponent
 {
-    struct MaterialComponent
-    {
-        bgfx::TextureHandle     Texture;
-        bgfx::UniformHandle     Uniform;
-    };
-}
+    bgfx::TextureHandle texture;
+    bgfx::UniformHandle uniform;
+};

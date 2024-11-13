@@ -1,27 +1,16 @@
 #pragma once
 
-#include "Engine/Ecs/Ecs.h"
+struct Ecs;
+struct CameraComponent;
 
-namespace snd
+struct Render
 {
-    struct Window;
-    struct CameraComponent;
+    hwindow             window;
+    CameraComponent*    camera;
+    bool                vsync;
+};
 
-    struct Renderer
-    {
-        Window*             Window;
-        CameraComponent*    Camera;
-        bool                Vsync;
-
-        void Init();
-        void Terminate();
-
-        void Render(f32 dt);
-        void Reset(u16 width, u16 height);
-    };
-
-    inline Renderer* gRenderer;
-
-	// Create debug cube entity with default transform.
-	Entity NewEntityDebugCube();
-}
+void render_init(Render* r, hwindow win, CameraComponent* cam, bool vsync);
+void render_terminate(Render* r);
+void render_draw(Render* r, Ecs* ecs, f32 dt);
+void render_reset(Render* r, u16 w, u16 h);

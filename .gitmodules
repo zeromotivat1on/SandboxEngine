@@ -7,3 +7,6 @@
 [submodule "Source/Vendor/imgui"]
 	path = Source/Vendor/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "Source/Vendor/gdl"]
+	path = Source/Vendor/gdl
+	url = https://github.com/zeromotivat1on/gdl

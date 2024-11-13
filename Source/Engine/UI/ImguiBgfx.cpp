@@ -194,7 +194,7 @@ struct OcornutImguiContext
 		}
 
 		ViewId = 255;
-		LastScroll = snd::vec2(0.0f);
+		LastScroll = vec2(0.0f);
 		LastTime = bx::getHPCounter();
 
 		ImGui::SetAllocatorFunctions(MemAlloc, MemFree, nullptr);
@@ -302,7 +302,7 @@ struct OcornutImguiContext
 		style.WindowBorderSize = 0.0f;
 	}
 
-	void BeginFrame(const snd::vec2& mousePos, u8 mouseButtons, const snd::vec2& mouseScroll, u16 windowWidth, u16 windowHeight, s32 inputChar, bgfx::ViewId viewId)
+	void BeginFrame(const vec2& mousePos, u8 mouseButtons, const vec2& mouseScroll, u16 windowWidth, u16 windowHeight, s32 inputChar, bgfx::ViewId viewId)
 	{
 		ViewId = viewId;
 
@@ -347,7 +347,7 @@ struct OcornutImguiContext
 	bgfx::UniformHandle 	ImageLodEnabledUniform;
 	ImFont* 				Font[ImGui::Font::Count];
 	s64 					LastTime;
-	snd::vec2				LastScroll;
+	vec2				    LastScroll;
 	bgfx::ViewId			ViewId;
 };
 
@@ -363,22 +363,22 @@ static void MemFree(void* ptr, void* userData)
 	bx::free(s_Ctx.Allocator, ptr);
 }
 
-void snd::ImguiBgfxCreate(f32 fontSize, bx::AllocatorI* allocator)
+void ImguiBgfxCreate(f32 fontSize, bx::AllocatorI* allocator)
 {
 	s_Ctx.Create(fontSize, allocator);
 }
 
-void snd::ImguiBgfxDestroy()
+void ImguiBgfxDestroy()
 {
 	s_Ctx.Destroy();
 }
 
-void snd::ImguiBgfxBeginFrame(const vec2& mousePos, u8 mouseButtons, const vec2& mouseScroll, u16 windowWidth, u16 windowHeight, s32 inputChar, bgfx::ViewId view)
+void ImguiBgfxBeginFrame(const vec2& mousePos, u8 mouseButtons, const vec2& mouseScroll, u16 windowWidth, u16 windowHeight, s32 inputChar, bgfx::ViewId view)
 {
 	s_Ctx.BeginFrame(mousePos, mouseButtons, mouseScroll, windowWidth, windowHeight, inputChar, view);
 }
 
-void snd::ImguiBgfxEndFrame()
+void ImguiBgfxEndFrame()
 {
 	s_Ctx.EndFrame();
 }

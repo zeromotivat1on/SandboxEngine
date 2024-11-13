@@ -1,9 +1,7 @@
-#include "sndpch.h"
+#include "pch.h"
 #include "Engine/Core/EntryPoint.h"
-#include "Engine/Core/Input.h"
-#include "Engine/Core/Window.h"
-#include "Engine/Render/Render.h"
 #include "Engine/Filesystem/Filesystem.h"
+#include "Engine/Render/Render.h"
 #include "Engine/Ecs/Ecs.h"
 
 // Temp test player and stuff.
@@ -11,189 +9,207 @@
 #include "Ecs/Components/MovementComponent.h"
 #include "Ecs/Components/CameraComponent.h"
 
-namespace snd
+Entity test_player_init(Ecs* ecs, hwindow win)
 {
-	f32 gCameraMoveInputScale = 1.0f;
+	Entity player = ecs_entity_new(ecs);
 
-	Entity InitTestPlayer(Window* wnd)
-	{
-		Entity player = gEcs->NewEntity();
+	auto* transform = new (ecs_component(ecs, player, CT_TRANSFORM)) TransformComponent(IdentityTransform());
+	transform->location = vec3(0.0f, 0.0f, -50.0f);
 
-		auto* transform = new (gEcs->ComponentData(player, COMPONENT_TRANSFORM)) TransformComponent(IdentityTransform());
-		transform->Location = vec3(0.0f, 0.0f, -50.0f);
+	vec4 ortho;
+    window_ortho_center(win, ortho.Ptr());
+        
+	auto* camera = (CameraComponent*)ecs_component(ecs, player, CT_CAMERA);
+	camera->eye  	= transform->location;
+	camera->at	 	= vec3(0.0f);
+	camera->up		= vec3(0.0f, 1.0f, 0.0f);
+	camera->yaw		= 0.0f;
+	camera->pitch	= 0.0f;
+	camera->fov		= 60.0f;
+	camera->aspect	= window_aspect(win);
+	camera->clip_near	= 0.1f;
+	camera->clip_far		= 1000.0f;
+	camera->clip_left	= ortho[0] * 0.1f;
+	camera->clip_right	= ortho[1] * 0.1f;
+	camera->clip_bottom	= ortho[2] * 0.1f;
+	camera->clip_top		= ortho[3] * 0.1f;
 
-		const vec4 ortho = wnd->OrthoDataCentered();
-		auto* camera = (CameraComponent*)gEcs->ComponentData(player, COMPONENT_CAMERA);
-		camera->Eye  	= transform->Location;
-		camera->At	 	= vec3(0.0f);
-		camera->Up		= vec3(0.0f, 1.0f, 0.0f);
-		camera->Yaw		= 0.0f;
-		camera->Pitch	= 0.0f;
-		camera->Fov		= 60.0f;
-		camera->Aspect	= wnd->AspectRatio();
-		camera->Near	= 0.1f;
-		camera->Far		= 1000.0f;
-		camera->Left	= ortho[0] * 0.1f;
-		camera->Right	= ortho[1] * 0.1f;
-		camera->Bottom	= ortho[2] * 0.1f;
-		camera->Top		= ortho[3] * 0.1f;
+	auto* movement = (MovementComponent*)ecs_component(ecs, player, CT_MOVEMENT);
+	movement->velocity = vec3(0.0f);
 
-		auto* movement = (MovementComponent*)gEcs->ComponentData(player, COMPONENT_MOVEMENT);
-		movement->Velocity = vec3(0.0f);
-
-		return player;
-	}
-
-	void TickTestPlayer(Entity player, Entity cube, Window* wnd, f32 dt)
-	{
-		if (wnd->ButtonsDown[INPUT_KEY_ESCAPE])
-    	{
-    		SND_LOG("Manual shutdown is requested");
-    		wnd->ShouldClose(true);
-    		return;
-    	}
-
-        if (wnd->ButtonsDown[INPUT_KEY_F])
-        {
-            SND_LOG("Centering on given cube entity");
-
-            auto* playerTransform = (TransformComponent*)gEcs->ComponentData(player, COMPONENT_TRANSFORM);
-            auto* cubeTransform = (TransformComponent*)gEcs->ComponentData(cube, COMPONENT_TRANSFORM);
-
-            if (playerTransform && cubeTransform)
-            {
-                playerTransform->Location = cubeTransform->Location;
-            }
-
-            return;
-        }
-
-        if (wnd->ButtonsDown[INPUT_KEY_1])
-        {
-            gEcs->DeleteEntity(1);
-        }
-        if (wnd->ButtonsDown[INPUT_KEY_2])
-        {
-            gEcs->DeleteEntity(2);
-        }
-        if (wnd->ButtonsDown[INPUT_KEY_3])
-        {
-            gEcs->DeleteEntity(3);
-        }
-
-		gCameraMoveInputScale += math::Sign(wnd->Axes[INPUT_MOUSE_SCROLL_Y]) * 0.2f;
-		gCameraMoveInputScale  = std::clamp(gCameraMoveInputScale, 0.1f, 10.0f);
-
-		auto* movement = (MovementComponent*)gEcs->ComponentData(player, COMPONENT_MOVEMENT);
-		auto* camera = (CameraComponent*)gEcs->ComponentData(player, COMPONENT_CAMERA);
-
-		const f32 mouseSensitivity = 0.1f; // todo: mb make separate component for inputs
-		const f32 pitchLimit = 89.0f;
-
-		camera->Yaw   += wnd->Axes[INPUT_MOUSE_OFFSET_X] * mouseSensitivity;
-		camera->Pitch += wnd->Axes[INPUT_MOUSE_OFFSET_Y] * mouseSensitivity;
-		camera->Pitch  = std::clamp(camera->Pitch, -pitchLimit, pitchLimit);
-
-        const f32 moveSpeed = 3000.0f * gCameraMoveInputScale;
-		vec3 inputVelocity;
-
-		if (wnd->Buttons[INPUT_KEY_W])
-		{
-			inputVelocity.x += moveSpeed * dt;
-		}
-
-		if (wnd->Buttons[INPUT_KEY_S])
-		{
-			inputVelocity.x -= moveSpeed * dt;
-		}
-
-		if (wnd->Buttons[INPUT_KEY_D])
-		{
-			inputVelocity.y += moveSpeed * dt;
-		}
-
-		if (wnd->Buttons[INPUT_KEY_A])
-		{
-			inputVelocity.y -= moveSpeed * dt;
-		}
-
-		if (wnd->Buttons[INPUT_KEY_E])
-		{
-			inputVelocity.z += moveSpeed * dt;
-		}
-
-		if (wnd->Buttons[INPUT_KEY_Q])
-		{
-			inputVelocity.z -= moveSpeed * dt;
-		}
-
-		movement->Velocity =
-			inputVelocity.x * camera->ForwardVector() +
-			inputVelocity.y * camera->RightVector()	+
-			inputVelocity.z * camera->Up;
-	}
+	return player;
 }
 
-s32 snd::EntryPoint()
+void test_player_tick(Ecs* ecs, Entity player, Entity cube, hwindow win, f32 dt)
 {
-    gMsgStdout = GetStdout();
-    gHighPrecisionFrequency = HighPrecisionFrequency();
+    static f32 camera_speed_scale = 1.0f;
 
-#if SND_BUILD_DEBUG
-    void* baseAddr = (void*)TB(2);
+	if (key_pressed(win, KEY_ESCAPE))
+    {
+    	msg_log("Window manual close by key");
+    	window_close(win);
+    	return;
+    }
+
+    if (key_pressed(win, KEY_F))
+    {
+        msg_log("Centering on given cube entity");
+
+        auto* player_transform = (TransformComponent*)ecs_component(ecs, player, CT_TRANSFORM);
+        auto* cube_transform = (TransformComponent*)ecs_component(ecs, cube, CT_TRANSFORM);
+
+        player_transform->location = cube_transform->location;
+    }
+
+    if (key_pressed(win, KEY_1))
+    {
+        ecs_entity_del(ecs, 1);
+    }
+    if (key_pressed(win, KEY_2))
+    {
+        ecs_entity_del(ecs, 2);
+    }
+    if (key_pressed(win, KEY_3))
+    {
+        ecs_entity_del(ecs, 3);
+    }
+
+	camera_speed_scale += Sign(mouse_axis(win, MOUSE_SCROLL_Y)) * 0.2f;
+	camera_speed_scale  = Clamp(camera_speed_scale, 0.1f, 10.0f);
+
+	auto* movement = (MovementComponent*)ecs_component(ecs, player, CT_MOVEMENT);
+	auto* camera = (CameraComponent*)ecs_component(ecs, player, CT_CAMERA);
+
+	const f32 mouse_sensitivity = 0.1f; // todo: mb make separate component for inputs
+	const f32 pitch_limit = 89.0f;
+
+	camera->yaw   += mouse_axis(win, MOUSE_OFFSET_X) * mouse_sensitivity;
+	camera->pitch += mouse_axis(win, MOUSE_OFFSET_Y) * mouse_sensitivity;
+	camera->pitch  = Clamp(camera->pitch, -pitch_limit, pitch_limit);
+
+    const f32 move_speed = 3000.0f * camera_speed_scale;
+	vec3 input_velocity;
+
+	if (key_down(win, KEY_W))
+	{
+		input_velocity.x += move_speed * dt;
+	}
+
+    if (key_down(win, KEY_S))
+	{
+		input_velocity.x -= move_speed * dt;
+	}
+
+    if (key_down(win, KEY_D))
+	{
+		input_velocity.y += move_speed * dt;
+	}
+
+    if (key_down(win, KEY_A))
+	{
+		input_velocity.y -= move_speed * dt;
+	}
+
+    if (key_down(win, KEY_E))
+	{
+		input_velocity.z += move_speed * dt;
+	}
+
+    if (key_down(win, KEY_Q))
+	{
+		input_velocity.z -= move_speed * dt;
+	}
+
+	movement->velocity =
+		input_velocity.x * camera->ForwardVector()  +
+		input_velocity.y * camera->RightVector()	+
+		input_velocity.z * camera->up;
+}
+
+void EcsTestTick(Ecs* ecs, f32 dt)
+{
+    for (Entity e = 0; e < ecs->max_entity_count; ++e)
+    {
+        auto* transform = (TransformComponent*)ecs_component(ecs, e, CT_TRANSFORM);
+        auto* movement = (MovementComponent*)ecs_component(ecs, e, CT_MOVEMENT);
+        auto* camera = (CameraComponent*)ecs_component(ecs, e, CT_CAMERA);
+
+        transform->location += movement->velocity * dt;
+
+        camera->eye = transform->location;
+        camera->at = camera->eye + ForwardVector(camera->yaw, camera->pitch);
+    }
+}
+
+s32 EntryPoint()
+{
+#if BUILD_DEBUG
+    void* base_addr = (void*)TB(2);
 #else
-    void* baseAddr = nullptr;
+    void* base_addr = nullptr;
 #endif
 
-    gVirtSpace = ReserveVirtSpace(baseAddr, VIRT_SPACE_SIZE);
-    gPhysHeap = AllocPhysHeap(gVirtSpace, PHYS_HEAP_SIZE);
+    g_virt_space = mem_virt_reserve(base_addr, VIRT_SPACE_SIZE);
+    g_phys_heap = mem_virt_commit(g_virt_space, PHYS_HEAP_SIZE);
 
-    InitArena(gPersArena, gPhysHeap, PERS_ARENA_SIZE);
-    InitArena(gTranArena, gPhysHeap, TRAN_ARENA_SIZE, PERS_ARENA_SIZE);
-    InitArena(gFrameArena, gPhysHeap, FRAME_ARENA_SIZE, PERS_ARENA_SIZE + TRAN_ARENA_SIZE);
+    g_arena_persistent = arena_create(g_phys_heap, PERS_ARENA_SIZE);
+    g_arena_transient = arena_create((u8*)g_phys_heap + PERS_ARENA_SIZE, TRAN_ARENA_SIZE);
+    g_arena_frame = arena_create((u8*)g_phys_heap + PERS_ARENA_SIZE + TRAN_ARENA_SIZE, FRAME_ARENA_SIZE);
 
-    InitCorePaths();
-    InitInputMaps();
+    path_init();
 
-    gWindowCount = 0;
-    gWindow = OpenWindow("Sandbox Engine", 1280, 720);
-    gWindow->EnableCursor(true);
+    WindowInfo winfo = STRUCT_ZERO(WindowInfo);
+    winfo.title = "Sandbox Engine";
+    winfo.width = 1280;
+    winfo.height = 720;
+    winfo.x = 100;
+    winfo.y = 100;
+    
+    hwindow win = (hwindow)arena_push_zero(&g_arena_persistent, WINDOW_ALLOC_SIZE);
+    if (window_create(win, &winfo))
+    {
+        window_key_tables_init(win);
+        window_cursor_lock(win, false);
+        window_cursor_show(win, true);
+    }
+    else
+    {
+        msg_critical("Failed to create window");
+        return -1;
+    }
 
-    gEcs = PushStruct(gPersArena, Ecs);
-    gEcs->Init();
+    Ecs* ecs = arena_push_struct(&g_arena_persistent, Ecs);
+    ecs_init(ecs, k_max_entities);
 
-    Entity player = InitTestPlayer(gWindow);
+    Entity player = test_player_init(ecs, win);
 
-    gRenderer = PushStruct(gPersArena, Renderer);
-    gRenderer->Window = gWindow;
-    gRenderer->Camera = (CameraComponent*)gEcs->ComponentData(player, COMPONENT_CAMERA);
-    gRenderer->Vsync = true;
-    gRenderer->Init();
+    Render* r = arena_push_struct(&g_arena_persistent, Render);
+    render_init(r, win, (CameraComponent*)ecs_component(ecs, player, CT_CAMERA), true);
 
 	// Create debug test cubes.
     Entity cube;
     for (s32 i = 0; i < 10; ++i)
     {
-		cube = NewEntityDebugCube();
-		((TransformComponent*)gEcs->ComponentData(cube, COMPONENT_TRANSFORM))->Location.x += i * 10.0f;
+		cube = ecs_entity_new_debug_cube(ecs);
+		((TransformComponent*)ecs_component(ecs, cube, CT_TRANSFORM))->location.x += i * 10.0f;
     }
 
 	f32 dt = FPS(60);
-	u64 beginCounter = HighPrecisionCounter();
-	while (!gWindow->ShouldClose())
+	u64 begin_counter = hp_counter();
+	while (window_active(win))
 	{
-        gFrameArena.Clear();
+        arena_clear(&g_arena_frame);
 
-        gWindow->Update();
-        TickTestPlayer(player, cube, gWindow, dt);
-        gEcs->Tick(dt);
-        gRenderer->Render(dt);
+        window_update(win);
+        test_player_tick(ecs, player, cube, win, dt);
+        EcsTestTick(ecs, dt);
+        render_draw(r, ecs, dt);
 
-		const u64 endCounter = HighPrecisionCounter();
-		dt = (f32)(endCounter - beginCounter) / (f32)gHighPrecisionFrequency;
-		beginCounter = endCounter;
+		const u64 endCounter = hp_counter();
+		dt = (f32)(endCounter - begin_counter) / (f32)hp_frequency();
+		begin_counter = endCounter;
 
-#ifdef SND_BUILD_DEBUG
+#ifdef BUILD_DEBUG
 		// If dt is too large, we must have resumed from a breakpoint, lock to the target framerate.
 		if (dt > 1.0f)
 		{
@@ -202,10 +218,10 @@ s32 snd::EntryPoint()
 #endif
 	}
 
-	gRenderer->Terminate();
-	CloseWindow(gWindow);
-    FreePhysHeap(gPhysHeap, PHYS_HEAP_SIZE);
-    ReleaseVirtSpace(gVirtSpace);
+	render_terminate(r);
+	window_destroy(win);
+    mem_virt_decommit(g_phys_heap, PHYS_HEAP_SIZE);
+    mem_virt_release(g_virt_space);
 
-	return SND_CORE_SUCCESS;
+	return 0;
 }

@@ -1,11 +1,11 @@
-﻿#include "sndpch.h"
+﻿#include "pch.h"
 #include "Engine/Render/Vertex.h"
 
-bgfx::VertexLayout snd::Vertex::Layout;
+bgfx::VertexLayout Vertex::layout;
 
-void snd::Vertex::InitLayout()
+void Vertex::init_layout()
 {
-    Layout
+    layout
         .begin()
         .add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float)
         .add(bgfx::Attrib::Normal,    3, bgfx::AttribType::Float)

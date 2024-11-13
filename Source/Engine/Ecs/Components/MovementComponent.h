@@ -1,9 +1,6 @@
 ﻿#pragma once
 
-namespace snd
+struct MovementComponent
 {
-    struct MovementComponent
-    {
-        vec3        Velocity;
-    };
-}
+    vec3 velocity;
+};
