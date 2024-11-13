@@ -6,7 +6,6 @@
 #include "Engine/Ecs/Components/MaterialComponent.h"
 #include "Engine/Ecs/Components/MeshComponent.h"
 #include "Engine/Render/Vertex.h"
-#include "Engine/Filesystem/Filesystem.h"
 
 void ecs_init(Ecs* ecs, u32 max_entities)
 {

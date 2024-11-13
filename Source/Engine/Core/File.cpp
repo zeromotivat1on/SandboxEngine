@@ -1,31 +1,30 @@
 #include "pch.h"
-#include "Engine/Filesystem/Filesystem.h"
-#include "Engine/Filesystem/AssetRegistry.h"
+#include "Engine/Core/File.h"
 
 void path_init()
 {
-    gRootFolderPath = ROOT_FOLDER_PATH;
-    gAssetFolderPath = ASSET_FOLDER_PATH;
-    gShaderFolderPath = SHADER_FOLDER_PATH;
-    gShaderBinaryFolderPath = SHADER_BINARY_FOLDER_PATH;
+    PATH_ROOT = ROOT_FOLDER_PATH;
+    PATH_ASSETS = ASSET_FOLDER_PATH;
+    PATH_SHADERS = SHADER_FOLDER_PATH;
+    PATH_SHADERS_BIN = SHADER_BINARY_FOLDER_PATH;
 }
 
-void path_make(char* outPath, u8 partCount, ...)
+void path_make(char* out_path, u8 part_count, ...)
 {
     va_list args;
-    va_start(args, partCount);
+    va_start(args, part_count);
 
-    outPath[0] = '\0';
+    out_path[0] = '\0';
 
-    for (s32 i = 0; i < partCount - 1; ++i)
+    for (s32 i = 0; i < part_count - 1; ++i)
     {
         const char* part = va_arg(args, const char*);
-        strcat(outPath, part);
-        strcat(outPath, "/");
+        strcat(out_path, part);
+        strcat(out_path, "/");
     }
 
     const char* part = va_arg(args, const char*);
-    strcat(outPath, part);
+    strcat(out_path, part);
 
     va_end(args);
 }
@@ -33,7 +32,7 @@ void path_make(char* outPath, u8 partCount, ...)
 bgfx::ShaderHandle file_shader_load(const char* name)
 {
     char shader_path[512];
-    path_make(shader_path, 2, gShaderBinaryFolderPath, name);
+    path_make(shader_path, 2, PATH_SHADERS_BIN, name);
 
     bgfx::ShaderHandle handle = BGFX_INVALID_HANDLE;
     constexpr u64 buffer_size = KB(8);

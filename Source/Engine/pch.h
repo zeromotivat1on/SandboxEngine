@@ -1,6 +1,6 @@
 #pragma once
 
-#if PLATFORM_WIN32
+#ifdef WIN32
 // Remove win32 min and max coz bgfx is upset with them.
 #define NOMINMAX
 #endif
@@ -16,8 +16,9 @@
 #include <gdl.h>
 
 // Core
-#include "Engine/Core/Error.h"
 #include "Engine/Core/Delegate.h"
+#include "Engine/Core/File.h"
+#include "Engine/Core/Profile.h"
 
 // Memory
 #define ENGINE_BLOCK_SIZE   MB(16)

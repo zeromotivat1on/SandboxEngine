@@ -6,7 +6,6 @@
 #include "Engine/Ecs/Components/CameraComponent.h"
 #include "Engine/Ecs/Components/MeshComponent.h"
 #include "Engine/Ecs/Components/TransformComponent.h"
-#include "Engine/Filesystem/Filesystem.h"
 #include <bgfx/bgfx.h>
 
 void render_init(Render* r, hwindow win, CameraComponent* cam, bool vsync)
