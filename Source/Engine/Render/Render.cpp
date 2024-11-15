@@ -77,12 +77,12 @@ void render_draw(Render* r, Ecs* ecs, f32 dt)
     u16 crx, cry;
     window_cursor_pos_relative(r->window, &crx, &cry);
     
-    const f32 mx = mouse_axis(r->window, MOUSE_X);
-    const f32 my = mouse_axis(r->window, MOUSE_Y);
-    const f32 moffx = mouse_axis(r->window, MOUSE_OFFSET_X);
-    const f32 moffy = mouse_axis(r->window, MOUSE_OFFSET_Y);
-    const f32 mscrollx = mouse_axis(r->window, MOUSE_SCROLL_X);
-    const f32 mscrolly = mouse_axis(r->window, MOUSE_SCROLL_Y);
+    const s16 mx = mouse_axis(r->window, MOUSE_X);
+    const s16 my = mouse_axis(r->window, MOUSE_Y);
+    const s16 moffx = mouse_axis(r->window, MOUSE_OFFSET_X);
+    const s16 moffy = mouse_axis(r->window, MOUSE_OFFSET_Y);
+    const s16 mscrollx = mouse_axis(r->window, MOUSE_SCROLL_X);
+    const s16 mscrolly = mouse_axis(r->window, MOUSE_SCROLL_Y);
     
     bgfx::setViewTransform(0, r->camera->ViewMat4().Ptr(), r->camera->PerspectiveMat4().Ptr());
     bgfx::setViewRect(0, 0, 0, winw, winh);
