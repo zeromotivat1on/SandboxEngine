@@ -71,6 +71,12 @@ void render_draw(Render* r, Ecs* ecs, f32 dt)
     u16 winw, winh;
     window_size_inner(r->window, &winw, &winh);
 
+    u16 cx, cy;
+    window_cursor_pos_absolute(r->window, &cx, &cy);
+
+    u16 crx, cry;
+    window_cursor_pos_relative(r->window, &crx, &cry);
+    
     const f32 mx = mouse_axis(r->window, MOUSE_X);
     const f32 my = mouse_axis(r->window, MOUSE_Y);
     const f32 moffx = mouse_axis(r->window, MOUSE_OFFSET_X);
@@ -95,6 +101,7 @@ void render_draw(Render* r, Ecs* ecs, f32 dt)
 
     bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Camera: location (%.2f %.2f %.2f), target  (%.2f %.2f %.2f)", r->camera->eye.x, r->camera->eye.y, r->camera->eye.z, r->camera->at.x, r->camera->at.y, r->camera->at.z);
     bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Mouse: position (%.2f %.2f), offset (%.2f %.2f)", mx, my, moffx, moffy);
+    bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Cursor: absolute (%u %u), relative (%u %u)", cx, cy, crx, cry);
 #endif
 
     for (Entity e = 0; e < ecs->max_entity_count; ++e)

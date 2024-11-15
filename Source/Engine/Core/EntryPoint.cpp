@@ -41,6 +41,9 @@ Entity test_player_init(Ecs* ecs, hwindow win)
 
 void test_player_tick(Ecs* ecs, Entity player, Entity cube, hwindow win, f32 dt)
 {
+    static bool cursor_show = false;
+    static bool cursor_lock = true;
+    static bool cursor_constrain = true;
     static f32 camera_speed_scale = 1.0f;
 
 	if (key_pressed(win, KEY_ESCAPE))
@@ -73,6 +76,22 @@ void test_player_tick(Ecs* ecs, Entity player, Entity cube, hwindow win, f32 dt)
         ecs_entity_del(ecs, 3);
     }
 
+    if (key_pressed(win, KEY_F1))
+    {
+        window_cursor_show(win, cursor_show);
+        cursor_show = !cursor_show;
+    }
+    if (key_pressed(win, KEY_F2))
+    {
+        window_cursor_lock(win, cursor_lock);
+        cursor_lock = !cursor_lock;
+    }
+    if (key_pressed(win, KEY_F3))
+    {
+        window_cursor_constrain(win, cursor_constrain);
+        cursor_constrain = !cursor_constrain;
+    }
+    
 	camera_speed_scale += Sign(mouse_axis(win, MOUSE_SCROLL_Y)) * 0.2f;
 	camera_speed_scale  = Clamp(camera_speed_scale, 0.1f, 10.0f);
 
@@ -165,11 +184,10 @@ s32 EntryPoint()
     winfo.y = 100;
     
     hwindow win = (hwindow)arena_push_zero(&g_arena_persistent, WINDOW_ALLOC_SIZE);
-    if (window_create(win, &winfo))
+    if (window_init(win, &winfo))
     {
-        window_key_tables_init(win);
-        window_cursor_lock(win, false);
-        window_cursor_show(win, true);
+        window_show(win);
+        window_key_tables_init(win); // todo: separate key tables from window
     }
     else
     {
