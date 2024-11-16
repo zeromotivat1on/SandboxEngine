@@ -37,3 +37,6 @@ inline void* g_phys_heap;
 inline Arena g_arena_persistent;
 inline Arena g_arena_transient;
 inline Arena g_arena_frame;
+
+// Frame
+inline u64 g_frame_counter;

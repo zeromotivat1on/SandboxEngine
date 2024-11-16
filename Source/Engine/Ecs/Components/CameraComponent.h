@@ -19,12 +19,9 @@ struct CameraComponent
     f32 	clip_bottom;
     f32 	clip_top;
 		
-    vec3    ForwardVector() const;		// calculate forward vector
-    vec3    RightVector() const;		// calculate right vector
-    mat4    ViewMat4() const;			// calculate view matrix
-    mat4    PerspectiveMat4() const;	// calculate perspective projection matrix
-    mat4    OrthographicMat4() const;   // calculate orthographic projection matrix
+    vec3    forward() const;
+    vec3    right() const;
+    mat4    view() const;
+    mat4    perspective() const;
+    mat4    orthographic() const;
 };
-
-// Convert spherical coordinates (yaw, pitch) to cartesian coordinates (forward vector).
-vec3 ForwardVector(f32 yaw, f32 pitch);

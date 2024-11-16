@@ -1,36 +1,27 @@
 ﻿#include "pch.h"
 #include "Ecs/Components/CameraComponent.h"
 
-vec3 CameraComponent::ForwardVector() const
+vec3 CameraComponent::forward() const
 {
-    return (at - eye).Normalize();
+    return vec3_forward(eye, at);
 }
 
-vec3 CameraComponent::RightVector() const
+vec3 CameraComponent::right() const
 {
-    return ForwardVector().Cross(up).Normalize();
+    return vec3_right(eye, at, up);
 }
 
-mat4 CameraComponent::ViewMat4() const
+mat4 CameraComponent::view() const
 {
-    return lookat(eye, at, up);
+    return mat4_lookat(eye, at, up);
 }
 
-mat4 CameraComponent::PerspectiveMat4() const
+mat4 CameraComponent::perspective() const
 {
-    return perspective(Rad(fov), aspect, clip_near, clip_far);
+    return mat4_perspective(gdl::rad(fov), aspect, clip_near, clip_far);
 }
 
-mat4 CameraComponent::OrthographicMat4() const
+mat4 CameraComponent::orthographic() const
 {
-    return orthographic(clip_left, clip_right, clip_bottom, clip_top, clip_near, clip_far);
-}
-
-vec3 ForwardVector(f32 yaw, f32 pitch)
-{
-    const f32 ycos = Cos(Rad(yaw)); 
-    const f32 ysin = Sin(Rad(yaw));
-    const f32 pcos = Cos(Rad(pitch));
-    const f32 psin = Sin(Rad(pitch));
-    return vec3(ycos * pcos, psin, ysin * pcos).Normalize();
+    return mat4_orthographic(clip_left, clip_right, clip_bottom, clip_top, clip_near, clip_far);
 }

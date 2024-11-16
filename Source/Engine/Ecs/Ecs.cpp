@@ -125,7 +125,7 @@ Entity ecs_entity_new_debug_cube(Ecs* ecs)
 
     const Entity cube = ecs_entity_new(ecs);
 
-    new (ecs_component(ecs, cube, CT_TRANSFORM)) TransformComponent(IdentityTransform());
+    new (ecs_component(ecs, cube, CT_TRANSFORM)) TransformComponent(transform_identity());
 
     auto* mesh = (MeshComponent*)ecs_component(ecs, cube, CT_MESH);
     mesh->vbh = cube_vbh;

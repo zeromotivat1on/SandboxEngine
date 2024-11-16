@@ -12,26 +12,26 @@ Entity test_player_init(Ecs* ecs, hwindow win)
 {
 	Entity player = ecs_entity_new(ecs);
 
-	auto* transform = new (ecs_component(ecs, player, CT_TRANSFORM)) TransformComponent(IdentityTransform());
+	auto* transform = new (ecs_component(ecs, player, CT_TRANSFORM)) TransformComponent(transform_identity());
 	transform->location = vec3(0.0f, 0.0f, -50.0f);
 
 	vec4 ortho;
-    window_ortho_center(win, ortho.Ptr());
+    window_ortho_center(win, ortho.ptr());
         
 	auto* camera = (CameraComponent*)ecs_component(ecs, player, CT_CAMERA);
-	camera->eye  	= transform->location;
-	camera->at	 	= vec3(0.0f);
-	camera->up		= vec3(0.0f, 1.0f, 0.0f);
-	camera->yaw		= 0.0f;
-	camera->pitch	= 0.0f;
-	camera->fov		= 60.0f;
-	camera->aspect	= window_aspect(win);
+	camera->eye  	    = transform->location;
+	camera->at	 	    = vec3(0.0f);
+	camera->up		    = vec3(0.0f, 1.0f, 0.0f);
+	camera->yaw		    = 0.0f;
+	camera->pitch	    = 0.0f;
+	camera->fov		    = 60.0f;
+	camera->aspect	    = window_aspect(win);
 	camera->clip_near	= 0.1f;
-	camera->clip_far		= 1000.0f;
+	camera->clip_far	= 1000.0f;
 	camera->clip_left	= ortho[0] * 0.1f;
 	camera->clip_right	= ortho[1] * 0.1f;
 	camera->clip_bottom	= ortho[2] * 0.1f;
-	camera->clip_top		= ortho[3] * 0.1f;
+	camera->clip_top	= ortho[3] * 0.1f;
 
 	auto* movement = (MovementComponent*)ecs_component(ecs, player, CT_MOVEMENT);
 	movement->velocity = vec3(0.0f);
@@ -92,8 +92,8 @@ void test_player_tick(Ecs* ecs, Entity player, Entity cube, hwindow win, f32 dt)
         cursor_constrain = !cursor_constrain;
     }
     
-	camera_speed_scale += Sign(mouse_axis(win, MOUSE_SCROLL_Y)) * 0.2f;
-	camera_speed_scale  = Clamp(camera_speed_scale, 0.1f, 10.0f);
+	camera_speed_scale += gdl::sign(mouse_axis(win, MOUSE_SCROLL_Y)) * 0.2f;
+	camera_speed_scale  = gdl::clamp(camera_speed_scale, 0.1f, 10.0f);
 
 	auto* movement = (MovementComponent*)ecs_component(ecs, player, CT_MOVEMENT);
 	auto* camera = (CameraComponent*)ecs_component(ecs, player, CT_CAMERA);
@@ -103,7 +103,7 @@ void test_player_tick(Ecs* ecs, Entity player, Entity cube, hwindow win, f32 dt)
 
 	camera->yaw   += mouse_axis(win, MOUSE_OFFSET_X) * mouse_sensitivity;
 	camera->pitch += mouse_axis(win, MOUSE_OFFSET_Y) * mouse_sensitivity;
-	camera->pitch  = Clamp(camera->pitch, -pitch_limit, pitch_limit);
+	camera->pitch  = gdl::clamp(camera->pitch, -pitch_limit, pitch_limit);
 
     const f32 move_speed = 3000.0f * camera_speed_scale;
 	vec3 input_velocity;
@@ -139,12 +139,12 @@ void test_player_tick(Ecs* ecs, Entity player, Entity cube, hwindow win, f32 dt)
 	}
 
 	movement->velocity =
-		input_velocity.x * camera->ForwardVector()  +
-		input_velocity.y * camera->RightVector()	+
+		input_velocity.x * camera->forward() +
+		input_velocity.y * camera->right()	 +
 		input_velocity.z * camera->up;
 }
 
-void EcsTestTick(Ecs* ecs, f32 dt)
+void ecs_test_tick(Ecs* ecs, f32 dt)
 {
     for (Entity e = 0; e < ecs->max_entity_count; ++e)
     {
@@ -155,7 +155,7 @@ void EcsTestTick(Ecs* ecs, f32 dt)
         transform->location += movement->velocity * dt;
 
         camera->eye = transform->location;
-        camera->at = camera->eye + ForwardVector(camera->yaw, camera->pitch);
+        camera->at = camera->eye + vec3_forward(camera->yaw, camera->pitch);
     }
 }
 
@@ -175,7 +175,8 @@ s32 EntryPoint()
     g_arena_frame = arena_create((u8*)g_phys_heap + PERS_ARENA_SIZE + TRAN_ARENA_SIZE, FRAME_ARENA_SIZE);
 
     path_init();
-
+    input_tables_init();
+    
     WindowInfo winfo = STRUCT_ZERO(WindowInfo);
     winfo.title = "Sandbox Engine";
     winfo.width = 1280;
@@ -187,7 +188,6 @@ s32 EntryPoint()
     if (window_init(win, &winfo))
     {
         window_show(win);
-        window_key_tables_init(win); // todo: separate key tables from window
     }
     else
     {
@@ -211,6 +211,7 @@ s32 EntryPoint()
 		((TransformComponent*)ecs_component(ecs, cube, CT_TRANSFORM))->location.x += i * 10.0f;
     }
 
+    g_frame_counter = 0;
 	f32 dt = FPS(60);
 	u64 begin_counter = hp_counter();
 	while (window_active(win))
@@ -219,12 +220,12 @@ s32 EntryPoint()
 
         window_update(win);
         test_player_tick(ecs, player, cube, win, dt);
-        EcsTestTick(ecs, dt);
+        ecs_test_tick(ecs, dt);
         render_draw(r, ecs, dt);
 
-		const u64 endCounter = hp_counter();
-		dt = (f32)(endCounter - begin_counter) / (f32)hp_frequency();
-		begin_counter = endCounter;
+		const u64 end_counter = hp_counter();
+		dt = (f32)(end_counter - begin_counter) / (f32)hp_frequency();
+		begin_counter = end_counter;
 
 #ifdef BUILD_DEBUG
 		// If dt is too large, we must have resumed from a breakpoint, lock to the target framerate.
@@ -233,6 +234,8 @@ s32 EntryPoint()
 			dt = FPS(60);
 		}
 #endif
+
+        g_frame_counter++;
 	}
 
 	render_terminate(r);

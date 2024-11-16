@@ -84,7 +84,7 @@ void render_draw(Render* r, Ecs* ecs, f32 dt)
     const s16 mscrollx = mouse_axis(r->window, MOUSE_SCROLL_X);
     const s16 mscrolly = mouse_axis(r->window, MOUSE_SCROLL_Y);
     
-    bgfx::setViewTransform(0, r->camera->ViewMat4().Ptr(), r->camera->PerspectiveMat4().Ptr());
+    bgfx::setViewTransform(0, r->camera->view().ptr(), r->camera->perspective().ptr());
     bgfx::setViewRect(0, 0, 0, winw, winh);
 
     // This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.
@@ -95,6 +95,7 @@ void render_draw(Render* r, Ecs* ecs, f32 dt)
     
     u8 debug_text_y = 1;
     bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Window render size: %dx%d", winw, winh);
+    bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Frame counter: %u", g_frame_counter);
     bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Delta time: %.2fms", (dt * 1000.0f));
     bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "FPS: %.2f", (1.0f / dt));
     bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Vsync: %s", r->vsync ? "ON" : "OFF");
@@ -112,7 +113,7 @@ void render_draw(Render* r, Ecs* ecs, f32 dt)
             bgfx::setState(BGFX_STATE_DEFAULT);
 
             const auto* transform = (TransformComponent*)ecs_component(ecs, e, CT_TRANSFORM);
-            bgfx::setTransform(transform->Mat4().Ptr());
+            bgfx::setTransform(transform->mat4().ptr());
 
             bgfx::setVertexBuffer(0, mesh->vbh);
             bgfx::setIndexBuffer(mesh->ibh);
@@ -130,7 +131,7 @@ void render_draw(Render* r, Ecs* ecs, f32 dt)
         ImguiBgfxBeginFrame(
             vec2(mx, my),
 	    	imgui_mouse_buttons,
-	    	vec2((f32)Sign(mscrollx), (f32)Sign(mscrolly)),
+	    	vec2((f32)gdl::sign(mscrollx), (f32)gdl::sign(mscrolly)),
 	    	winw,
 	    	winh
 	    );

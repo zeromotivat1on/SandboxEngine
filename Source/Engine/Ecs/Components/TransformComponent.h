@@ -6,17 +6,16 @@ struct TransformComponent
     quat    rotation;
     vec3    scale;
 
-    // Create transform matrix in row-major order.
-    mat4    Mat4() const;
+    mat4    mat4() const;
 };
 
-inline mat4 TransformComponent::Mat4() const
+inline mat4 TransformComponent::mat4() const
 {
-    return IdentityMat4().Scale(scale).Rotate(rotation).Translate(location);
+    return mat4_identity().scale(scale).rotate(rotation).translate(location);
 }
 
 // Transform with no translation and rotation, but with identity scale.
-inline TransformComponent IdentityTransform()
+inline TransformComponent transform_identity()
 {
     return {
         vec3(0.0f), // translation
