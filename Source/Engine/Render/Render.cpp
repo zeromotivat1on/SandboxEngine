@@ -8,7 +8,7 @@
 #include "Engine/Ecs/Components/TransformComponent.h"
 #include <bgfx/bgfx.h>
 
-void render_init(Render* r, hwindow win, CameraComponent* cam, bool vsync)
+void render_init(Render* r, Window* win, CameraComponent* cam, bool vsync)
 {
     ASSERT(win);
     ASSERT(cam);
@@ -90,6 +90,19 @@ void render_draw(Render* r, Ecs* ecs, f32 dt)
     // This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.
     bgfx::touch(0);
 
+    const u8 imgui_mouse_buttons =
+        (mouse_down(r->window, MOUSE_LEFT)   ? IMGUI_MBUT_LEFT   : 0)   |
+        (mouse_down(r->window, MOUSE_RIGHT)  ? IMGUI_MBUT_RIGHT  : 0)   |
+        (mouse_down(r->window, MOUSE_MIDDLE) ? IMGUI_MBUT_MIDDLE : 0);
+
+    ImguiBgfxBeginFrame(
+        vec2(mx, my),
+	    imgui_mouse_buttons,
+	    vec2((f32)gdl::sign(mscrollx), (f32)gdl::sign(mscrolly)),
+	    winw,
+	    winh
+	);
+            
 #ifdef BUILD_DEBUG
     bgfx::dbgTextClear();
     
@@ -121,25 +134,23 @@ void render_draw(Render* r, Ecs* ecs, f32 dt)
         }
     }
 
-    // User interface.
-    {
-        const u8 imgui_mouse_buttons =
-            (mouse_down(r->window, MOUSE_LEFT)   ? IMGUI_MBUT_LEFT   : 0)   |
-            (mouse_down(r->window, MOUSE_RIGHT)  ? IMGUI_MBUT_RIGHT  : 0)   |
-            (mouse_down(r->window, MOUSE_MIDDLE) ? IMGUI_MBUT_MIDDLE : 0);
+    ImGui::ShowDemoWindow();
 
-        ImguiBgfxBeginFrame(
-            vec2(mx, my),
-	    	imgui_mouse_buttons,
-	    	vec2((f32)gdl::sign(mscrollx), (f32)gdl::sign(mscrolly)),
-	    	winw,
-	    	winh
-	    );
-        
-	    ImGui::ShowDemoWindow();
-        
-	    ImguiBgfxEndFrame();
+    {
+        ImGui::Begin("Sandbox Debug");
+
+        if (ImGui::TreeNode("Player"))
+        {
+            auto* transform = (TransformComponent*)ecs_component(ecs, 0, CT_TRANSFORM);
+            ImGui::InputFloat3("Location", transform->location.ptr());
+            ImGui::InputFloat4("Rotation", transform->rotation.ptr());
+
+            ImGui::TreePop();
+        }
+    
+        ImGui::End();
     }
 
+    ImguiBgfxEndFrame();
     bgfx::frame();
 }

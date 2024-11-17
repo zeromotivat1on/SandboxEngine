@@ -2,13 +2,14 @@
 #include "Engine/Core/EntryPoint.h"
 #include "Engine/Render/Render.h"
 #include "Engine/Ecs/Ecs.h"
+#include <imgui/imgui.h>
 
 // Temp test player and stuff.
 #include "Ecs/Components/TransformComponent.h"
 #include "Ecs/Components/MovementComponent.h"
 #include "Ecs/Components/CameraComponent.h"
 
-Entity test_player_init(Ecs* ecs, hwindow win)
+Entity test_player_init(Ecs* ecs, Window* win)
 {
 	Entity player = ecs_entity_new(ecs);
 
@@ -39,7 +40,7 @@ Entity test_player_init(Ecs* ecs, hwindow win)
 	return player;
 }
 
-void test_player_tick(Ecs* ecs, Entity player, Entity cube, hwindow win, f32 dt)
+void test_player_tick(Ecs* ecs, Entity player, Entity cube, Window* win, f32 dt)
 {
     static bool cursor_show = false;
     static bool cursor_lock = true;
@@ -159,8 +160,16 @@ void ecs_test_tick(Ecs* ecs, f32 dt)
     }
 }
 
+void on_window_char(Window* win, u32 character)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    io.AddInputCharacter(character);
+}
+
 s32 EntryPoint()
 {
+    ASSERT(VIRT_SPACE_SIZE > PHYS_HEAP_SIZE);
+    
 #if BUILD_DEBUG
     void* base_addr = (void*)TB(2);
 #else
@@ -184,10 +193,11 @@ s32 EntryPoint()
     winfo.x = 100;
     winfo.y = 100;
     
-    hwindow win = (hwindow)arena_push_zero(&g_arena_persistent, WINDOW_ALLOC_SIZE);
+    Window* win = (Window*)arena_push_zero(&g_arena_persistent, WINDOW_ALLOC_SIZE);
     if (window_init(win, &winfo))
     {
         window_show(win);
+        window_set_char_callback(win, on_window_char);
     }
     else
     {
