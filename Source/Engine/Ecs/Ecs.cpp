@@ -12,11 +12,11 @@ void ecs_init(Ecs* ecs, u32 max_entities)
     ecs->max_entity_count = max_entities;
     
     ecs->entity_count = 0;
-    ecs->entities = arena_push_array(&g_arena_transient, Entity, max_entities);
+    ecs->entities = arena_push_array(&g_arena_transient, max_entities, Entity);
     memset(ecs->entities, INVALID_ENTITY, max_entities * sizeof(Entity));
 
     ecs->free_entity_count = 0;
-    ecs->free_entities = arena_push_array(&g_arena_transient, Entity, max_entities);
+    ecs->free_entities = arena_push_array(&g_arena_transient, max_entities, Entity);
     memset(ecs->free_entities, INVALID_ENTITY, max_entities * sizeof(Entity));
     
     ecs->component_sizes[CT_TRANSFORM] = sizeof(TransformComponent);
@@ -25,9 +25,9 @@ void ecs_init(Ecs* ecs, u32 max_entities)
     ecs->component_sizes[CT_MATERIAL] = sizeof(MaterialComponent);
     ecs->component_sizes[CT_MESH] = sizeof(MeshComponent);
 
-    for (u16 i = 0; i < CT_COUNT; ++i)
+    for (u32 i = 0; i < CT_COUNT; ++i)
     {
-        ecs->components[i] = arena_push_zero(&g_arena_transient, max_entities * ecs->component_sizes[i]);
+        sparse_set_init(&ecs->component_sets[i], &g_arena_transient, max_entities, max_entities, ecs->component_sizes[i]);
     }
 }
 
@@ -35,14 +35,14 @@ Entity ecs_entity_new(Ecs* ecs)
 {
     if (ecs->free_entity_count > 0)
     {
-        const u16 idx = ecs->free_entities[ecs->free_entity_count - 1];
+        const u32 last_free_idx = --ecs->free_entity_count;
+        const u32 idx = ecs->free_entities[last_free_idx];
         ecs->entities[idx] = idx;
         ecs->free_entities[idx] = INVALID_ENTITY;
-        ecs->free_entity_count--;
         return ecs->entities[idx];
     }
 
-    const u16 idx = ecs->entity_count++;
+    const u32 idx = ecs->entity_count++;
     ASSERT(idx < ecs->max_entity_count);
     ecs->entities[idx] = idx;
     return ecs->entities[idx];
@@ -60,33 +60,84 @@ void ecs_entity_del(Ecs* ecs, Entity e)
     }
 
     ecs->entities[e] = INVALID_ENTITY;
-    const u16 idx = ecs->free_entity_count++;
+    const u32 idx = ecs->free_entity_count++;
     ASSERT(idx < ecs->max_entity_count);
     ecs->free_entities[idx] = e;
 
-    for (u16 i = 0; i < CT_COUNT; ++i)
+    for (u32 i = 0; i < CT_COUNT; ++i)
     {
         ecs_component_del(ecs, e, (ComponentType)i);
     }
 }
 
-void* ecs_component(Ecs* ecs, Entity e, ComponentType ct)
+void ecs_entity_iterate(Ecs* ecs, const ComponentType* cts, u8 cts_count, ecs_entity_iterate_callback callback)
 {
-    ASSERT(e != INVALID_ENTITY);
-    ASSERT(e < ecs->max_entity_count);
-    ASSERT(ct >= 0 && ct < CT_COUNT);
+    ASSERT(cts_count > 0);
 
-    return (u8*)ecs->components[ct] + (e * ecs->component_sizes[ct]);
+    u64 smallest_set_index = 0;
+    u64 smallest_dense_count = ecs->component_sets[cts[0]].dense_count;
+
+    for (u64 i = 1; i < cts_count; ++i)
+    {
+        const u64 dense_count = ecs->component_sets[cts[i]].dense_count;
+        if (dense_count < smallest_dense_count)
+        {
+            smallest_set_index = i;
+            smallest_dense_count = dense_count;
+        }
+    }
+
+    const SparseSet* smallest_set = &ecs->component_sets[cts[smallest_set_index]];
+    for (u64 i = 0; i < smallest_set->dense_count; ++i)
+    {
+        const Entity e = smallest_set->dense_indices[i];
+        bool has_all_components = true;
+
+        for (u64 j = 0; j < cts_count; ++j)
+        {
+            if (j == smallest_set_index)
+                continue;
+
+            const SparseSet* other_set = &ecs->component_sets[cts[j]];
+            if (!sparse_set_has(other_set, e))
+            {
+                has_all_components = false;
+                break;
+            }
+        }
+
+        if (has_all_components)
+        {
+            callback(ecs, e);
+        }
+    }
 }
 
-void ecs_component_del(Ecs* ecs, Entity e, ComponentType ct)
+bool ecs_component_add(Ecs* ecs, Entity e, ComponentType ct)
 {
     ASSERT(e != INVALID_ENTITY);
     ASSERT(e < ecs->max_entity_count);
-    ASSERT(ct >= 0 && ct < CT_COUNT);
+    ASSERT(ct < CT_COUNT);
+    
+    return sparse_set_insert_zero(&ecs->component_sets[ct], e);
+}
 
-    const u16 ctsize = ecs->component_sizes[ct];
-    memset((u8*)ecs->components[ct] + (e * ctsize), 0, ctsize);
+void* ecs_component_get(Ecs* ecs, Entity e, ComponentType ct)
+{
+    ASSERT(e != INVALID_ENTITY);
+    ASSERT(e < ecs->max_entity_count);
+    ASSERT(ct < CT_COUNT);
+
+    return sparse_set_get(&ecs->component_sets[ct], e);
+}
+
+bool ecs_component_del(Ecs* ecs, Entity e, ComponentType ct)
+{
+    ASSERT(e != INVALID_ENTITY);
+    ASSERT(e < ecs->max_entity_count);
+    ASSERT(ct < CT_COUNT);
+
+    return sparse_set_remove(&ecs->component_sets[ct], e);
 }
 
 Entity ecs_entity_new_debug_cube(Ecs* ecs)
@@ -124,10 +175,12 @@ Entity ecs_entity_new_debug_cube(Ecs* ecs)
     static const auto cube_rph = file_program_load("base.vs.bin", "base.fs.bin");
 
     const Entity cube = ecs_entity_new(ecs);
+    ecs_component_add(ecs, cube, CT_TRANSFORM);
+    ecs_component_add(ecs, cube, CT_MESH);
+    
+    new (ecs_component_get(ecs, cube, CT_TRANSFORM)) TransformComponent(transform_identity());
 
-    new (ecs_component(ecs, cube, CT_TRANSFORM)) TransformComponent(transform_identity());
-
-    auto* mesh = (MeshComponent*)ecs_component(ecs, cube, CT_MESH);
+    auto* mesh = (MeshComponent*)ecs_component_get(ecs, cube, CT_MESH);
     mesh->vbh = cube_vbh;
     mesh->ibh = cube_ibh;
     mesh->rph = cube_rph;

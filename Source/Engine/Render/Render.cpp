@@ -66,6 +66,23 @@ void render_reset(Render* r, u16 w, u16 h)
     bgfx::reset(w, h, flags);
 }
 
+void render_ecs_callback(Ecs* ecs, Entity e)
+{
+    const auto* mesh = (MeshComponent*)ecs_component_get(ecs, e, CT_MESH);
+
+    if (mesh->rph.idx > 0)
+    {
+        bgfx::setState(BGFX_STATE_DEFAULT);
+
+        const auto* transform = (TransformComponent*)ecs_component_get(ecs, e, CT_TRANSFORM);
+        bgfx::setTransform(transform->mat4().ptr());
+
+        bgfx::setVertexBuffer(0, mesh->vbh);
+        bgfx::setIndexBuffer(mesh->ibh);
+        bgfx::submit(0, mesh->rph);
+    }
+}
+
 void render_draw(Render* r, Ecs* ecs, f32 dt)
 {
     u16 winw, winh;
@@ -116,24 +133,12 @@ void render_draw(Render* r, Ecs* ecs, f32 dt)
     bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Camera: location (%.2f %.2f %.2f), target  (%.2f %.2f %.2f)", r->camera->eye.x, r->camera->eye.y, r->camera->eye.z, r->camera->at.x, r->camera->at.y, r->camera->at.z);
     bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Mouse: position (%.2f %.2f), offset (%.2f %.2f)", mx, my, moffx, moffy);
     bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "Cursor: absolute (%u %u), relative (%u %u)", cx, cy, crx, cry);
+    bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "ECS: entity count (%u / %u), transforms (%u / %u), meshes (%u / %u)", ecs->entity_count, ecs->max_entity_count, ecs->component_sets[CT_TRANSFORM].dense_count, ecs->component_sets[CT_TRANSFORM].max_dense_count, ecs->component_sets[CT_MESH].dense_count, ecs->component_sets[CT_MESH].max_dense_count);
 #endif
 
-    for (Entity e = 0; e < ecs->max_entity_count; ++e)
-    {
-        const auto* mesh = (MeshComponent*)ecs_component(ecs, e, CT_MESH);
-        if (mesh->rph.idx > 0)
-        {
-            bgfx::setState(BGFX_STATE_DEFAULT);
-
-            const auto* transform = (TransformComponent*)ecs_component(ecs, e, CT_TRANSFORM);
-            bgfx::setTransform(transform->mat4().ptr());
-
-            bgfx::setVertexBuffer(0, mesh->vbh);
-            bgfx::setIndexBuffer(mesh->ibh);
-            bgfx::submit(0, mesh->rph);
-        }
-    }
-
+    static constexpr ComponentType render_cts[] = { CT_MESH };
+    ecs_entity_iterate(ecs, render_cts, ARRAY_COUNT(render_cts), render_ecs_callback);
+    
     ImGui::ShowDemoWindow();
 
     {
@@ -141,7 +146,7 @@ void render_draw(Render* r, Ecs* ecs, f32 dt)
 
         if (ImGui::TreeNode("Player"))
         {
-            auto* transform = (TransformComponent*)ecs_component(ecs, 0, CT_TRANSFORM);
+            auto* transform = (TransformComponent*)ecs_component_get(ecs, 0, CT_TRANSFORM);
             ImGui::InputFloat3("Location", transform->location.ptr());
             ImGui::InputFloat4("Rotation", transform->rotation.ptr());
 
