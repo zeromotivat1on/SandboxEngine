@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "Ecs/Components/CameraComponent.h"
+#include "Components/CameraComponent.h"
 
 vec3 CameraComponent::forward() const
 {
