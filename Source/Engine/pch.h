@@ -21,16 +21,6 @@
 #include "Engine/Core/Profile.h"
 
 // Memory
-inline constexpr u64 ENGINE_BLOCK_SIZE = MB(16);
-inline constexpr u64 CORE_STACK_SIZE = MB(2);
-inline constexpr u64 FRAME_STACK_SIZE = MB(2);
-
-inline constexpr u64 VIRT_SPACE_SIZE = GB(8);
-inline constexpr u64 PERS_ARENA_SIZE = MB(16);
-inline constexpr u64 TRAN_ARENA_SIZE = GB(1);
-inline constexpr u64 FRAME_ARENA_SIZE = MB(4);
-inline constexpr u64 PHYS_HEAP_SIZE = (PERS_ARENA_SIZE + TRAN_ARENA_SIZE + FRAME_ARENA_SIZE);
-
 inline void* g_virt_space;
 inline void* g_phys_heap;
 

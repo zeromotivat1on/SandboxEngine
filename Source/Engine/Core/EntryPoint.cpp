@@ -254,20 +254,26 @@ Entity ecs_entity_new_debug_cube(ECS* ecs)
 
 s32 EntryPoint()
 {
-    ASSERT(VIRT_SPACE_SIZE > PHYS_HEAP_SIZE);
+    constexpr u64 k_virt_space_size = GB(8);
+    constexpr u64 k_arena_persistent_size = MB(16);
+    constexpr u64 k_arena_transient_size = GB(1);
+    constexpr u64 k_arena_frame_size = MB(4);
+    constexpr u64 k_phys_heap_size = k_arena_persistent_size + k_arena_transient_size + k_arena_frame_size;
+
+    ASSERT(k_virt_space_size > k_phys_heap_size);    
     
 #if BUILD_DEBUG
     void* base_addr = (void*)TB(2);
 #else
     void* base_addr = nullptr;
 #endif
+    
+    g_virt_space = vm_reserve(base_addr, k_virt_space_size);
+    g_phys_heap = vm_commit(g_virt_space, k_phys_heap_size);
 
-    g_virt_space = mem_virt_reserve(base_addr, VIRT_SPACE_SIZE);
-    g_phys_heap = mem_virt_commit(g_virt_space, PHYS_HEAP_SIZE);
-
-    g_arena_persistent = arena_create(g_phys_heap, PERS_ARENA_SIZE);
-    g_arena_transient = arena_create((u8*)g_phys_heap + PERS_ARENA_SIZE, TRAN_ARENA_SIZE);
-    g_arena_frame = arena_create((u8*)g_phys_heap + PERS_ARENA_SIZE + TRAN_ARENA_SIZE, FRAME_ARENA_SIZE);
+    g_arena_persistent = arena_create(g_phys_heap, k_arena_persistent_size);
+    g_arena_transient = arena_create((u8*)g_phys_heap + k_arena_persistent_size, k_arena_transient_size);
+    g_arena_frame = arena_create((u8*)g_phys_heap + k_arena_persistent_size + k_arena_transient_size, k_arena_frame_size);
 
     constexpr u32 k_sid_max_count = 2048;
     constexpr u32 k_sid_max_size = 64;
@@ -319,8 +325,8 @@ s32 EntryPoint()
     }
 
     // Stress test non-renderable entities.
-#if 0
-    for (u32 i = 0; i < k_max_entities / 2; ++i)
+#if 1
+    for (u32 i = 0; i < k_max_entities / 8; ++i)
     {
 		Entity test = ecs_entity_new(ecs);
 		ecs_component_add_struct(ecs, test, TransformComponent);
@@ -357,8 +363,8 @@ s32 EntryPoint()
 
 	render_terminate(r);
 	window_destroy(win);
-    mem_virt_decommit(g_phys_heap, PHYS_HEAP_SIZE);
-    mem_virt_release(g_virt_space);
+    vm_decommit(g_phys_heap, k_phys_heap_size);
+    vm_release(g_virt_space);
 
 	return 0;
 }
