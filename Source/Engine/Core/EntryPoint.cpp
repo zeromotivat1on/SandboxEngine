@@ -325,7 +325,7 @@ s32 EntryPoint()
     }
 
     // Stress test non-renderable entities.
-#if 1
+#if 0
     for (u32 i = 0; i < k_max_entities / 8; ++i)
     {
 		Entity test = ecs_entity_new(ecs);
