@@ -1,5 +1,11 @@
 ﻿#pragma once
 
+enum CameraMode : u8
+{
+    CAMERA_PERSPECTIVE,
+    CAMERA_ORTHOGRAPHIC
+};
+
 struct CameraComponent
 {
     vec3    at;     // view point location
@@ -18,10 +24,11 @@ struct CameraComponent
     f32 	clip_right;
     f32 	clip_bottom;
     f32 	clip_top;
-		
+
+    CameraMode mode;
+    
     vec3    forward() const;
     vec3    right() const;
     mat4    view() const;
-    mat4    perspective() const;
-    mat4    orthographic() const;
+    mat4    projection() const;
 };

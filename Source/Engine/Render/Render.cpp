@@ -100,7 +100,7 @@ void render_draw(Render* r, ECS* ecs, f32 dt)
     const s16 mscrollx = mouse_axis(r->window, MOUSE_SCROLL_X);
     const s16 mscrolly = mouse_axis(r->window, MOUSE_SCROLL_Y);
     
-    bgfx::setViewTransform(0, r->camera->view().ptr(), r->camera->perspective().ptr());
+    bgfx::setViewTransform(0, r->camera->view().ptr(), r->camera->projection().ptr());
     bgfx::setViewRect(0, 0, 0, winw, winh);
 
     // This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.

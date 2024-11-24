@@ -28,19 +28,20 @@ Entity test_player_init(ECS* ecs, Window* win)
     window_ortho_center(win, ortho.ptr());
         
 	auto* camera = ecs_component_get_struct(ecs, player, CameraComponent);
-	camera->eye  	    = transform->location;
-	camera->at	 	    = vec3(0.0f);
-	camera->up		    = vec3(0.0f, 1.0f, 0.0f);
-	camera->yaw		    = 0.0f;
-	camera->pitch	    = 0.0f;
-	camera->fov		    = 60.0f;
-	camera->aspect	    = window_aspect(win);
-	camera->clip_near	= 0.1f;
-	camera->clip_far	= 1000.0f;
-	camera->clip_left	= ortho[0] * 0.1f;
-	camera->clip_right	= ortho[1] * 0.1f;
-	camera->clip_bottom	= ortho[2] * 0.1f;
-	camera->clip_top	= ortho[3] * 0.1f;
+    camera->mode = CAMERA_PERSPECTIVE;
+	camera->eye = transform->location;
+	camera->at = vec3(0.0f);
+	camera->up = vec3(0.0f, 1.0f, 0.0f);
+	camera->yaw = 0.0f;
+	camera->pitch = 0.0f;
+	camera->fov = 60.0f;
+	camera->aspect = window_aspect(win);
+	camera->clip_near = 0.1f;
+	camera->clip_far = 1000.0f;
+	camera->clip_left = ortho[0];
+	camera->clip_right = ortho[1];
+	camera->clip_bottom	= ortho[2];
+	camera->clip_top = ortho[3];
 
 	auto* movement = ecs_component_get_struct(ecs, player, MovementComponent);
 	movement->velocity = vec3(0.0f);
@@ -54,7 +55,8 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
     static bool cursor_lock = true;
     static bool cursor_constrain = true;
     static f32 camera_speed_scale = 1.0f;
-
+    static f32 ortho_scale = 1.0f;
+    
 	if (key_pressed(win, KEY_ESCAPE))
     {
     	msg_log("Window manual close by key");
@@ -72,6 +74,19 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
         player_transform->location = cube_transform->location;
     }
 
+    if (key_pressed(win, KEY_C))
+    {
+        auto* player_camera = ecs_component_get_struct(ecs, player, CameraComponent);
+        if (player_camera->mode == CAMERA_PERSPECTIVE)
+        {
+            player_camera->mode = CAMERA_ORTHOGRAPHIC;
+        }
+        else
+        {
+            player_camera->mode = CAMERA_PERSPECTIVE;
+        }
+    }
+    
     if (key_pressed(win, KEY_1))
     {
         ecs_entity_del(ecs, 1);
@@ -100,7 +115,18 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
         window_cursor_constrain(win, cursor_constrain);
         cursor_constrain = !cursor_constrain;
     }
-    
+
+    if (mouse_pressed(win, MOUSE_MIDDLE))
+    {
+        window_cursor_show(win, false);
+        window_cursor_constrain(win, true);
+    }
+    else if (mouse_released(win, MOUSE_MIDDLE))
+    {
+        window_cursor_show(win, true);
+        window_cursor_constrain(win, false);
+    }
+        
 	camera_speed_scale += gdl::sign(mouse_axis(win, MOUSE_SCROLL_Y)) * 0.2f;
 	camera_speed_scale  = gdl::clamp(camera_speed_scale, 0.1f, 10.0f);
 
@@ -119,12 +145,42 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
 
 	if (key_down(win, KEY_W))
 	{
-		input_velocity.x += move_speed * dt;
+        if (camera->mode == CAMERA_PERSPECTIVE)
+		    input_velocity.x += move_speed * dt;
+
+        if (camera->mode == CAMERA_ORTHOGRAPHIC)
+        {
+            vec4 ortho;
+            window_ortho_center(win, ortho.ptr());
+    
+            ortho_scale -= 0.1f * dt;
+            ortho_scale = gdl::clamp(ortho_scale, 0.01f, 1.0f);
+
+	        camera->clip_left = ortho[0] * ortho_scale;
+	        camera->clip_right = ortho[1] * ortho_scale;
+	        camera->clip_bottom	= ortho[2] * ortho_scale;
+	        camera->clip_top = ortho[3] * ortho_scale;
+        }
 	}
 
     if (key_down(win, KEY_S))
 	{
-		input_velocity.x -= move_speed * dt;
+        if (camera->mode == CAMERA_PERSPECTIVE)
+		    input_velocity.x -= move_speed * dt;
+
+        if (camera->mode == CAMERA_ORTHOGRAPHIC)
+        {
+            vec4 ortho;
+            window_ortho_center(win, ortho.ptr());
+    
+            ortho_scale += 0.1f * dt;
+            ortho_scale = gdl::clamp(ortho_scale, 0.01f, 1.0f);
+
+            camera->clip_left = ortho[0] * ortho_scale;
+	        camera->clip_right = ortho[1] * ortho_scale;
+	        camera->clip_bottom	= ortho[2] * ortho_scale;
+	        camera->clip_top = ortho[3] * ortho_scale;
+        }
 	}
 
     if (key_down(win, KEY_D))
@@ -156,7 +212,7 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
 void ecs_move_callback(ECS* ecs, Entity e)
 {
     auto* transform = ecs_component_get_struct(ecs, e, TransformComponent);
-    auto* movement = ecs_component_get_struct(ecs, e, MovementComponent);
+    const auto* movement = ecs_component_get_struct(ecs, e, MovementComponent);
 
     transform->location += movement->velocity * g_dt;
 }
