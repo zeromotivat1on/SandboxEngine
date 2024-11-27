@@ -2,7 +2,7 @@
 
 #include <bgfx/bgfx.h>
 
-struct MaterialComponent
+struct Material
 {
     bgfx::TextureHandle texture;
     bgfx::UniformHandle uniform;

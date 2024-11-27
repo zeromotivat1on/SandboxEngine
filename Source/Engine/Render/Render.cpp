@@ -2,12 +2,12 @@
 #include "Engine/Render/Render.h"
 #include "Engine/Render/Vertex.h"
 #include "Engine/UI/ImguiBgfx.h"
-#include "Engine/Components/CameraComponent.h"
-#include "Engine/Components/MeshComponent.h"
-#include "Engine/Components/TransformComponent.h"
+#include "Engine/Components/Camera.h"
+#include "Engine/Components/Mesh.h"
+#include "Engine/Components/Transform.h"
 #include <bgfx/bgfx.h>
 
-void render_init(Render* r, Window* win, CameraComponent* cam, bool vsync)
+void render_init(Render* r, Window* win, Camera* cam, bool vsync)
 {
     ASSERT(win);
     ASSERT(cam);
@@ -67,13 +67,13 @@ void render_reset(Render* r, u16 w, u16 h)
 
 void render_ecs_callback(ECS* ecs, Entity e)
 {
-    const auto* mesh = ecs_component_get_struct(ecs, e, MeshComponent);
+    const auto* mesh = ecs_component_get_struct(ecs, e, Mesh);
 
     if (mesh->rph.idx > 0)
     {
         bgfx::setState(BGFX_STATE_DEFAULT);
 
-        const auto* transform = ecs_component_get_struct(ecs, e, TransformComponent);
+        const auto* transform = ecs_component_get_struct(ecs, e, Transform);
         bgfx::setTransform(transform->mat4().ptr());
 
         bgfx::setVertexBuffer(0, mesh->vbh);
@@ -135,7 +135,7 @@ void render_draw(Render* r, ECS* ecs, f32 dt)
     bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "ECS: entity count (%u / %u)", ecs->entity_count, ecs->max_entity_count);
 #endif
 
-    static const sid render_cts[] = { SID("MeshComponent") };
+    static const sid render_cts[] = { SID("Mesh") };
     ecs_entity_iterate(ecs, render_cts, ARRAY_COUNT(render_cts), render_ecs_callback);
     
     ImGui::ShowDemoWindow();
@@ -145,7 +145,7 @@ void render_draw(Render* r, ECS* ecs, f32 dt)
 
         if (ImGui::TreeNode("Player"))
         {
-            auto* transform = ecs_component_get_struct(ecs, 0, TransformComponent);
+            auto* transform = ecs_component_get_struct(ecs, 0, Transform);
             ImGui::InputFloat3("Location", transform->location.ptr());
             ImGui::InputFloat4("Rotation", transform->rotation.ptr());
 

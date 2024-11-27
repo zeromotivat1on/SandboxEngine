@@ -6,7 +6,7 @@ enum CameraMode : u8
     CAMERA_ORTHOGRAPHIC
 };
 
-struct CameraComponent
+struct Camera
 {
     vec3    at;     // view point location
     vec3    up;     // vertical direction

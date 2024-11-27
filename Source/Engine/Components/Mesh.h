@@ -2,7 +2,7 @@
 
 #include <bgfx/bgfx.h>
 
-struct MeshComponent
+struct Mesh
 {
     bgfx::VertexBufferHandle    vbh;    // vertex buffer handle
     bgfx::IndexBufferHandle     ibh;    // index buffer handle

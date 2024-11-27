@@ -5,29 +5,29 @@
 
 // Temp test player and stuff.
 #include "Render/Vertex.h"
-#include "Components/TransformComponent.h"
-#include "Components/MovementComponent.h"
-#include "Components/CameraComponent.h"
-#include "Components/MeshComponent.h"
-#include "Components/MaterialComponent.h"
+#include "Components/Transform.h"
+#include "Components/Velocity.h"
+#include "Components/Camera.h"
+#include "Components/Mesh.h"
+#include "Components/Material.h"
 
 f32 g_dt = 0.0f;
 
 Entity test_player_init(ECS* ecs, Window* win)
 {
 	Entity player = ecs_entity_new(ecs);
-    ecs_component_add_struct(ecs, player, TransformComponent);
-    ecs_component_add_struct(ecs, player, CameraComponent);
-    ecs_component_add_struct(ecs, player, MovementComponent);
+    ecs_component_add_struct(ecs, player, Transform);
+    ecs_component_add_struct(ecs, player, Camera);
+    ecs_component_add_struct(ecs, player, Velocity);
     
-	auto* transform = ecs_component_get_struct(ecs, player, TransformComponent);
+	auto* transform = ecs_component_get_struct(ecs, player, Transform);
     *transform = transform_identity();
 	transform->location = vec3(0.0f, 0.0f, -50.0f);
 
 	vec4 ortho;
     window_ortho_center(win, ortho.ptr());
         
-	auto* camera = ecs_component_get_struct(ecs, player, CameraComponent);
+	auto* camera = ecs_component_get_struct(ecs, player, Camera);
     camera->mode = CAMERA_PERSPECTIVE;
 	camera->eye = transform->location;
 	camera->at = vec3(0.0f);
@@ -43,8 +43,8 @@ Entity test_player_init(ECS* ecs, Window* win)
 	camera->clip_bottom	= ortho[2];
 	camera->clip_top = ortho[3];
 
-	auto* movement = ecs_component_get_struct(ecs, player, MovementComponent);
-	movement->velocity = vec3(0.0f);
+	auto* velocity = ecs_component_get_struct(ecs, player, Velocity);
+	velocity->vec = vec3(0.0f);
 
 	return player;
 }
@@ -68,15 +68,15 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
     {
         msg_log("Centering on given cube entity (%u)", cube);
 
-        auto* player_transform = ecs_component_get_struct(ecs, player, TransformComponent);
-        auto* cube_transform = ecs_component_get_struct(ecs, cube, TransformComponent);
+        auto* player_transform = ecs_component_get_struct(ecs, player, Transform);
+        auto* cube_transform = ecs_component_get_struct(ecs, cube, Transform);
 
         player_transform->location = cube_transform->location;
     }
 
     if (key_pressed(win, KEY_C))
     {
-        auto* player_camera = ecs_component_get_struct(ecs, player, CameraComponent);
+        auto* player_camera = ecs_component_get_struct(ecs, player, Camera);
         if (player_camera->mode == CAMERA_PERSPECTIVE)
         {
             player_camera->mode = CAMERA_ORTHOGRAPHIC;
@@ -130,8 +130,8 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
 	camera_speed_scale += gdl::sign(mouse_axis(win, MOUSE_SCROLL_Y)) * 0.2f;
 	camera_speed_scale  = gdl::clamp(camera_speed_scale, 0.1f, 10.0f);
 
-	auto* movement = ecs_component_get_struct(ecs, player, MovementComponent);
-	auto* camera = ecs_component_get_struct(ecs, player, CameraComponent);
+	auto* velocity = ecs_component_get_struct(ecs, player, Velocity);
+	auto* camera = ecs_component_get_struct(ecs, player, Camera);
 
 	const f32 mouse_sensitivity = 0.1f; // todo: mb make separate component for inputs
 	const f32 pitch_limit = 89.0f;
@@ -203,7 +203,7 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
 		input_velocity.z -= move_speed * dt;
 	}
 
-	movement->velocity =
+	velocity->vec =
 		input_velocity.x * camera->forward() +
 		input_velocity.y * camera->right()	 +
 		input_velocity.z * camera->up;
@@ -211,16 +211,16 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
 
 void ecs_move_callback(ECS* ecs, Entity e)
 {
-    auto* transform = ecs_component_get_struct(ecs, e, TransformComponent);
-    const auto* movement = ecs_component_get_struct(ecs, e, MovementComponent);
+    auto* transform = ecs_component_get_struct(ecs, e, Transform);
+    const auto* velocity = ecs_component_get_struct(ecs, e, Velocity);
 
-    transform->location += movement->velocity * g_dt;
+    transform->location += velocity->vec * g_dt;
 }
 
 void ecs_camera_callback(ECS* ecs, Entity e)
 {
-    const auto* transform = ecs_component_get_struct(ecs, e, TransformComponent);
-    auto* camera = ecs_component_get_struct(ecs, e, CameraComponent);
+    const auto* transform = ecs_component_get_struct(ecs, e, Transform);
+    auto* camera = ecs_component_get_struct(ecs, e, Camera);
 
     camera->eye = transform->location;
     camera->at = camera->eye + vec3_forward(camera->yaw, camera->pitch);
@@ -231,21 +231,21 @@ void ecs_test_tick(ECS* ecs, f32 dt)
     //SCOPE_TIMER(__FUNCTION__);
     
 #if 1
-    static const sid move_cts[] = { SID("TransformComponent"), SID("MovementComponent") };
+    static const sid move_cts[] = { SID("Transform"), SID("Velocity") };
     ecs_entity_iterate(ecs, move_cts, ARRAY_COUNT(move_cts), ecs_move_callback);
 
-    static const sid camera_cts[] = { SID("TransformComponent"), SID("CameraComponent") };
+    static const sid camera_cts[] = { SID("Transform"), SID("Camera") };
     ecs_entity_iterate(ecs, camera_cts, ARRAY_COUNT(camera_cts), ecs_camera_callback);
 #else
     for (Entity e = 0; e < ecs->max_entity_count; ++e)
     {
-        auto* transform = ecs_component_get_struct(ecs, e, TransformComponent);
-        auto* movement = ecs_component_get_struct(ecs, e, MovementComponent);
-        auto* camera = ecs_component_get_struct(ecs, e, CameraComponent);
+        auto* transform = ecs_component_get_struct(ecs, e, Transform);
+        auto* velocity = ecs_component_get_struct(ecs, e, Velocity);
+        auto* camera = ecs_component_get_struct(ecs, e, Camera);
 
-        if (!transform || !movement || !camera) continue;
+        if (!transform || !velocity || !camera) continue;
         
-        transform->location += movement->velocity * dt;
+        transform->location += velocity->vec * dt;
 
         camera->eye = transform->location;
         camera->at = camera->eye + vec3_forward(camera->yaw, camera->pitch);
@@ -295,12 +295,12 @@ Entity ecs_entity_new_debug_cube(ECS* ecs)
     static const auto cube_rph = file_program_load("base.vs.bin", "base.fs.bin");
 
     const Entity cube = ecs_entity_new(ecs);
-    ecs_component_add_struct(ecs, cube, TransformComponent);
-    ecs_component_add_struct(ecs, cube, MeshComponent);
+    ecs_component_add_struct(ecs, cube, Transform);
+    ecs_component_add_struct(ecs, cube, Mesh);
     
-    *ecs_component_get_struct(ecs, cube, TransformComponent) = transform_identity();
+    *ecs_component_get_struct(ecs, cube, Transform) = transform_identity();
 
-    auto* mesh = ecs_component_get_struct(ecs, cube, MeshComponent);
+    auto* mesh = ecs_component_get_struct(ecs, cube, Mesh);
     mesh->vbh = cube_vbh;
     mesh->ibh = cube_ibh;
     mesh->rph = cube_rph;
@@ -361,23 +361,23 @@ s32 EntryPoint()
     constexpr u32 k_max_component_types = 1024;
     ECS* ecs = arena_push_struct(&g_arena_persistent, ECS);
     ecs_init(ecs, &g_arena_transient, k_max_entities, k_max_component_types);
-    ecs_component_reg_struct(ecs, &g_arena_transient, TransformComponent);
-    ecs_component_reg_struct(ecs, &g_arena_transient, MovementComponent);
-    ecs_component_reg_struct(ecs, &g_arena_transient, CameraComponent);
-    ecs_component_reg_struct(ecs, &g_arena_transient, MeshComponent);
-    ecs_component_reg_struct(ecs, &g_arena_transient, MaterialComponent);
+    ecs_component_reg_struct(ecs, &g_arena_transient, Transform);
+    ecs_component_reg_struct(ecs, &g_arena_transient, Velocity);
+    ecs_component_reg_struct(ecs, &g_arena_transient, Camera);
+    ecs_component_reg_struct(ecs, &g_arena_transient, Mesh);
+    ecs_component_reg_struct(ecs, &g_arena_transient, Material);
     
     Entity player = test_player_init(ecs, win);
 
     Render* r = arena_push_struct(&g_arena_persistent, Render);
-    render_init(r, win, ecs_component_get_struct(ecs, player, CameraComponent), true);
+    render_init(r, win, ecs_component_get_struct(ecs, player, Camera), true);
 
 	// Create debug test cubes.
     Entity cube;
     for (s32 i = 0; i < 5; ++i)
     {
 		cube = ecs_entity_new_debug_cube(ecs);
-		(ecs_component_get_struct(ecs, cube, TransformComponent))->location.x += i * 10.0f;
+		(ecs_component_get_struct(ecs, cube, Transform))->location.x += i * 10.0f;
     }
 
     // Stress test non-renderable entities.
@@ -385,8 +385,8 @@ s32 EntryPoint()
     for (u32 i = 0; i < k_max_entities / 8; ++i)
     {
 		Entity test = ecs_entity_new(ecs);
-		ecs_component_add_struct(ecs, test, TransformComponent);
-		ecs_component_add_struct(ecs, test, MovementComponent);
+		ecs_component_add_struct(ecs, test, Transform);
+		ecs_component_add_struct(ecs, test, Velocity);
     }
 #endif
     
