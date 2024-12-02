@@ -5,10 +5,8 @@
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Components/Mesh.h"
+#include "Engine/Components/Material.h"
 #include <bgfx/bgfx.h>
-
-static bgfx::TextureHandle g_tex_handle;
-static bgfx::UniformHandle g_tex_uniform;
 
 void render_init(Render* r, Window* win, Camera* cam, bool vsync)
 {
@@ -47,10 +45,6 @@ void render_init(Render* r, Window* win, Camera* cam, bool vsync)
     msg_log("Using Graphics API (%s)", bgfx::getRendererName(bgfx::getRendererType()));
 
     ImguiBgfxCreate();
-
-    // Test texture
-    g_tex_uniform = bgfx::createUniform("s_tex_color", bgfx::UniformType::Sampler);
-    g_tex_handle = file_texture_load("bin/fieldstone-rgba.dds");
 }
 
 void render_terminate(Render* r)
@@ -82,6 +76,7 @@ void render_ecs_callback(ECS* ecs, Entity e)
                BGFX_STATE_WRITE_A |
                BGFX_STATE_WRITE_Z |
                BGFX_STATE_DEPTH_TEST_LESS |
+               BGFX_STATE_BLEND_ALPHA |
                BGFX_STATE_CULL_CW);
         
         const auto* transform = ecs_component_get_struct(ecs, e, Transform);
@@ -90,7 +85,10 @@ void render_ecs_callback(ECS* ecs, Entity e)
         bgfx::setVertexBuffer(0, mesh->vbh);
         bgfx::setIndexBuffer(mesh->ibh);
 
-        bgfx::setTexture(0, g_tex_uniform, g_tex_handle);
+        if (const auto* material = ecs_component_get_struct(ecs, e, Material))
+        {
+            bgfx::setTexture(0, material->uniform, material->texture);
+        }
         
         bgfx::submit(0, mesh->rph);
     }

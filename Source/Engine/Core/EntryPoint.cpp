@@ -259,7 +259,7 @@ void on_window_char(Window* win, u32 character)
     io.AddInputCharacter(character);
 }
 
-Entity ecs_entity_new_debug_cube(ECS* ecs)
+Entity ecs_entity_new_debug_cube(ECS* ecs, const char* vs, const char* fs)
 {
     static const Vertex cube_vertices[24] =
     {
@@ -312,7 +312,7 @@ Entity ecs_entity_new_debug_cube(ECS* ecs)
 
     static const auto cube_vbh = bgfx::createVertexBuffer(bgfx::makeRef(cube_vertices, sizeof(cube_vertices)), Vertex::layout);
     static const auto cube_ibh = bgfx::createIndexBuffer(bgfx::makeRef(cube_indices, sizeof(cube_indices)));
-    static const auto cube_rph = file_program_load("bin/base.vs.bin", "bin/base.fs.bin");
+    static const auto cube_rph = file_program_load(vs, fs);
 
     const Entity cube = ecs_entity_new(ecs);
     ecs_component_add_struct(ecs, cube, Transform);
@@ -328,7 +328,7 @@ Entity ecs_entity_new_debug_cube(ECS* ecs)
     return cube;
 }
 
-Entity ecs_entity_new_debug_quad(ECS* ecs)
+Entity ecs_entity_new_debug_quad(ECS* ecs, const char* vs, const char* fs)
 {
     static const Vertex quad_vertices[4] =
     {
@@ -347,7 +347,7 @@ Entity ecs_entity_new_debug_quad(ECS* ecs)
     static const auto quad_vbh = bgfx::createVertexBuffer(bgfx::makeRef(quad_vertices, sizeof(quad_vertices)), Vertex::layout);
     static const auto quad_ibh = bgfx::createIndexBuffer(bgfx::makeRef(quad_indices, sizeof(quad_indices)));
 
-    static const auto quad_rph = file_program_load("bin/base.vs.bin", "bin/base.fs.bin");
+    static const auto quad_rph = file_program_load(vs, fs);
 
     const Entity quad = ecs_entity_new(ecs);
     ecs_component_add_struct(ecs, quad, Transform);
@@ -414,6 +414,7 @@ s32 entry_point()
 
     constexpr u32 k_max_entities = 1024 * 1024;
     constexpr u32 k_max_component_types = 1024;
+    
     ECS* ecs = arena_push_struct(&g_arena_persistent, ECS);
     ecs_init(ecs, &g_arena_transient, k_max_entities, k_max_component_types);
     ecs_component_reg_struct(ecs, &g_arena_transient, Transform);
@@ -431,11 +432,15 @@ s32 entry_point()
     Entity cube;
     for (s32 i = 0; i < 5; ++i)
     {
-		cube = ecs_entity_new_debug_cube(ecs);
+		cube = ecs_entity_new_debug_cube(ecs, "bin/cube_color.vs.bin", "bin/cube_color.fs.bin");
 		(ecs_component_get_struct(ecs, cube, Transform))->location.x += i * 10.0f;
     }
 
-    const Entity quad = ecs_entity_new_debug_quad(ecs);
+    const Entity quad = ecs_entity_new_debug_quad(ecs, "bin/player.vs.bin", "bin/player.fs.bin");
+    ecs_component_add_struct(ecs, quad, Material);
+    auto* quad_mat = ecs_component_get_struct(ecs, quad, Material);
+    quad_mat->uniform = bgfx::createUniform("s_tex_color", bgfx::UniformType::Sampler);
+    quad_mat->texture = file_texture_load("bin/petscope_idle_down.dds");
 	(ecs_component_get_struct(ecs, quad, Transform))->location.z -= 5.0f;
     
     // Stress test non-renderable entities.
