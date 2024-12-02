@@ -2,5 +2,5 @@
 
 int main()
 {
-    return EntryPoint();
+    return entry_point();
 }

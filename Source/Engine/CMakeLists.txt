@@ -23,7 +23,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     ROOT_FOLDER_PATH="${PROJECT_SOURCE_DIR}"
     ASSET_FOLDER_PATH="${ASSET_DIR}"
     SHADER_FOLDER_PATH="${SHADER_DIR}"
-    SHADER_BINARY_FOLDER_PATH="${SHADER_BINARY_DIR}")
+    TEXTURE_FOLDER_PATH="${TEXTURE_DIR}")
 
 # Set custom binary output directory for different project configurations
 foreach(CONFIG_TYPE ${CMAKE_CONFIGURATION_TYPES})

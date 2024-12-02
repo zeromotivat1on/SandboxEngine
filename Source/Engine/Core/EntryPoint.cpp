@@ -22,7 +22,7 @@ Entity test_player_init(ECS* ecs, Window* win)
     
 	auto* transform = ecs_component_get_struct(ecs, player, Transform);
     *transform = transform_identity();
-	transform->location = vec3(0.0f, 0.0f, -50.0f);
+	transform->location = vec3(0.0f, 0.0f, -10.0f);
 
 	vec4 ortho;
     window_ortho_center(win, ortho.ptr());
@@ -259,40 +259,60 @@ void on_window_char(Window* win, u32 character)
     io.AddInputCharacter(character);
 }
 
-
 Entity ecs_entity_new_debug_cube(ECS* ecs)
 {
-    static const Vertex cube_vertices[8] =
+    static const Vertex cube_vertices[24] =
     {
-	    { vec3(-1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff000000 },
-	    { vec3( 1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff0000ff },
-	    { vec3(-1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff00ff00 },
-	    { vec3( 1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(0.0f), 0xff00ffff },
-	    { vec3(-1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffff0000 },
-	    { vec3( 1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffff00ff },
-	    { vec3(-1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffffff00 },
-	    { vec3( 1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(0.0f), 0xffffffff },
+        // Front face
+        { vec3(-1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(0.0f, 0.0f), 0xff000000 },
+        { vec3( 1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(1.0f, 0.0f), 0xff0000ff },
+        { vec3(-1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(0.0f, 1.0f), 0xff00ff00 },
+        { vec3( 1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(1.0f, 1.0f), 0xff00ffff },
+
+        // Back face
+        { vec3(-1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(0.0f, 0.0f), 0xffff0000 },
+        { vec3( 1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(1.0f, 0.0f), 0xffff00ff },
+        { vec3(-1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(0.0f, 1.0f), 0xffffff00 },
+        { vec3( 1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(1.0f, 1.0f), 0xffffffff },
+
+        // Left face
+        { vec3(-1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(0.0f, 0.0f), 0xff000000 },
+        { vec3(-1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(1.0f, 0.0f), 0xff0000ff },
+        { vec3(-1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(0.0f, 1.0f), 0xff00ff00 },
+        { vec3(-1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(1.0f, 1.0f), 0xff00ffff },
+
+        // Right face
+        { vec3( 1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(0.0f, 0.0f), 0xffff0000 },
+        { vec3( 1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(1.0f, 0.0f), 0xffff00ff },
+        { vec3( 1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(0.0f, 1.0f), 0xffffff00 },
+        { vec3( 1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(1.0f, 1.0f), 0xffffffff },
+
+        // Top face
+        { vec3(-1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(0.0f, 0.0f), 0xff000000 },
+        { vec3( 1.0f,  1.0f, -1.0f), vec3(1.0f), vec2(1.0f, 0.0f), 0xff0000ff },
+        { vec3(-1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(0.0f, 1.0f), 0xff00ff00 },
+        { vec3( 1.0f,  1.0f,  1.0f), vec3(1.0f), vec2(1.0f, 1.0f), 0xff00ffff },
+
+        // Bottom face
+        { vec3(-1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(0.0f, 0.0f), 0xffff0000 },
+        { vec3( 1.0f, -1.0f, -1.0f), vec3(1.0f), vec2(1.0f, 0.0f), 0xffff00ff },
+        { vec3(-1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(0.0f, 1.0f), 0xffffff00 },
+        { vec3( 1.0f, -1.0f,  1.0f), vec3(1.0f), vec2(1.0f, 1.0f), 0xffffffff },
     };
 
     static const u16 cube_indices[36] =
     {
-	    0, 1, 2,
-	    1, 3, 2,
-	    4, 6, 5,
-	    5, 6, 7,
-	    0, 2, 4,
-	    4, 2, 6,
-	    1, 5, 3,
-	    5, 7, 3,
-	    0, 4, 1,
-	    4, 5, 1,
-	    2, 3, 6,
-	    6, 3, 7,
+	    0,  2,  1,  1,  2,  3,
+	    4,  5,  6,  5,  7,  6,
+	    8,  10, 9,  9,  10, 11,
+	    12, 13, 14, 13, 15, 14,
+	    16, 18, 17, 17, 18, 19,
+	    20, 21, 22, 21, 23, 22,
     };
 
-    static const auto cube_vbh = bgfx::createVertexBuffer(bgfx::makeRef(cube_vertices, 8 * sizeof(Vertex)), Vertex::layout);
-    static const auto cube_ibh = bgfx::createIndexBuffer(bgfx::makeRef(cube_indices, 36 * sizeof(u32)));
-    static const auto cube_rph = file_program_load("base.vs.bin", "base.fs.bin");
+    static const auto cube_vbh = bgfx::createVertexBuffer(bgfx::makeRef(cube_vertices, sizeof(cube_vertices)), Vertex::layout);
+    static const auto cube_ibh = bgfx::createIndexBuffer(bgfx::makeRef(cube_indices, sizeof(cube_indices)));
+    static const auto cube_rph = file_program_load("bin/base.vs.bin", "bin/base.fs.bin");
 
     const Entity cube = ecs_entity_new(ecs);
     ecs_component_add_struct(ecs, cube, Transform);
@@ -308,7 +328,42 @@ Entity ecs_entity_new_debug_cube(ECS* ecs)
     return cube;
 }
 
-s32 EntryPoint()
+Entity ecs_entity_new_debug_quad(ECS* ecs)
+{
+    static const Vertex quad_vertices[4] =
+    {
+        { vec3(-1.0f,  1.0f, 0.0f), vec3(1.0f), vec2(0.0f, 0.0f), 0xffffffff },
+        { vec3( 1.0f,  1.0f, 0.0f), vec3(1.0f), vec2(1.0f, 0.0f), 0xffffffff },
+        { vec3(-1.0f, -1.0f, 0.0f), vec3(1.0f), vec2(0.0f, 1.0f), 0xffffffff },
+        { vec3( 1.0f, -1.0f, 0.0f), vec3(1.0f), vec2(1.0f, 1.0f), 0xffffffff },
+    };
+
+    static const u16 quad_indices[6] =
+    {
+        0, 1, 2,
+        1, 3, 2,
+    };
+
+    static const auto quad_vbh = bgfx::createVertexBuffer(bgfx::makeRef(quad_vertices, sizeof(quad_vertices)), Vertex::layout);
+    static const auto quad_ibh = bgfx::createIndexBuffer(bgfx::makeRef(quad_indices, sizeof(quad_indices)));
+
+    static const auto quad_rph = file_program_load("bin/base.vs.bin", "bin/base.fs.bin");
+
+    const Entity quad = ecs_entity_new(ecs);
+    ecs_component_add_struct(ecs, quad, Transform);
+    ecs_component_add_struct(ecs, quad, Mesh);
+
+    *ecs_component_get_struct(ecs, quad, Transform) = transform_identity();
+
+    auto* mesh = ecs_component_get_struct(ecs, quad, Mesh);
+    mesh->vbh = quad_vbh;
+    mesh->ibh = quad_ibh;
+    mesh->rph = quad_rph;
+
+    return quad;
+}
+
+s32 entry_point()
 {
     constexpr u64 k_virt_space_size = GB(8);
     constexpr u64 k_arena_persistent_size = MB(16);
@@ -380,6 +435,9 @@ s32 EntryPoint()
 		(ecs_component_get_struct(ecs, cube, Transform))->location.x += i * 10.0f;
     }
 
+    const Entity quad = ecs_entity_new_debug_quad(ecs);
+	(ecs_component_get_struct(ecs, quad, Transform))->location.z -= 5.0f;
+    
     // Stress test non-renderable entities.
 #if 0
     for (u32 i = 0; i < k_max_entities / 8; ++i)

@@ -1,3 +1,3 @@
 #pragma once
 
-s32 EntryPoint();
+s32 entry_point();

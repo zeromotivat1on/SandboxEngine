@@ -9,7 +9,7 @@ option(COMPILE_SHADERS "Compile shaders during build" ON)
 
 set(ASSET_DIR "${PROJECT_SOURCE_DIR}/Assets")
 set(SHADER_DIR "${ASSET_DIR}/Shaders")
-set(SHADER_BINARY_DIR "${SHADER_DIR}/Bin")
+set(TEXTURE_DIR "${ASSET_DIR}/Textures")
 set(SOURCE_DIR "${PROJECT_SOURCE_DIR}/Source")
 set(VENDOR_DIR "${SOURCE_DIR}/Vendor")
 set(ENGINE_DIR "${SOURCE_DIR}/Engine")
