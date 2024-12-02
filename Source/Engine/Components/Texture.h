@@ -2,8 +2,8 @@
 
 #include <bgfx/bgfx.h>
 
-struct Material
+struct Texture
 {
-    bgfx::TextureHandle texture;
+    bgfx::TextureHandle handle;
     bgfx::UniformHandle uniform;
 };

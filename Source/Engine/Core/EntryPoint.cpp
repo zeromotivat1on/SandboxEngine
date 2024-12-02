@@ -9,7 +9,7 @@
 #include "Components/Velocity.h"
 #include "Components/Camera.h"
 #include "Components/Mesh.h"
-#include "Components/Material.h"
+#include "Components/Texture.h"
 
 f32 g_dt = 0.0f;
 
@@ -421,7 +421,7 @@ s32 entry_point()
     ecs_component_reg_struct(ecs, &g_arena_transient, Velocity);
     ecs_component_reg_struct(ecs, &g_arena_transient, Camera);
     ecs_component_reg_struct(ecs, &g_arena_transient, Mesh);
-    ecs_component_reg_struct(ecs, &g_arena_transient, Material);
+    ecs_component_reg_struct(ecs, &g_arena_transient, Texture);
     
     Entity player = test_player_init(ecs, win);
 
@@ -437,10 +437,10 @@ s32 entry_point()
     }
 
     const Entity quad = ecs_entity_new_debug_quad(ecs, "bin/player.vs.bin", "bin/player.fs.bin");
-    ecs_component_add_struct(ecs, quad, Material);
-    auto* quad_mat = ecs_component_get_struct(ecs, quad, Material);
+    ecs_component_add_struct(ecs, quad, Texture);
+    auto* quad_mat = ecs_component_get_struct(ecs, quad, Texture);
     quad_mat->uniform = bgfx::createUniform("s_tex_color", bgfx::UniformType::Sampler);
-    quad_mat->texture = file_texture_load("bin/petscope_idle_down.dds");
+    quad_mat->handle = file_texture_load("bin/petscope_idle_down.dds");
 	(ecs_component_get_struct(ecs, quad, Transform))->location.z -= 5.0f;
     
     // Stress test non-renderable entities.

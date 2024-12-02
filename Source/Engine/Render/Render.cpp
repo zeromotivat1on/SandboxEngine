@@ -5,7 +5,7 @@
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Components/Mesh.h"
-#include "Engine/Components/Material.h"
+#include "Engine/Components/Texture.h"
 #include <bgfx/bgfx.h>
 
 void render_init(Render* r, Window* win, Camera* cam, bool vsync)
@@ -85,9 +85,9 @@ void render_ecs_callback(ECS* ecs, Entity e)
         bgfx::setVertexBuffer(0, mesh->vbh);
         bgfx::setIndexBuffer(mesh->ibh);
 
-        if (const auto* material = ecs_component_get_struct(ecs, e, Material))
+        if (const auto* texture = ecs_component_get_struct(ecs, e, Texture))
         {
-            bgfx::setTexture(0, material->uniform, material->texture);
+            bgfx::setTexture(0, texture->uniform, texture->handle);
         }
         
         bgfx::submit(0, mesh->rph);
