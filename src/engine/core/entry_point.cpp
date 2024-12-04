@@ -243,27 +243,11 @@ void test_tick_entities(Ecs* ecs, f32 dt)
 {
     //SCOPE_TIMER(__FUNCTION__);
     
-#if 1
     static const sid move_cts[] = { SID("Transform"), SID("Velocity") };
     iterate_entities(ecs, move_cts, ARRAY_COUNT(move_cts), move_callback);
 
     static const sid camera_cts[] = { SID("Transform"), SID("Camera") };
     iterate_entities(ecs, camera_cts, ARRAY_COUNT(camera_cts), camera_callback);
-#else
-    for (Entity e = 0; e < ecs->max_entity_count; ++e)
-    {
-        auto* transform = get_component_struct(ecs, e, Transform);
-        auto* velocity = get_component_struct(ecs, e, Velocity);
-        auto* camera = get_component_struct(ecs, e, Camera);
-
-        if (!transform || !velocity || !camera) continue;
-        
-        transform->location += velocity->vec * dt;
-
-        camera->eye = transform->location;
-        camera->at = camera->eye + vec3_forward(camera->yaw, camera->pitch);
-    }
-#endif
 }
 
 void on_window_char(Window* win, u32 character)
