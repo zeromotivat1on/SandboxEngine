@@ -1,5 +1,5 @@
 @echo off
-set "build_dir=Build"
+set "build_dir=build"
 
 REM Check if the directory exists
 if not exist "%build_dir%" (
