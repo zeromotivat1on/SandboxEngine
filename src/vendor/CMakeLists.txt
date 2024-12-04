@@ -13,10 +13,6 @@ file(GLOB IMGUI_CORE_SOURCE CONFIGURE_DEPENDS
     "${VENDOR_DIR}/imgui/*.h"
     "${VENDOR_DIR}/imgui/*.cpp")
 
-set(IMGUI_BACKEND_SOURCE
-    "${VENDOR_DIR}/imgui/backends/imgui_impl_glfw.h"
-    "${VENDOR_DIR}/imgui/backends/imgui_impl_glfw.cpp")
-
 add_library(imgui STATIC ${IMGUI_CORE_SOURCE} ${IMGUI_BACKEND_SOURCE})
 target_include_directories(imgui PRIVATE "${VENDOR_DIR}/imgui")
 target_include_directories(imgui PRIVATE "${VENDOR_DIR}/glfw/include")

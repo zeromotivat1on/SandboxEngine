@@ -216,7 +216,7 @@ void test_player_tick(Ecs* ecs, Entity player, Entity cube, Window* win, f32 dt)
 		input_velocity.z * camera->up;
 }
 
-void ecs_move_callback(Ecs* ecs, Entity e)
+void move_callback(Ecs* ecs, Entity e)
 {
     auto* transform = get_component_struct(ecs, e, Transform);
     const auto* velocity = get_component_struct(ecs, e, Velocity);
@@ -224,7 +224,7 @@ void ecs_move_callback(Ecs* ecs, Entity e)
     transform->location += velocity->vec * g_dt;
 }
 
-void ecs_camera_callback(Ecs* ecs, Entity e)
+void camera_callback(Ecs* ecs, Entity e)
 {
     auto* camera = get_component_struct(ecs, e, Camera);
     const auto* transform = get_component_struct(ecs, e, Transform);
@@ -239,16 +239,16 @@ void ecs_camera_callback(Ecs* ecs, Entity e)
     camera->at = camera->eye + vec3_forward(camera->yaw, camera->pitch);
 }
 
-void ecs_test_tick(Ecs* ecs, f32 dt)
+void test_tick_entities(Ecs* ecs, f32 dt)
 {
     //SCOPE_TIMER(__FUNCTION__);
     
 #if 1
     static const sid move_cts[] = { SID("Transform"), SID("Velocity") };
-    iterate_entities(ecs, move_cts, ARRAY_COUNT(move_cts), ecs_move_callback);
+    iterate_entities(ecs, move_cts, ARRAY_COUNT(move_cts), move_callback);
 
     static const sid camera_cts[] = { SID("Transform"), SID("Camera") };
-    iterate_entities(ecs, camera_cts, ARRAY_COUNT(camera_cts), ecs_camera_callback);
+    iterate_entities(ecs, camera_cts, ARRAY_COUNT(camera_cts), camera_callback);
 #else
     for (Entity e = 0; e < ecs->max_entity_count; ++e)
     {
@@ -428,8 +428,8 @@ s32 entry_point()
         return -1;
     }
 
-    constexpr u32 k_max_entities = 1024 * 1024;
-    constexpr u32 k_max_component_types = 1024;
+    constexpr u32 k_max_entities = 1024;
+    constexpr u32 k_max_component_types = 32;
     
     Ecs* ecs = arena_push_struct(&g_arena_persistent, Ecs);
     init_ecs(ecs, &g_arena_transient, k_max_entities, k_max_component_types);
@@ -488,7 +488,7 @@ s32 entry_point()
 
         update_window(win);
         test_player_tick(ecs, player, cube, win, dt);
-        ecs_test_tick(ecs, dt);
+        test_tick_entities(ecs, dt);
         draw_entities_and_ui(r, ecs, dt);
 
 		const u64 end_counter = performance_counter();
