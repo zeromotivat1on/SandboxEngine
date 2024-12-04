@@ -1,14 +1,14 @@
 #include "pch.h"
-#include "Engine/Render/Render.h"
-#include "Engine/Render/Vertex.h"
-#include "Engine/UI/ImguiBgfx.h"
-#include "Engine/Components/Camera.h"
-#include "Engine/Components/Transform.h"
-#include "Engine/Components/Mesh.h"
-#include "Engine/Components/Texture.h"
+#include "render/render.h"
+#include "render/vertex.h"
+#include "ui/imgui_bgfx.h"
+#include "components/camera.h"
+#include "components/transform.h"
+#include "components/mesh.h"
+#include "components/texture.h"
 #include <bgfx/bgfx.h>
 
-void render_init(Render* r, Window* win, Camera* cam, bool vsync)
+void init_render(Render* r, Window* win, Camera* cam, bool vsync)
 {
     ASSERT(win);
     ASSERT(cam);
@@ -47,14 +47,14 @@ void render_init(Render* r, Window* win, Camera* cam, bool vsync)
     ImguiBgfxCreate();
 }
 
-void render_terminate(Render* r)
+void terminate_render(Render* r)
 {
     memset(r, 0, sizeof(Render));
     ImguiBgfxDestroy();
     bgfx::shutdown();
 }
 
-void render_reset(Render* r, u16 w, u16 h)
+void reset_render(Render* r, u16 w, u16 h)
 {
     u32 flags = 0;
 
@@ -66,26 +66,25 @@ void render_reset(Render* r, u16 w, u16 h)
     bgfx::reset(w, h, flags);
 }
 
-void render_ecs_callback(ECS* ecs, Entity e)
+void render_ecs_callback(Ecs* ecs, Entity e)
 {
-    const auto* mesh = ecs_component_get_struct(ecs, e, Mesh);
+    const auto* mesh = get_component_struct(ecs, e, Mesh);
+    const auto* transform = get_component_struct(ecs, e, Transform);
 
     if (mesh->rph.idx > 0)
     {
         bgfx::setState(BGFX_STATE_WRITE_RGB |
-               BGFX_STATE_WRITE_A |
-               BGFX_STATE_WRITE_Z |
-               BGFX_STATE_DEPTH_TEST_LESS |
-               BGFX_STATE_BLEND_ALPHA |
-               BGFX_STATE_CULL_CW);
+                       BGFX_STATE_WRITE_A |
+                       BGFX_STATE_WRITE_Z |
+                       BGFX_STATE_DEPTH_TEST_LESS |
+                       BGFX_STATE_BLEND_ALPHA |
+                       BGFX_STATE_CULL_CW);
         
-        const auto* transform = ecs_component_get_struct(ecs, e, Transform);
         bgfx::setTransform(transform->mat4().ptr());
-
         bgfx::setVertexBuffer(0, mesh->vbh);
         bgfx::setIndexBuffer(mesh->ibh);
 
-        if (const auto* texture = ecs_component_get_struct(ecs, e, Texture))
+        if (const auto* texture = get_component_struct(ecs, e, Texture))
         {
             bgfx::setTexture(0, texture->uniform, texture->handle);
         }
@@ -94,7 +93,7 @@ void render_ecs_callback(ECS* ecs, Entity e)
     }
 }
 
-void render_draw(Render* r, ECS* ecs, f32 dt)
+void draw_entities_and_ui(Render* r, Ecs* ecs, f32 dt)
 {
     u16 winw, winh;
     window_size_inner(r->window, &winw, &winh);
@@ -147,8 +146,8 @@ void render_draw(Render* r, ECS* ecs, f32 dt)
     bgfx::dbgTextPrintf(1, debug_text_y++, 0x0f, "ECS: entity count (%u / %u)", ecs->entity_count, ecs->max_entity_count);
 #endif
 
-    static const sid render_cts[] = { SID("Mesh") };
-    ecs_entity_iterate(ecs, render_cts, ARRAY_COUNT(render_cts), render_ecs_callback);
+    static const sid render_cts[] = { SID("Transform"), SID("Mesh") };
+    iterate_entities(ecs, render_cts, ARRAY_COUNT(render_cts), render_ecs_callback);
 
     ImGui::ShowDemoWindow();
 
@@ -157,7 +156,7 @@ void render_draw(Render* r, ECS* ecs, f32 dt)
 
         if (ImGui::TreeNode("Player"))
         {
-            auto* transform = ecs_component_get_struct(ecs, 0, Transform);
+            auto* transform = get_component_struct(ecs, 0, Transform);
             ImGui::InputFloat3("Location", transform->location.ptr());
             ImGui::InputFloat4("Rotation", transform->rotation.ptr());
 

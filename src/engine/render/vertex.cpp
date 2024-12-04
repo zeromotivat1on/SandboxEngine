@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "Engine/Render/Vertex.h"
+#include "render/vertex.h"
 
 bgfx::VertexLayout Vertex::layout;
 

@@ -3,7 +3,7 @@
  * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
-#include "ImguiBgfx.h"
+#include "imgui_bgfx.h"
 
 #include <bgfx/bgfx.h>
 #include <bgfx/embedded_shader.h>

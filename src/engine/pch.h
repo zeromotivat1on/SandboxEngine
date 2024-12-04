@@ -16,9 +16,8 @@
 #include <gdl.h>
 
 // Core
-#include "Engine/Core/Delegate.h"
-#include "Engine/Core/File.h"
-#include "Engine/Core/Profile.h"
+#include "core/file.h"
+#include "core/profile.h"
 
 // Memory
 inline void* g_virt_space;

@@ -1,33 +1,40 @@
 #include "pch.h"
-#include "Engine/Core/EntryPoint.h"
-#include "Engine/Render/Render.h"
+#include "core/entry_point.h"
+#include "render/render.h"
 #include <imgui/imgui.h>
 
 // Temp test player and stuff.
-#include "Render/Vertex.h"
-#include "Components/Transform.h"
-#include "Components/Velocity.h"
-#include "Components/Camera.h"
-#include "Components/Mesh.h"
-#include "Components/Texture.h"
+#include "render/vertex.h"
+#include "components/transform.h"
+#include "components/velocity.h"
+#include "components/camera.h"
+#include "components/mesh.h"
+#include "components/texture.h"
+#include "components/spring_arm.h"
 
 f32 g_dt = 0.0f;
 
-Entity test_player_init(ECS* ecs, Window* win)
+Entity test_player_init(Ecs* ecs, Window* win)
 {
-	Entity player = ecs_entity_new(ecs);
-    ecs_component_add_struct(ecs, player, Transform);
-    ecs_component_add_struct(ecs, player, Camera);
-    ecs_component_add_struct(ecs, player, Velocity);
+	Entity player = new_entity(ecs);
+    add_component_struct(ecs, player, Transform);
+    add_component_struct(ecs, player, Velocity);
+    add_component_struct(ecs, player, Camera);
+    add_component_struct(ecs, player, Spring_Arm);
+    add_component_struct(ecs, player, Mesh);
+    add_component_struct(ecs, player, Texture);
     
-	auto* transform = ecs_component_get_struct(ecs, player, Transform);
+	auto* transform = get_component_struct(ecs, player, Transform);
     *transform = transform_identity();
-	transform->location = vec3(0.0f, 0.0f, -10.0f);
+	transform->location = vec3(0.0f, 0.0f, 0.1f);
 
+	auto* velocity = get_component_struct(ecs, player, Velocity);
+	velocity->vec = vec3(0.0f);
+    
 	vec4 ortho;
     window_ortho_center(win, ortho.ptr());
         
-	auto* camera = ecs_component_get_struct(ecs, player, Camera);
+	auto* camera = get_component_struct(ecs, player, Camera);
     camera->mode = CAMERA_PERSPECTIVE;
 	camera->eye = transform->location;
 	camera->at = vec3(0.0f);
@@ -43,13 +50,13 @@ Entity test_player_init(ECS* ecs, Window* win)
 	camera->clip_bottom	= ortho[2];
 	camera->clip_top = ortho[3];
 
-	auto* velocity = ecs_component_get_struct(ecs, player, Velocity);
-	velocity->vec = vec3(0.0f);
-
+	auto* spring_arm = get_component_struct(ecs, player, Spring_Arm);
+    spring_arm->offset = vec3(0.0f, 0.0f, -10.0f);
+    
 	return player;
 }
 
-void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
+void test_player_tick(Ecs* ecs, Entity player, Entity cube, Window* win, f32 dt)
 {
     static bool cursor_show = false;
     static bool cursor_lock = true;
@@ -60,7 +67,7 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
 	if (key_pressed(win, KEY_ESCAPE))
     {
     	msg_log("Window manual close by key");
-    	window_close(win);
+    	close_window(win);
     	return;
     }
 
@@ -68,15 +75,15 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
     {
         msg_log("Centering on given cube entity (%u)", cube);
 
-        auto* player_transform = ecs_component_get_struct(ecs, player, Transform);
-        auto* cube_transform = ecs_component_get_struct(ecs, cube, Transform);
+        auto* player_transform = get_component_struct(ecs, player, Transform);
+        auto* cube_transform = get_component_struct(ecs, cube, Transform);
 
         player_transform->location = cube_transform->location;
     }
 
     if (key_pressed(win, KEY_C))
     {
-        auto* player_camera = ecs_component_get_struct(ecs, player, Camera);
+        auto* player_camera = get_component_struct(ecs, player, Camera);
         if (player_camera->mode == CAMERA_PERSPECTIVE)
         {
             player_camera->mode = CAMERA_ORTHOGRAPHIC;
@@ -89,49 +96,49 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
     
     if (key_pressed(win, KEY_1))
     {
-        ecs_entity_del(ecs, 1);
+        delete_entity(ecs, 1);
     }
     if (key_pressed(win, KEY_2))
     {
-        ecs_entity_del(ecs, 2);
+        delete_entity(ecs, 2);
     }
     if (key_pressed(win, KEY_3))
     {
-        ecs_entity_del(ecs, 3);
+        delete_entity(ecs, 3);
     }
 
     if (key_pressed(win, KEY_F1))
     {
-        window_cursor_show(win, cursor_show);
+        show_window_cursor(win, cursor_show);
         cursor_show = !cursor_show;
     }
     if (key_pressed(win, KEY_F2))
     {
-        window_cursor_lock(win, cursor_lock);
+        lock_window_cursor(win, cursor_lock);
         cursor_lock = !cursor_lock;
     }
     if (key_pressed(win, KEY_F3))
     {
-        window_cursor_constrain(win, cursor_constrain);
+        constrain_window_cursor(win, cursor_constrain);
         cursor_constrain = !cursor_constrain;
     }
 
     if (mouse_pressed(win, MOUSE_MIDDLE))
     {
-        window_cursor_show(win, false);
-        window_cursor_constrain(win, true);
+        show_window_cursor(win, false);
+        constrain_window_cursor(win, true);
     }
     else if (mouse_released(win, MOUSE_MIDDLE))
     {
-        window_cursor_show(win, true);
-        window_cursor_constrain(win, false);
+        show_window_cursor(win, true);
+        constrain_window_cursor(win, false);
     }
         
 	camera_speed_scale += gdl::sign(mouse_axis(win, MOUSE_SCROLL_Y)) * 0.2f;
 	camera_speed_scale  = gdl::clamp(camera_speed_scale, 0.1f, 10.0f);
 
-	auto* velocity = ecs_component_get_struct(ecs, player, Velocity);
-	auto* camera = ecs_component_get_struct(ecs, player, Camera);
+	auto* velocity = get_component_struct(ecs, player, Velocity);
+	auto* camera = get_component_struct(ecs, player, Camera);
 
 	const f32 mouse_sensitivity = 0.1f; // todo: mb make separate component for inputs
 	const f32 pitch_limit = 89.0f;
@@ -209,39 +216,45 @@ void test_player_tick(ECS* ecs, Entity player, Entity cube, Window* win, f32 dt)
 		input_velocity.z * camera->up;
 }
 
-void ecs_move_callback(ECS* ecs, Entity e)
+void ecs_move_callback(Ecs* ecs, Entity e)
 {
-    auto* transform = ecs_component_get_struct(ecs, e, Transform);
-    const auto* velocity = ecs_component_get_struct(ecs, e, Velocity);
+    auto* transform = get_component_struct(ecs, e, Transform);
+    const auto* velocity = get_component_struct(ecs, e, Velocity);
 
     transform->location += velocity->vec * g_dt;
 }
 
-void ecs_camera_callback(ECS* ecs, Entity e)
+void ecs_camera_callback(Ecs* ecs, Entity e)
 {
-    const auto* transform = ecs_component_get_struct(ecs, e, Transform);
-    auto* camera = ecs_component_get_struct(ecs, e, Camera);
-
+    auto* camera = get_component_struct(ecs, e, Camera);
+    const auto* transform = get_component_struct(ecs, e, Transform);
+    
     camera->eye = transform->location;
+
+    if (const auto* spring_arm = get_component_struct(ecs, e, Spring_Arm))
+    {
+        camera->eye += spring_arm->offset;
+    }
+
     camera->at = camera->eye + vec3_forward(camera->yaw, camera->pitch);
 }
 
-void ecs_test_tick(ECS* ecs, f32 dt)
+void ecs_test_tick(Ecs* ecs, f32 dt)
 {
     //SCOPE_TIMER(__FUNCTION__);
     
 #if 1
     static const sid move_cts[] = { SID("Transform"), SID("Velocity") };
-    ecs_entity_iterate(ecs, move_cts, ARRAY_COUNT(move_cts), ecs_move_callback);
+    iterate_entities(ecs, move_cts, ARRAY_COUNT(move_cts), ecs_move_callback);
 
     static const sid camera_cts[] = { SID("Transform"), SID("Camera") };
-    ecs_entity_iterate(ecs, camera_cts, ARRAY_COUNT(camera_cts), ecs_camera_callback);
+    iterate_entities(ecs, camera_cts, ARRAY_COUNT(camera_cts), ecs_camera_callback);
 #else
     for (Entity e = 0; e < ecs->max_entity_count; ++e)
     {
-        auto* transform = ecs_component_get_struct(ecs, e, Transform);
-        auto* velocity = ecs_component_get_struct(ecs, e, Velocity);
-        auto* camera = ecs_component_get_struct(ecs, e, Camera);
+        auto* transform = get_component_struct(ecs, e, Transform);
+        auto* velocity = get_component_struct(ecs, e, Velocity);
+        auto* camera = get_component_struct(ecs, e, Camera);
 
         if (!transform || !velocity || !camera) continue;
         
@@ -259,7 +272,7 @@ void on_window_char(Window* win, u32 character)
     io.AddInputCharacter(character);
 }
 
-Entity ecs_entity_new_debug_cube(ECS* ecs, const char* vs, const char* fs)
+Entity new_entity_debug_cube(Ecs* ecs, const char* vs, const char* fs)
 {
     static const Vertex cube_vertices[24] =
     {
@@ -312,15 +325,15 @@ Entity ecs_entity_new_debug_cube(ECS* ecs, const char* vs, const char* fs)
 
     static const auto cube_vbh = bgfx::createVertexBuffer(bgfx::makeRef(cube_vertices, sizeof(cube_vertices)), Vertex::layout);
     static const auto cube_ibh = bgfx::createIndexBuffer(bgfx::makeRef(cube_indices, sizeof(cube_indices)));
-    static const auto cube_rph = file_program_load(vs, fs);
+    static const auto cube_rph = load_program(vs, fs);
 
-    const Entity cube = ecs_entity_new(ecs);
-    ecs_component_add_struct(ecs, cube, Transform);
-    ecs_component_add_struct(ecs, cube, Mesh);
+    const Entity cube = new_entity(ecs);
+    add_component_struct(ecs, cube, Transform);
+    add_component_struct(ecs, cube, Mesh);
     
-    *ecs_component_get_struct(ecs, cube, Transform) = transform_identity();
+    *get_component_struct(ecs, cube, Transform) = transform_identity();
 
-    auto* mesh = ecs_component_get_struct(ecs, cube, Mesh);
+    auto* mesh = get_component_struct(ecs, cube, Mesh);
     mesh->vbh = cube_vbh;
     mesh->ibh = cube_ibh;
     mesh->rph = cube_rph;
@@ -328,7 +341,7 @@ Entity ecs_entity_new_debug_cube(ECS* ecs, const char* vs, const char* fs)
     return cube;
 }
 
-Entity ecs_entity_new_debug_quad(ECS* ecs, const char* vs, const char* fs)
+void mesh_quad(Mesh* mesh, const char* vs, const char* fs)
 {
     static const Vertex quad_vertices[4] =
     {
@@ -347,18 +360,21 @@ Entity ecs_entity_new_debug_quad(ECS* ecs, const char* vs, const char* fs)
     static const auto quad_vbh = bgfx::createVertexBuffer(bgfx::makeRef(quad_vertices, sizeof(quad_vertices)), Vertex::layout);
     static const auto quad_ibh = bgfx::createIndexBuffer(bgfx::makeRef(quad_indices, sizeof(quad_indices)));
 
-    static const auto quad_rph = file_program_load(vs, fs);
+    static const auto quad_rph = load_program(vs, fs);
 
-    const Entity quad = ecs_entity_new(ecs);
-    ecs_component_add_struct(ecs, quad, Transform);
-    ecs_component_add_struct(ecs, quad, Mesh);
-
-    *ecs_component_get_struct(ecs, quad, Transform) = transform_identity();
-
-    auto* mesh = ecs_component_get_struct(ecs, quad, Mesh);
     mesh->vbh = quad_vbh;
     mesh->ibh = quad_ibh;
     mesh->rph = quad_rph;
+}
+
+Entity new_entity_debug_quad(Ecs* ecs, const char* vs, const char* fs)
+{
+    const Entity quad = new_entity(ecs);
+    add_component_struct(ecs, quad, Transform);
+    add_component_struct(ecs, quad, Mesh);
+
+    *get_component_struct(ecs, quad, Transform) = transform_identity();
+    mesh_quad(get_component_struct(ecs, quad, Mesh), vs, fs);
 
     return quad;
 }
@@ -388,12 +404,12 @@ s32 entry_point()
 
     constexpr u32 k_sid_max_count = 2048;
     constexpr u32 k_sid_max_size = 64;
-    sid_init(&g_arena_transient, k_sid_max_count, k_sid_max_size);
+    init_sid(&g_arena_transient, k_sid_max_count, k_sid_max_size);
     
-    path_init();
-    input_tables_init();
+    init_path();
+    init_input_tables();
     
-    WindowInfo winfo = STRUCT_ZERO(WindowInfo);
+    Window_Info winfo = STRUCT_ZERO(Window_Info);
     winfo.title = "Sandbox Engine";
     winfo.width = 1280;
     winfo.height = 720;
@@ -401,10 +417,10 @@ s32 entry_point()
     winfo.y = 100;
     
     Window* win = (Window*)arena_push_zero(&g_arena_persistent, WINDOW_ALLOC_SIZE);
-    if (window_init(win, &winfo))
+    if (init_window(win, &winfo))
     {
-        window_show(win);
-        window_set_char_callback(win, on_window_char);
+        show_window(win);
+        set_window_char_callback(win, on_window_char);
     }
     else
     {
@@ -415,58 +431,68 @@ s32 entry_point()
     constexpr u32 k_max_entities = 1024 * 1024;
     constexpr u32 k_max_component_types = 1024;
     
-    ECS* ecs = arena_push_struct(&g_arena_persistent, ECS);
-    ecs_init(ecs, &g_arena_transient, k_max_entities, k_max_component_types);
-    ecs_component_reg_struct(ecs, &g_arena_transient, Transform);
-    ecs_component_reg_struct(ecs, &g_arena_transient, Velocity);
-    ecs_component_reg_struct(ecs, &g_arena_transient, Camera);
-    ecs_component_reg_struct(ecs, &g_arena_transient, Mesh);
-    ecs_component_reg_struct(ecs, &g_arena_transient, Texture);
+    Ecs* ecs = arena_push_struct(&g_arena_persistent, Ecs);
+    init_ecs(ecs, &g_arena_transient, k_max_entities, k_max_component_types);
+
+    register_component_struct(ecs, &g_arena_transient, Transform);
+    register_component_struct(ecs, &g_arena_transient, Velocity);
+    register_component_struct(ecs, &g_arena_transient, Camera);
+    register_component_struct(ecs, &g_arena_transient, Mesh);
+    register_component_struct(ecs, &g_arena_transient, Texture);
+    register_component_struct(ecs, &g_arena_transient, Spring_Arm);
     
     Entity player = test_player_init(ecs, win);
 
     Render* r = arena_push_struct(&g_arena_persistent, Render);
-    render_init(r, win, ecs_component_get_struct(ecs, player, Camera), true);
+    init_render(r, win, get_component_struct(ecs, player, Camera), true);
 
+    // Add player texture.
+    auto* texture = get_component_struct(ecs, player, Texture);
+    texture->uniform = bgfx::createUniform("s_tex_color", bgfx::UniformType::Sampler);
+    texture->handle = load_texture("bin/petscope_idle_down.dds");
+
+    // Add mesh quad to set texture on.
+    mesh_quad(get_component_struct(ecs, player, Mesh), "bin/player.vs.bin", "bin/player.fs.bin");
+
+    const Entity quad = new_entity_debug_quad(ecs, "bin/player.vs.bin", "bin/player.fs.bin");
+    add_component_struct(ecs, quad, Texture);
+    auto* quad_mat = get_component_struct(ecs, quad, Texture);
+    quad_mat->uniform = bgfx::createUniform("s_tex_color", bgfx::UniformType::Sampler);
+    quad_mat->handle = load_texture("bin/petscope_idle_down.dds");
+	(get_component_struct(ecs, quad, Transform))->location.z -= 5.0f;
+    
 	// Create debug test cubes.
     Entity cube;
     for (s32 i = 0; i < 5; ++i)
     {
-		cube = ecs_entity_new_debug_cube(ecs, "bin/cube_color.vs.bin", "bin/cube_color.fs.bin");
-		(ecs_component_get_struct(ecs, cube, Transform))->location.x += i * 10.0f;
+		cube = new_entity_debug_cube(ecs, "bin/cube_color.vs.bin", "bin/cube_color.fs.bin");
+		(get_component_struct(ecs, cube, Transform))->location.x += i * 10.0f;
     }
-
-    const Entity quad = ecs_entity_new_debug_quad(ecs, "bin/player.vs.bin", "bin/player.fs.bin");
-    ecs_component_add_struct(ecs, quad, Texture);
-    auto* quad_mat = ecs_component_get_struct(ecs, quad, Texture);
-    quad_mat->uniform = bgfx::createUniform("s_tex_color", bgfx::UniformType::Sampler);
-    quad_mat->handle = file_texture_load("bin/petscope_idle_down.dds");
-	(ecs_component_get_struct(ecs, quad, Transform))->location.z -= 5.0f;
     
     // Stress test non-renderable entities.
 #if 0
     for (u32 i = 0; i < k_max_entities / 8; ++i)
     {
-		Entity test = ecs_entity_new(ecs);
-		ecs_component_add_struct(ecs, test, Transform);
-		ecs_component_add_struct(ecs, test, Velocity);
+		Entity test = new_entity(ecs);
+		add_component_struct(ecs, test, Transform);
+		add_component_struct(ecs, test, Velocity);
     }
 #endif
     
     g_frame_counter = 0;
 	f32 dt = FPS(60);
-	u64 begin_counter = hp_counter();
-	while (window_active(win))
+	u64 begin_counter = performance_counter();
+	while (is_window_active(win))
 	{
         arena_clear(&g_arena_frame);
 
-        window_update(win);
+        update_window(win);
         test_player_tick(ecs, player, cube, win, dt);
         ecs_test_tick(ecs, dt);
-        render_draw(r, ecs, dt);
+        draw_entities_and_ui(r, ecs, dt);
 
-		const u64 end_counter = hp_counter();
-		g_dt = dt = (f32)(end_counter - begin_counter) / (f32)hp_frequency();
+		const u64 end_counter = performance_counter();
+		g_dt = dt = (f32)(end_counter - begin_counter) / (f32)performance_frequency();
 		begin_counter = end_counter;
 
 #ifdef BUILD_DEBUG
@@ -480,8 +506,8 @@ s32 entry_point()
         g_frame_counter++;
 	}
 
-	render_terminate(r);
-	window_destroy(win);
+	terminate_render(r);
+	destroy_window(win);
     vm_decommit(g_phys_heap, k_phys_heap_size);
     vm_release(g_virt_space);
 

@@ -1,12 +1,9 @@
-[submodule "Source/Vendor/glfw"]
-	path = Source/Vendor/glfw
-	url = https://github.com/glfw/glfw
-[submodule "Source/Vendor/bgfx"]
-	path = Source/Vendor/bgfx
+[submodule "src/vendor/bgfx"]
+	path = src/vendor/bgfx
 	url = https://github.com/bkaradzic/bgfx.cmake
-[submodule "Source/Vendor/imgui"]
-	path = Source/Vendor/imgui
+[submodule "src/vendor/imgui"]
+	path = src/vendor/imgui
 	url = https://github.com/ocornut/imgui
-[submodule "Source/Vendor/gdl"]
-	path = Source/Vendor/gdl
+[submodule "src/vendor/gdl"]
+	path = src/vendor/gdl
 	url = https://github.com/zeromotivat1on/gdl

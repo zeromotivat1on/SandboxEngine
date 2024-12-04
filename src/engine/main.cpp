@@ -1,4 +1,4 @@
-#include "Engine/Core/EntryPoint.h"
+#include "core/entry_point.h"
 
 int main()
 {

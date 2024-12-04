@@ -1,6 +1,3 @@
-# Add fastdelegate
-target_include_directories(${PROJECT_NAME} PRIVATE "${VENDOR_DIR}/fastdelegate/FastDelegate.h")
-
 # Add GDL
 add_subdirectory("${VENDOR_DIR}/gdl")
 target_link_libraries(${PROJECT_NAME} PRIVATE gdl)
@@ -30,7 +27,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
 # Compile shaders
 if(COMPILE_SHADERS)
     # temp shader compiler path
-    set(SHADER_COMPILER "${PROJECT_SOURCE_DIR}/Build/Source/Vendor/bgfx/cmake/bgfx/Debug/shaderc.exe")
+    set(SHADER_COMPILER "${PROJECT_SOURCE_DIR}/build/src/vendor/bgfx/cmake/bgfx/debug/shaderc.exe")
 
     function(compile_shader shader_name shader_type)
         set(input_file "${SHADER_DIR}/${shader_name}.sc")
