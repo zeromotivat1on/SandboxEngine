@@ -26,7 +26,7 @@ Entity test_player_init(Ecs* ecs, Window* win)
     
 	auto* transform = get_component_struct(ecs, player, Transform);
     *transform = transform_identity();
-	transform->location = vec3(0.0f, 0.0f, 0.1f);
+	transform->location = vec3(0.0f, 0.0f, 0.0f);
 
 	auto* velocity = get_component_struct(ecs, player, Velocity);
 	velocity->vec = vec3(0.0f);
@@ -37,7 +37,7 @@ Entity test_player_init(Ecs* ecs, Window* win)
 	auto* camera = get_component_struct(ecs, player, Camera);
     camera->mode = CAMERA_PERSPECTIVE;
 	camera->eye = transform->location;
-	camera->at = vec3(0.0f);
+	camera->at = vec3(1.0f);
 	camera->up = vec3(0.0f, 1.0f, 0.0f);
 	camera->yaw = 0.0f;
 	camera->pitch = 0.0f;
@@ -51,78 +51,83 @@ Entity test_player_init(Ecs* ecs, Window* win)
 	camera->clip_top = ortho[3];
 
 	auto* spring_arm = get_component_struct(ecs, player, Spring_Arm);
-    spring_arm->offset = vec3(0.0f, 0.0f, -10.0f);
+    spring_arm->offset = vec3(-10.0f, 0.0f, 0.0f);
     
 	return player;
 }
 
 void test_player_tick(Ecs* ecs, Entity player, Entity cube, Window* win, f32 dt)
 {
-    static bool cursor_show = false;
-    static bool cursor_lock = true;
-    static bool cursor_constrain = true;
+    static bool cursor_show = (window_cursor_flags(win) & CURSOR_VISIBLE);
+    static bool cursor_lock = !(window_cursor_flags(win) & CURSOR_LOCKED);
+    static bool cursor_constrain = !(window_cursor_flags(win) & CURSOR_CONSTRAINED);
     static f32 camera_speed_scale = 1.0f;
     static f32 ortho_scale = 1.0f;
-    
-	if (key_pressed(win, KEY_ESCAPE))
+
+    ImGuiIO& io = ImGui::GetIO();
+
+    if (!io.WantCaptureKeyboard)
     {
-    	msg_log("Window manual close by key");
-    	close_window(win);
-    	return;
-    }
-
-    if (key_pressed(win, KEY_F))
-    {
-        msg_log("Centering on given cube entity (%u)", cube);
-
-        auto* player_transform = get_component_struct(ecs, player, Transform);
-        auto* cube_transform = get_component_struct(ecs, cube, Transform);
-
-        player_transform->location = cube_transform->location;
-    }
-
-    if (key_pressed(win, KEY_C))
-    {
-        auto* player_camera = get_component_struct(ecs, player, Camera);
-        if (player_camera->mode == CAMERA_PERSPECTIVE)
+        if (key_pressed(win, KEY_ESCAPE))
         {
-            player_camera->mode = CAMERA_ORTHOGRAPHIC;
+    	    msg_log("Window manual close by key");
+    	    close_window(win);
+    	    return;
         }
-        else
+
+        if (key_pressed(win, KEY_F))
         {
-            player_camera->mode = CAMERA_PERSPECTIVE;
+            msg_log("Centering on given cube entity (%u)", cube);
+
+            auto* player_transform = get_component_struct(ecs, player, Transform);
+            auto* cube_transform = get_component_struct(ecs, cube, Transform);
+
+            player_transform->location = cube_transform->location;
+        }
+
+        if (key_pressed(win, KEY_C))
+        {
+            auto* player_camera = get_component_struct(ecs, player, Camera);
+            if (player_camera->mode == CAMERA_PERSPECTIVE)
+            {
+                player_camera->mode = CAMERA_ORTHOGRAPHIC;
+            }
+            else
+            {
+                player_camera->mode = CAMERA_PERSPECTIVE;
+            }
+        }
+        
+        if (key_pressed(win, KEY_1))
+        {
+            delete_entity(ecs, 1);
+        }
+        if (key_pressed(win, KEY_2))
+        {
+            delete_entity(ecs, 2);
+        }
+        if (key_pressed(win, KEY_3))
+        {
+            delete_entity(ecs, 3);
+        }
+
+        if (key_pressed(win, KEY_F1))
+        {
+            show_window_cursor(win, cursor_show);
+            cursor_show = !cursor_show;
+        }
+        if (key_pressed(win, KEY_F2))
+        {
+            lock_window_cursor(win, cursor_lock);
+            cursor_lock = !cursor_lock;
+        }
+        if (key_pressed(win, KEY_F3))
+        {
+            constrain_window_cursor(win, cursor_constrain);
+            cursor_constrain = !cursor_constrain;
         }
     }
-    
-    if (key_pressed(win, KEY_1))
-    {
-        delete_entity(ecs, 1);
-    }
-    if (key_pressed(win, KEY_2))
-    {
-        delete_entity(ecs, 2);
-    }
-    if (key_pressed(win, KEY_3))
-    {
-        delete_entity(ecs, 3);
-    }
-
-    if (key_pressed(win, KEY_F1))
-    {
-        show_window_cursor(win, cursor_show);
-        cursor_show = !cursor_show;
-    }
-    if (key_pressed(win, KEY_F2))
-    {
-        lock_window_cursor(win, cursor_lock);
-        cursor_lock = !cursor_lock;
-    }
-    if (key_pressed(win, KEY_F3))
-    {
-        constrain_window_cursor(win, cursor_constrain);
-        cursor_constrain = !cursor_constrain;
-    }
-
+	
     if (mouse_pressed(win, MOUSE_MIDDLE))
     {
         show_window_cursor(win, false);
@@ -142,73 +147,82 @@ void test_player_tick(Ecs* ecs, Entity player, Entity cube, Window* win, f32 dt)
 
 	const f32 mouse_sensitivity = 0.1f; // todo: mb make separate component for inputs
 	const f32 pitch_limit = 89.0f;
-
-	camera->yaw   += mouse_axis(win, MOUSE_OFFSET_X) * mouse_sensitivity;
+    
+    camera->yaw   += mouse_axis(win, MOUSE_OFFSET_X) * mouse_sensitivity;
 	camera->pitch += mouse_axis(win, MOUSE_OFFSET_Y) * mouse_sensitivity;
 	camera->pitch  = gdl::clamp(camera->pitch, -pitch_limit, pitch_limit);
 
     const f32 move_speed = 3000.0f * camera_speed_scale;
 	vec3 input_velocity;
-
-	if (key_down(win, KEY_W))
-	{
-        if (camera->mode == CAMERA_PERSPECTIVE)
+    
+    if (!io.WantCaptureKeyboard)
+    {   
+        if (key_pressed(win, KEY_R))
+        {
+            camera->yaw = 0.0f;
+            camera->pitch = 0.0f;
+        }
+        
+	    if (key_down(win, KEY_W))
+	    {
+            if (camera->mode == CAMERA_PERSPECTIVE)
 		    input_velocity.x += move_speed * dt;
 
-        if (camera->mode == CAMERA_ORTHOGRAPHIC)
-        {
-            vec4 ortho;
-            window_ortho_center(win, ortho.ptr());
-    
-            ortho_scale -= 0.1f * dt;
-            ortho_scale = gdl::clamp(ortho_scale, 0.01f, 1.0f);
+            if (camera->mode == CAMERA_ORTHOGRAPHIC)
+            {
+                vec4 ortho;
+                window_ortho_center(win, ortho.ptr());
+                
+                ortho_scale -= 0.1f * dt;
+                ortho_scale = gdl::clamp(ortho_scale, 0.01f, 1.0f);
 
-	        camera->clip_left = ortho[0] * ortho_scale;
-	        camera->clip_right = ortho[1] * ortho_scale;
-	        camera->clip_bottom	= ortho[2] * ortho_scale;
-	        camera->clip_top = ortho[3] * ortho_scale;
-        }
-	}
+	            camera->clip_left = ortho[0] * ortho_scale;
+	            camera->clip_right = ortho[1] * ortho_scale;
+	            camera->clip_bottom	= ortho[2] * ortho_scale;
+	            camera->clip_top = ortho[3] * ortho_scale;
+            }
+	    }
 
-    if (key_down(win, KEY_S))
-	{
-        if (camera->mode == CAMERA_PERSPECTIVE)
+        if (key_down(win, KEY_S))
+	    {
+            if (camera->mode == CAMERA_PERSPECTIVE)
 		    input_velocity.x -= move_speed * dt;
 
-        if (camera->mode == CAMERA_ORTHOGRAPHIC)
-        {
-            vec4 ortho;
-            window_ortho_center(win, ortho.ptr());
-    
-            ortho_scale += 0.1f * dt;
-            ortho_scale = gdl::clamp(ortho_scale, 0.01f, 1.0f);
+            if (camera->mode == CAMERA_ORTHOGRAPHIC)
+            {
+                vec4 ortho;
+                window_ortho_center(win, ortho.ptr());
+                
+                ortho_scale += 0.1f * dt;
+                ortho_scale = gdl::clamp(ortho_scale, 0.01f, 1.0f);
 
-            camera->clip_left = ortho[0] * ortho_scale;
-	        camera->clip_right = ortho[1] * ortho_scale;
-	        camera->clip_bottom	= ortho[2] * ortho_scale;
-	        camera->clip_top = ortho[3] * ortho_scale;
-        }
-	}
+                camera->clip_left = ortho[0] * ortho_scale;
+	            camera->clip_right = ortho[1] * ortho_scale;
+	            camera->clip_bottom	= ortho[2] * ortho_scale;
+	            camera->clip_top = ortho[3] * ortho_scale;
+            }
+	    }
 
-    if (key_down(win, KEY_D))
-	{
-		input_velocity.y += move_speed * dt;
-	}
+        if (key_down(win, KEY_D))
+	    {
+		    input_velocity.y += move_speed * dt;
+	    }
 
-    if (key_down(win, KEY_A))
-	{
-		input_velocity.y -= move_speed * dt;
-	}
+        if (key_down(win, KEY_A))
+	    {
+		    input_velocity.y -= move_speed * dt;
+	    }
 
-    if (key_down(win, KEY_E))
-	{
-		input_velocity.z += move_speed * dt;
-	}
+        if (key_down(win, KEY_E))
+	    {
+		    input_velocity.z += move_speed * dt;
+	    }
 
-    if (key_down(win, KEY_Q))
-	{
-		input_velocity.z -= move_speed * dt;
-	}
+        if (key_down(win, KEY_Q))
+	    {
+		    input_velocity.z -= move_speed * dt;
+	    }
+    }
 
 	velocity->vec =
 		input_velocity.x * camera->forward() +
@@ -436,15 +450,19 @@ s32 entry_point()
     texture->handle = load_texture("bin/petscope_idle_down.dds");
 
     // Add mesh quad to set texture on.
-    mesh_quad(get_component_struct(ecs, player, Mesh), "bin/player.vs.bin", "bin/player.fs.bin");
+    auto* player_mesh = get_component_struct(ecs, player, Mesh);
+    mesh_quad(player_mesh, "bin/player.vs.bin", "bin/player.fs.bin");
 
+    auto* player_transform = get_component_struct(ecs, player, Transform);
+    player_transform->rotation *= quat_from_axis_angle(vec3(0.0f, 1.0f, 0.0f), 90.0f);
+    
     const Entity quad = new_entity_debug_quad(ecs, "bin/player.vs.bin", "bin/player.fs.bin");
     add_component_struct(ecs, quad, Texture);
-    auto* quad_mat = get_component_struct(ecs, quad, Texture);
-    quad_mat->uniform = bgfx::createUniform("s_tex_color", bgfx::UniformType::Sampler);
-    quad_mat->handle = load_texture("bin/petscope_idle_down.dds");
+    auto* quad_texture = get_component_struct(ecs, quad, Texture);
+    quad_texture->uniform = bgfx::createUniform("s_tex_color", bgfx::UniformType::Sampler);
+    quad_texture->handle = load_texture("bin/petscope_idle_down.dds");
 	(get_component_struct(ecs, quad, Transform))->location.z -= 5.0f;
-    
+
 	// Create debug test cubes.
     Entity cube;
     for (s32 i = 0; i < 5; ++i)
@@ -472,6 +490,21 @@ s32 entry_point()
 
         update_window(win);
         test_player_tick(ecs, player, cube, win, dt);
+
+        {
+            const f32 rotate_speed = 90.0f;
+            const vec3 rotation_axes = vec3(0.0f, 1.0f, 0.0f);
+            auto* quad_transform = get_component_struct(ecs, quad, Transform);
+            if (key_down(win, KEY_Z))
+            {
+                quad_transform->rotation *= quat_from_axis_angle(rotation_axes, rotate_speed * dt);
+            }
+            if (key_down(win, KEY_X))
+            {
+                quad_transform->rotation *= quat_from_axis_angle(rotation_axes, -rotate_speed * dt);
+            }
+        }
+    
         test_tick_entities(ecs, dt);
         draw_entities_and_ui(r, ecs, dt);
 

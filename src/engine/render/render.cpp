@@ -66,7 +66,7 @@ void reset_render(Render* r, u16 w, u16 h)
     bgfx::reset(w, h, flags);
 }
 
-void render_ecs_callback(Ecs* ecs, Entity e)
+void render_entity_callback(Ecs* ecs, Entity e)
 {
     const auto* mesh = get_component_struct(ecs, e, Mesh);
     const auto* transform = get_component_struct(ecs, e, Transform);
@@ -147,7 +147,7 @@ void draw_entities_and_ui(Render* r, Ecs* ecs, f32 dt)
 #endif
 
     static const sid render_cts[] = { SID("Transform"), SID("Mesh") };
-    iterate_entities(ecs, render_cts, ARRAY_COUNT(render_cts), render_ecs_callback);
+    iterate_entities(ecs, render_cts, ARRAY_COUNT(render_cts), render_entity_callback);
 
     ImGui::ShowDemoWindow();
 
@@ -162,7 +162,16 @@ void draw_entities_and_ui(Render* r, Ecs* ecs, f32 dt)
 
             ImGui::TreePop();
         }
-    
+
+        if (ImGui::TreeNode("Test Quad"))
+        {
+            auto* transform = get_component_struct(ecs, 1, Transform);
+            ImGui::InputFloat3("Location", transform->location.ptr());
+            ImGui::InputFloat4("Rotation", transform->rotation.ptr());
+
+            ImGui::TreePop();
+        }
+        
         ImGui::End();
     }
     
